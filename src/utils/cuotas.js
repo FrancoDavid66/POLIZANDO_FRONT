@@ -82,6 +82,22 @@ export function generarFechasCuotas(primerPago, cantidadCuotas) {
 }
 
 /* ═══════════════════════════════════════════════════════════════════
+   2.5 CUPONERA (AMCA / Antártida / La Equidad)
+   ───────────────────────────────────────────────────────────────────
+   En esas compañías, cada cupón trae IMPRESA su propia fecha de pago
+   (la de Rapipago / Pago Fácil). Por eso la cuota se evalúa por su
+   PROPIO fecha_vencimiento, no por el de la cuota anterior como el
+   resto de las compañías (que pagan por adelantado).
+
+   Movido acá desde CuotasPanel.jsx para que sea una sola fuente de
+   verdad — antes solo vivía ahí y el resto de la app no lo sabía.
+   ═══════════════════════════════════════════════════════════════════ */
+export function esCuponera(poliza) {
+  const c = `${poliza?.compania || ""} ${poliza?.compania_nombre || ""}`.toLowerCase();
+  return /amca|antartida|antártida|equidad|mutual/.test(c);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
    3. ESTADO DE UNA CUOTA
    ═══════════════════════════════════════════════════════════════════ */
 
@@ -114,16 +130,25 @@ export const ESTADO_CUOTA = {
  *
  * @param {object} cuota
  * @param {Array} [todasLasCuotas] - cuotas de la póliza (se ordenan por cuota_nro)
+ * @param {boolean} [usarPropio=false] - true para pólizas CUPONERA (ver esCuponera).
+ *   En ese caso se usa el vto PROPIO de la cuota directamente, sin mirar la
+ *   anterior — el cupón ya trae su fecha impresa. Default false preserva el
+ *   comportamiento de siempre para todo el resto de la app.
  * @returns {dayjs.Dayjs|null}
  */
-export function fechaLimitePago(cuota, todasLasCuotas = null) {
+export function fechaLimitePago(cuota, todasLasCuotas = null, usarPropio = false) {
+  const propioVto = cuota?.fecha_vencimiento ? dayjs(cuota.fecha_vencimiento).startOf("day") : null;
+
+  // 🎫 Cuponera: el cupón ya trae su propia fecha impresa. Punto, no hay
+  // "cuota anterior" que mirar — coincide exactamente con lo que hacía
+  // fechaObjetivo() en CuotasPanel.jsx antes de esta unificación.
+  if (usarPropio) return propioVto;
+
   // 1) Si el backend ya la mandó calculada por cuota, la usamos.
   if (cuota?.fecha_limite_pago) {
     const f = dayjs(cuota.fecha_limite_pago).startOf("day");
     if (f.isValid()) return f;
   }
-
-  const propioVto = cuota?.fecha_vencimiento ? dayjs(cuota.fecha_vencimiento).startOf("day") : null;
 
   // 2) Sin array de cuotas no podemos ver la anterior → usamos el vto propio.
   if (!Array.isArray(todasLasCuotas) || todasLasCuotas.length === 0) return propioVto;
@@ -158,12 +183,14 @@ export function fechaLimitePago(cuota, todasLasCuotas = null) {
  *   - vence_hoy: fecha límite de pago === hoy
  *   - por_vencer: fecha límite de pago > hoy
  *   - pendiente: no se pudo determinar una fecha válida
+ *
+ * @param {boolean} [usarPropio=false] - ver fechaLimitePago.
  */
-export function getEstadoCuota(cuota, todasLasCuotas = null) {
+export function getEstadoCuota(cuota, todasLasCuotas = null, usarPropio = false) {
   if (!cuota) return ESTADO_CUOTA.PENDIENTE;
   if (cuota.pagado) return ESTADO_CUOTA.PAGADA;
 
-  const v = fechaLimitePago(cuota, todasLasCuotas);
+  const v = fechaLimitePago(cuota, todasLasCuotas, usarPropio);
   if (!v || !v.isValid()) return ESTADO_CUOTA.PENDIENTE;
 
   const diff = v.diff(today(), "day");
@@ -175,9 +202,10 @@ export function getEstadoCuota(cuota, todasLasCuotas = null) {
 /**
  * Días hasta la FECHA LÍMITE DE PAGO (negativo si ya se pasó, 0 si es hoy).
  * Pasá `todasLasCuotas` para que use la fecha correcta (vto de la anterior).
+ * @param {boolean} [usarPropio=false] - ver fechaLimitePago.
  */
-export function diasHastaVencimiento(cuota, todasLasCuotas = null) {
-  const v = fechaLimitePago(cuota, todasLasCuotas);
+export function diasHastaVencimiento(cuota, todasLasCuotas = null, usarPropio = false) {
+  const v = fechaLimitePago(cuota, todasLasCuotas, usarPropio);
   if (!v || !v.isValid()) return null;
   return v.diff(today(), "day");
 }
@@ -281,17 +309,18 @@ export function calcCobertura(cuota, todasLasCuotas = [], idx = 0, polizaFechaEm
 
 /**
  * Calcula stats agregados de un array de cuotas.
+ * @param {boolean} [usarPropio=false] - ver fechaLimitePago (pólizas cuponera).
  */
-export function resumenCuotas(cuotas = []) {
+export function resumenCuotas(cuotas = [], usarPropio = false) {
   const rows = Array.isArray(cuotas) ? cuotas : [];
   const total = rows.length;
   const pagadas = rows.filter((c) => c?.pagado).length;
   const pendientes = rows.filter((c) => !c?.pagado).length;
   const vencidas = rows.filter(
-    (c) => !c?.pagado && getEstadoCuota(c, rows) === ESTADO_CUOTA.VENCIDA
+    (c) => !c?.pagado && getEstadoCuota(c, rows, usarPropio) === ESTADO_CUOTA.VENCIDA
   ).length;
   const venceHoy = rows.filter(
-    (c) => !c?.pagado && getEstadoCuota(c, rows) === ESTADO_CUOTA.VENCE_HOY
+    (c) => !c?.pagado && getEstadoCuota(c, rows, usarPropio) === ESTADO_CUOTA.VENCE_HOY
   ).length;
   const montoTotal = rows.reduce((acc, c) => {
     const m = Number(c?.monto || c?.importe || 0);

@@ -1,9 +1,13 @@
-// src/components/solicitudes/modalcreate/ClienteStep.jsx
-import { useMemo, useState, useEffect } from "react";
+// src/components/solicitudes/modalcreate/PolizaStep.jsx
+import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { HiIdentification, HiTrash, HiUpload, HiLocationMarker, HiUser } from "react-icons/hi";
+import axios from "axios";
+import toast from "react-hot-toast";
+import { HiPlus, HiCheck, HiX, HiShieldCheck, HiCheckCircle } from "react-icons/hi";
+
 import { useAuth } from "../../../context/AuthContext";
-import { PARTIDOS, fetchLocalidadesPorPartido } from "../../../data/baLocations";
+
+const API_BASE = (import.meta.env.VITE_API_URL || "/api").replace(/\/+$/, "");
 
 const sectionVariants = {
   initial: { opacity: 0, y: 20 },
@@ -17,49 +21,445 @@ const inputVariants = {
   tap: { scale: 0.98 },
 };
 
-/* ===================== UI bits locales ===================== */
-function Note({ children }) {
-  return <p className="mt-1.5 text-xs sm:text-[13px] text-white/50 italic font-medium">{children}</p>;
+const TIPOS_VEHICULO = ["Auto", "Camioneta", "Camion", "Moto", "Trailer"].map(
+  (x) => ({ id: x, nombre: x })
+);
+
+// 🚀 Opciones para los datos técnicos del vehículo
+const COMBUSTIBLES = ["Nafta", "Diésel", "GNC", "Nafta/GNC", "Eléctrico", "Híbrido"].map(
+  (x) => ({ id: x, nombre: x })
+);
+const CARROCERIAS = [
+  "Sedán", "Hatchback", "SUV", "Pick-up", "Familiar / Rural",
+  "Coupé", "Furgón", "Utilitario", "Moto", "Otro",
+].map((x) => ({ id: x, nombre: x }));
+
+function ymdLocal(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
 }
 
-function Input({
-  label,
-  value,
-  onChange,
-  type = "text",
-  placeholder = "",
-  helper = "",
-  className = "",
-  inputMode,
-  autoComplete,
-  autoCapitalize,
-  pattern,
-  required = false
+function parseYMDLocal(s) {
+  const [y, m, d] = String(s || "").split("-").map(Number);
+  if (!y || !m || !d) return null;
+  return new Date(y, m - 1, d, 12, 0, 0, 0);
+}
+
+function lastDayOfMonth(y, m0) {
+  return new Date(y, m0 + 1, 0).getDate();
+}
+
+function addMonthsLocal(ymd, months) {
+  const base = parseYMDLocal(ymd);
+  if (!base) return "";
+  const y = base.getFullYear();
+  const m0 = base.getMonth();
+  const d = base.getDate();
+  const tMon = m0 + months;
+  const y2 = y + Math.floor(tMon / 12);
+  const m2 = ((tMon % 12) + 12) % 12;
+  const maxDay = lastDayOfMonth(y2, m2);
+  const day2 = Math.min(d, maxDay);
+  return ymdLocal(new Date(y2, m2, day2, 12, 0, 0, 0));
+}
+
+// ymd (YYYY-MM-DD) -> DD/MM/YYYY para mostrar lindo el preview de cuotas
+function fmtFechaCorta(ymd) {
+  if (!ymd) return "\u2014";
+  const p = String(ymd).split("-");
+  if (p.length !== 3) return String(ymd);
+  return `${p[2]}/${p[1]}/${p[0]}`;
+}
+
+export default function PolizaStep({
+  poliza = {},
+  setPoliza = () => {},
+  companias = [],
+  coberturas = [],
+  oficinas = [],
+  setTocoCantidadCuotas,
+  cuotasPreview = [],
+  variants,
+  section = "all", // "all" | "compania" | "auto" | "fechas"
 }) {
+  const { user } = useAuth();
+  const isWebAdmin = user?.perfil?.rol === 'ADMIN' || user?.rol === 'ADMIN';
+  const showCompania = section === "all" || section === "compania";
+  const showAuto = section === "all" || section === "auto";
+  const showFechas = section === "all" || section === "fechas";
+
+  // 🆕 NRE opera SOLO cobertura "A": lo usamos para autocompletarla.
+  const esNRE = String(poliza?.compania || "").trim().toUpperCase().includes("NRE");
+
+  useEffect(() => {
+    if (!isWebAdmin && user?.perfil?.oficina) {
+      const userOficinaId = String(user.perfil.oficina.id || user.perfil.oficina);
+      if (poliza?.oficina !== userOficinaId) {
+        setPoliza((prev = {}) => ({
+          ...prev,
+          oficina: userOficinaId,
+        }));
+      }
+    }
+  }, [isWebAdmin, user, poliza?.oficina, setPoliza]);
+
+  useEffect(() => {
+    if (!poliza?.fecha_emision) {
+      setPoliza((prev = {}) => ({
+        ...prev,
+        fecha_emision: ymdLocal(new Date()),
+      }));
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!poliza?.fecha_emision) return;
+    const next = addMonthsLocal(poliza.fecha_emision, 1);
+    setPoliza((prev = {}) => ({ ...prev, primer_vencimiento: next }));
+  }, [poliza?.fecha_emision, setPoliza]);
+
+  // 🚀 FILTRO APLICADO AQUÍ
+  const coberturasFiltradas = useMemo(() => {
+    if (!poliza?.compania) return [];
+    const ciaSelected = String(poliza.compania).trim().toLowerCase();
+    
+    return coberturas.filter(c => 
+      String(c.compania).trim().toLowerCase() === ciaSelected || 
+      String(c.compania_nombre).trim().toLowerCase() === ciaSelected
+    );
+  }, [poliza?.compania, coberturas]);
+
+  // 🆕 NRE: cobertura SIEMPRE "A". La auto-seleccionamos de la lista ya filtrada
+  //    por compañía (aunque en el catálogo se llame "A - Resp. Civil"). Así el
+  //    operador no la elige a mano. La carrocería se deriva del tipo. Editables.
+  useEffect(() => {
+    if (!esNRE) return;
+    const norm = (s) => String(s || "").trim().toLowerCase();
+
+    // Cobertura: de la lista de NRE (ya filtrada). Preferimos la "A".
+    if (coberturasFiltradas.length) {
+      const nombres = coberturasFiltradas.map((c) => c.nombre);
+      const yaValida = poliza?.cobertura && nombres.includes(poliza.cobertura);
+      if (!yaValida) {
+        const esA = (n) => {
+          n = norm(n);
+          return n === "a" || n.startsWith("a ") || n.startsWith("a-") || n.startsWith("a (");
+        };
+        const aCat = coberturasFiltradas.find((c) => esA(c.nombre)) || coberturasFiltradas[0];
+        if (aCat && poliza?.cobertura !== aCat.nombre) {
+          setPoliza((prev = {}) => ({ ...prev, cobertura: aCat.nombre }));
+        }
+      }
+    }
+
+    // Carrocería (opcional): la derivamos del tipo si está vacía.
+    if (!poliza?.carroceria) {
+      const mapa = { camioneta: "Pick-up", moto: "Moto" };
+      const car = mapa[norm(poliza?.tipo)];
+      if (car) setPoliza((prev = {}) => ({ ...prev, carroceria: car }));
+    }
+  }, [esNRE, coberturasFiltradas, poliza?.tipo]); // eslint-disable-line
+
+  const coberturaObj = useMemo(() => {
+    if (!poliza?.cobertura) return null;
+    const selectedKey = String(poliza.cobertura).trim().toLowerCase();
+    
+    const found = coberturasFiltradas.find(c => 
+      String(c.id).trim().toLowerCase() === selectedKey || 
+      String(c.nombre).trim().toLowerCase() === selectedKey
+    );
+
+    if (found) {
+       let fotos = found.fotos_requeridas;
+       if (typeof fotos === 'string') { try { fotos = JSON.parse(fotos); } catch(e) { fotos = fotos.split(',').map(s=>s.trim()).filter(Boolean); } }
+       if (!Array.isArray(fotos)) fotos = [];
+
+       let docs = found.documentos_requeridos || found.documentos_requeridas;
+       if (typeof docs === 'string') { try { docs = JSON.parse(docs); } catch(e) { docs = docs.split(',').map(s=>s.trim()).filter(Boolean); } }
+       if (!Array.isArray(docs)) docs = [];
+
+       return { ...found, fotos_requeridas: fotos, documentos_requeridos: docs };
+    }
+    return null;
+  }, [poliza?.cobertura, coberturasFiltradas]);
+
+  const requisitos = useMemo(() => {
+    if (!coberturaObj) {
+      return {
+        title: "Seleccione una cobertura",
+        items: ["Elija la compañía y cobertura para ver los requisitos."],
+        note: "",
+        color: "from-slate-500/20 to-slate-400/20 text-slate-400",
+      };
+    }
+
+    const fotos = coberturaObj.fotos_requeridas || [];
+    const docs = coberturaObj.documentos_requeridos || [];
+    const hasRequisitos = fotos.length > 0 || docs.length > 0;
+
+    const items = [];
+    if (docs.length > 0) items.push(`Papeles: ${docs.join(', ')}`);
+    else items.push("Papeles: Sin requerimientos legales");
+
+    if (fotos.length > 0) items.push(`Inspección: ${fotos.length} fotos (${fotos.join(', ')})`);
+    else items.push("Inspección: Sin requerimiento fotográfico");
+
+    return {
+      title: `Requisitos para: ${coberturaObj.nombre}`,
+      items,
+      note: hasRequisitos 
+        ? "El sistema bloqueará la solicitud si no cargás esto en el próximo paso." 
+        : "Podrás avanzar de forma rápida en el paso de imágenes.",
+      color: hasRequisitos 
+        ? "from-brand-secondary/20 to-brand-secondary-light/20 text-brand-secondary-tint" 
+        : "from-brand-primary/20 to-brand-primary-deep/20 text-brand-primary-tint",
+    };
+  }, [coberturaObj]);
+
+  return (
+    <motion.div
+      key="poliza-step"
+      variants={
+        variants || {
+          hidden: { opacity: 0, y: 10 },
+          show: { opacity: 1, y: 0, transition: { duration: 0.18 } },
+          exit: { opacity: 0, y: -8, transition: { duration: 0.12 } },
+        }
+      }
+      initial="hidden" animate="show" exit="exit"
+      className="space-y-3"
+    >
+      <motion.fieldset
+        className="rounded-3xl border border-brand-200/10 bg-gradient-to-br from-brand-200/[0.06] to-brand-200/[0.02] p-4 sm:p-6 shadow-xl"
+        variants={sectionVariants} initial="initial" animate="animate"
+      >
+        <legend className="px-2 text-brand-200/50 text-[10px] uppercase font-bold tracking-widest">
+          {showCompania ? "Compañía y cobertura" : showAuto ? "Datos del vehículo" : "Fechas y vencimientos"}
+        </legend>
+
+        {showCompania && (
+        <>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-1">
+          
+          <SelectCreatable
+            label="Compañía"
+            value={poliza?.compania || ""}
+            onChange={(v) => setPoliza((prev = {}) => ({ ...prev, compania: v, cobertura: "" }))} 
+            options={companias} 
+            isWebAdmin={isWebAdmin}
+            endpoint="/cotizaciones/companias/" 
+          />
+
+          {esNRE ? (
+            <>
+              {/* 🆕 NRE: cobertura FIJA "A" (no se elige a mano). */}
+              <div className="flex flex-col gap-1.5 text-xs sm:text-sm">
+                <span className="text-brand-200/55 font-bold uppercase text-[10px] tracking-[0.15em] ml-1">Cobertura</span>
+                <div className="w-full rounded-xl border border-brand-primary/25 bg-brand-200/[0.03] px-4 py-2.5 text-brand-200 font-medium flex items-center gap-2">
+                  <HiCheckCircle className="text-brand-primary-tint shrink-0" />
+                  <span>{poliza?.cobertura || "A"} <span className="text-brand-200/40">· NRE (fija)</span></span>
+                </div>
+              </div>
+              {/* 🆕 En NRE, acá van tipo (define el precio) y carrocería. */}
+              <Select
+                label="Tipo de vehículo"
+                value={poliza?.tipo || "Auto"}
+                onChange={(v) => setPoliza((prev = {}) => ({ ...prev, tipo: v }))}
+                options={TIPOS_VEHICULO}
+              />
+              <Select
+                label="Carrocería"
+                value={poliza?.carroceria || ""}
+                onChange={(v) => setPoliza((prev = {}) => ({ ...prev, carroceria: v }))}
+                options={CARROCERIAS}
+              />
+            </>
+          ) : (
+            <SelectCreatable
+              label="Cobertura"
+              value={poliza?.cobertura || ""}
+              onChange={(v) => setPoliza((prev = {}) => ({ ...prev, cobertura: v }))}
+              options={coberturasFiltradas}
+              isWebAdmin={isWebAdmin}
+              endpoint="/cotizaciones/coberturas/"
+            />
+          )}
+
+        </div>
+
+        <motion.div
+          className="mt-4 rounded-xl border border-brand-200/5 p-3 sm:p-4 bg-brand-200/[0.02]"
+          variants={inputVariants}
+        >
+          <div className={`inline-flex items-center gap-2 rounded-lg px-2 py-1 text-[10px] font-black uppercase tracking-tighter bg-gradient-to-br ${requisitos.color} mb-2 shadow-sm`}>
+            <HiShieldCheck className="text-sm" /> {requisitos.title}
+          </div>
+          <ul className="list-disc pl-5 text-brand-200/80 text-xs sm:text-sm space-y-1">
+            {requisitos.items.map((it) => (
+              <li key={it}>{it}</li>
+            ))}
+          </ul>
+          {requisitos.note && <p className="mt-2 text-brand-200/40 text-[11px] italic font-medium">{requisitos.note}</p>}
+        </motion.div>
+        </>
+        )}
+
+        {showAuto && (
+        <>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-1">
+          <Input
+            label="Patente"
+            value={poliza?.patente || ""}
+            onChange={(v) => setPoliza((prev = {}) => ({ ...prev, patente: v.toUpperCase() }))}
+            autoCapitalize="characters"
+            placeholder="ABC 123"
+          />
+          {!esNRE && (
+            <Select
+              label="Tipo de vehículo"
+              value={poliza?.tipo || "Auto"}
+              onChange={(v) => setPoliza((prev = {}) => ({ ...prev, tipo: v }))}
+              options={TIPOS_VEHICULO}
+            />
+          )}
+          <Input
+            label="Marca"
+            value={poliza?.marca || ""}
+            onChange={(v) => setPoliza((prev = {}) => ({ ...prev, marca: v }))}
+            placeholder="Ej: Ford"
+          />
+          <Input
+            label="Modelo"
+            value={poliza?.modelo || ""}
+            onChange={(v) => setPoliza((prev = {}) => ({ ...prev, modelo: v }))}
+            placeholder="Ej: Fiesta"
+          />
+          <Input
+            label="Año"
+            value={poliza?.anio || ""}
+            onChange={(v) => setPoliza((prev = {}) => ({ ...prev, anio: v.replace(/\D/g, "") }))}
+            inputMode="numeric"
+            placeholder="2024"
+          />
+        </div>
+
+        {/* 🚀 Datos técnicos del vehículo */}
+        <div className="mt-4 pt-3 border-t border-brand-200/10">
+          <span className="px-1 text-brand-200/50 text-[10px] uppercase font-bold tracking-widest">
+            Datos técnicos del vehículo
+          </span>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
+            <Input
+              label="Número de motor"
+              value={poliza?.numero_motor || ""}
+              onChange={(v) => setPoliza((prev = {}) => ({ ...prev, numero_motor: v.toUpperCase() }))}
+              autoCapitalize="characters"
+              placeholder="Ej: ABC123456"
+            />
+            <Input
+              label="Número de chasis"
+              value={poliza?.numero_chasis || ""}
+              onChange={(v) => setPoliza((prev = {}) => ({ ...prev, numero_chasis: v.toUpperCase() }))}
+              autoCapitalize="characters"
+              placeholder="Ej: 8AP12345..."
+            />
+            <Select
+              label="Combustible"
+              value={poliza?.combustible || ""}
+              onChange={(v) => setPoliza((prev = {}) => ({ ...prev, combustible: v }))}
+              options={COMBUSTIBLES}
+            />
+            {!esNRE && (
+              <Select
+                label="Carrocería"
+                value={poliza?.carroceria || ""}
+                onChange={(v) => setPoliza((prev = {}) => ({ ...prev, carroceria: v }))}
+                options={CARROCERIAS}
+              />
+            )}
+            <Textarea
+              className="sm:col-span-2"
+              label="Observaciones (opcional)"
+              value={poliza?.observaciones || ""}
+              onChange={(v) => setPoliza((prev = {}) => ({ ...prev, observaciones: v }))}
+              placeholder="Detalles adicionales del vehículo..."
+            />
+          </div>
+        </div>
+        </>
+        )}
+
+        {showFechas && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-1">
+          <Input
+            label="Fecha de emisión"
+            type="date"
+            value={poliza?.fecha_emision || ""}
+            onChange={(v) => setPoliza((prev = {}) => ({ ...prev, fecha_emision: v }))}
+            helper="Arranca en hoy. Cambiala solo si la póliza empieza otro día."
+          />
+          <Input
+            label="Primer vencimiento"
+            type="date"
+            value={poliza?.primer_vencimiento || ""}
+            onChange={(v) => setPoliza((prev = {}) => ({ ...prev, primer_vencimiento: v }))}
+          />
+          <Input
+            label="Días a vencer"
+            value={poliza?.dias_a_vencer ?? 30}
+            onChange={(v) => setPoliza((prev = {}) => ({ ...prev, dias_a_vencer: v.replace(/\D/g, "") }))}
+            inputMode="numeric"
+          />
+
+          {Array.isArray(cuotasPreview) && cuotasPreview.length > 0 && (
+            <div className="sm:col-span-2 mt-1 rounded-2xl border border-brand-200/10 bg-brand-200/[0.02] p-3">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-brand-200/55 font-bold uppercase text-[10px] tracking-[0.15em]">
+                  Cuotas que se van a generar
+                </span>
+                <span className="text-[10px] text-brand-200/40">{cuotasPreview.length} cuotas</span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                {cuotasPreview.map((c) => (
+                  <div key={c.nro} className="flex items-center justify-between rounded-xl bg-brand-200/[0.03] border border-brand-200/5 px-3 py-2">
+                    <span className="text-xs text-brand-200/70">Cuota {c.nro}</span>
+                    <span className="text-xs font-semibold text-brand-primary-tint">{fmtFechaCorta(c.fecha)}</span>
+                  </div>
+                ))}
+              </div>
+              <p className="mt-2 text-[10px] italic text-brand-200/40">
+                Vencimientos calculados desde el primer vencimiento. Si cambiás la fecha de emisión o la cantidad de cuotas, se recalculan solas.
+              </p>
+            </div>
+          )}
+        </div>
+        )}
+      </motion.fieldset>
+    </motion.div>
+  );
+}
+
+/* ===================== UI bits ===================== */
+function Input({ label, value, onChange, type = "text", placeholder = "", helper = "", className = "", inputMode, autoComplete, autoCapitalize, pattern, disabled = false }) {
   return (
     <motion.label
       className={`text-xs sm:text-sm ${className} flex flex-col gap-1.5`}
-      variants={inputVariants}
-      initial="initial"
-      animate="animate"
-      whileHover="hover"
-      whileTap="tap"
+      variants={inputVariants} initial="initial" animate="animate" whileHover={!disabled ? "hover" : ""} whileTap={!disabled ? "tap" : ""}
     >
-      <span className="block text-white/55 font-bold uppercase text-[10px] tracking-[0.15em] ml-1">
-        {label} {required && <span className="text-rose-400">*</span>}
-      </span>
+      <span className="text-brand-200/55 font-bold uppercase text-[10px] tracking-[0.15em] ml-1">{label}</span>
       <input
-        type={type}
-        value={value}
-        placeholder={placeholder}
-        inputMode={inputMode}
-        autoComplete={autoComplete}
-        autoCapitalize={autoCapitalize}
-        pattern={pattern}
+        type={type} value={value} placeholder={placeholder} inputMode={inputMode} autoComplete={autoComplete} autoCapitalize={autoCapitalize} pattern={pattern}
+        disabled={disabled}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-2xl bg-black/30 border border-white/10 px-4 py-3.5 text-base outline-none focus:ring-2 ring-sky-500/40 focus:border-sky-500/30 text-white placeholder:text-white/20 transition-all"
+        className={`w-full rounded-2xl border px-4 py-3.5 text-base outline-none transition-all ${
+          disabled
+            ? "bg-brand-200/[0.02] border-brand-200/10 text-brand-200/40 cursor-not-allowed opacity-70"
+            : "bg-brand-200/[0.04] border-brand-200/10 text-brand-200 placeholder:text-brand-200/20 focus:ring-2 ring-brand-primary/40 focus:border-brand-primary/30"
+        }`}
       />
-      {helper ? <span className="mt-1 block text-[10px] text-white/40 font-medium ml-1">{helper}</span> : null}
+      {helper && <span className={`mt-1 block text-[10px] font-medium italic ${disabled ? "text-brand-primary-tint/60" : "text-brand-200/40"}`}>{helper}</span>}
     </motion.label>
   );
 }
@@ -68,392 +468,165 @@ function Textarea({ label, value, onChange, placeholder = "", className = "" }) 
   return (
     <motion.label
       className={`text-xs sm:text-sm ${className} flex flex-col gap-1.5`}
-      variants={inputVariants}
-      initial="initial"
-      animate="animate"
+      variants={inputVariants} initial="initial" animate="animate"
     >
-      <span className="block text-white/55 font-bold uppercase text-[10px] tracking-[0.15em] ml-1">
-        {label}
-      </span>
+      <span className="text-brand-200/55 font-bold uppercase text-[10px] tracking-[0.15em] ml-1">{label}</span>
       <textarea
         rows={2}
         value={value}
         placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-2xl bg-black/30 border border-white/10 px-4 py-3.5 text-base outline-none focus:ring-2 ring-sky-500/40 focus:border-sky-500/30 text-white placeholder:text-white/20 transition-all resize-none"
+        className="w-full rounded-2xl bg-brand-200/[0.04] border border-brand-200/10 px-4 py-3.5 text-base outline-none focus:ring-2 ring-brand-primary/40 focus:border-brand-primary/30 text-brand-200 placeholder:text-brand-200/20 transition-all resize-none"
       />
     </motion.label>
   );
 }
 
-function Select({ label, value, onChange, options = [], required = false, helper = "", disabled = false, placeholder = "— Seleccionar —", className = "" }) {
-  const normalized = options.map((op) => (typeof op === "string" ? { value: op, label: op } : op));
+function Select({ label, value, onChange, options = [], className = "", disabled = false, helper = "" }) {
+  const normalized = (Array.isArray(options) ? options : []).filter(Boolean).map((op) => typeof op === "string" ? { id: op, nombre: op } : op);
   return (
     <motion.label
       className={`text-xs sm:text-sm ${className} flex flex-col gap-1.5`}
-      variants={inputVariants} initial="initial" animate="animate"
+      variants={inputVariants} initial="initial" animate="animate" whileHover={!disabled ? "hover" : ""} whileTap={!disabled ? "tap" : ""}
     >
-      <span className="block text-white/55 font-bold uppercase text-[10px] tracking-[0.15em] ml-1">
-        {label} {required && <span className="text-rose-400">*</span>}
-      </span>
-      <div className="relative">
+      <span className="text-brand-200/55 font-bold uppercase text-[10px] tracking-[0.15em] ml-1">{label}</span>
+      <div className="relative group">
         <select
-          value={value || ""}
-          disabled={disabled}
+          value={value || ""} disabled={disabled}
           onChange={(e) => onChange(e.target.value)}
-          className={`cursor-pointer w-full rounded-2xl border border-white/10 px-4 py-3.5 pr-10 text-base outline-none transition-all appearance-none ${
-            disabled ? "bg-black/40 text-white/30 cursor-not-allowed" : "bg-black/30 text-white focus:ring-2 ring-sky-500/40 focus:border-sky-500/30"
+          className={`cursor-pointer w-full rounded-2xl border border-brand-200/10 px-4 py-3.5 pr-10 text-base outline-none transition-all appearance-none ${
+            disabled ? 'bg-brand-200/[0.02] text-brand-200/30 cursor-not-allowed opacity-70' : 'bg-brand-200/[0.04] text-brand-200 focus:ring-2 ring-brand-secondary/40 focus:border-brand-secondary/30'
           }`}
         >
-          <option value="">{placeholder}</option>
+          <option value="">— Seleccionar —</option>
           {normalized.map((op) => (
-            <option key={op.value} value={op.value} className="bg-[#0f1324] text-white">
-              {op.label}
+            <option key={op?.id} value={op?.id} className="bg-brand-card-dark text-brand-200">
+              {op?.nombre || op?.id}
             </option>
           ))}
         </select>
-        <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-white/40">▾</span>
+        {!disabled && <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-brand-200/40 group-hover:text-brand-200 transition-colors">▾</span>}
       </div>
-      {helper ? <span className="mt-1 block text-[10px] text-white/40 font-medium">{helper}</span> : null}
+      {helper && <span className={`mt-1 block text-[10px] font-medium italic ${disabled ? 'text-brand-primary-tint/60' : 'text-brand-200/40'}`}>{helper}</span>}
     </motion.label>
   );
 }
 
-function RadioPill({ checked, onChange, label }) {
-  return (
-    <button
-      type="button"
-      onClick={onChange}
-      className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
-        checked
-          ? "bg-violet-500 text-white shadow-lg shadow-violet-900/40"
-          : "text-white/50 hover:text-white"
-      }`}
-    >
-      {label}
-    </button>
-  );
-}
+function SelectCreatable({ label, value, onChange, options = [], isWebAdmin, endpoint }) {
+  const [localOptions, setLocalOptions] = useState([]);
+  const [isCreating, setIsCreating] = useState(false);
+  const [newVal, setNewVal] = useState("");
+  const [saving, setSaving] = useState(false);
 
-function FotoSlot({ label, slot, accept, capture, onFile, onRemove }) {
-  const isPdf = slot?.mime === "application/pdf" || String(slot?.url || "").toLowerCase().endsWith(".pdf");
-  return (
-    <motion.div
-      variants={inputVariants}
-      initial="initial"
-      animate="animate"
-      className="group relative rounded-xl bg-black/30 border border-white/10 overflow-hidden h-32 flex items-center justify-center hover:border-violet-400/40 transition-all"
-    >
-      <span className="absolute top-1.5 left-2 z-10 text-[9px] uppercase font-black tracking-widest text-white/70 bg-black/50 px-1.5 py-0.5 rounded">
-        {label}
-      </span>
-      {slot?.url && (
-        <button
-          type="button"
-          onClick={onRemove}
-          className="absolute top-1.5 right-1.5 z-10 p-1 rounded-lg bg-rose-500/80 hover:bg-rose-400 text-white opacity-0 group-hover:opacity-100 transition-all"
-        >
-          <HiTrash className="text-xs" />
-        </button>
-      )}
-      {slot?.url ? (
-        isPdf ? (
-          <a
-            href={slot.url}
-            target="_blank"
-            rel="noreferrer"
-            className="text-xs font-bold text-sky-400 underline decoration-sky-400/30 underline-offset-4"
-            title="Abrir PDF"
-          >
-            Ver Documento PDF
-          </a>
-        ) : (
-          <img src={slot.url} alt={label} className="w-full h-full object-cover transition duration-300 group-hover:scale-105" />
-        )
-      ) : (
-        <label className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 text-white/80 font-bold text-xs border border-white/10 hover:bg-white/10 hover:border-violet-400/50 transition-all active:scale-95">
-          <HiUpload className="text-violet-400" /> Adjuntar
-          <input
-            type="file"
-            accept={accept}
-            {...(capture ? { capture: "environment" } : {})}
-            className="hidden"
-            onChange={(e) => {
-              const f = e.target.files?.[0];
-              if (f) onFile(f);
-            }}
-          />
-        </label>
-      )}
-    </motion.div>
-  );
-}
+  const mergedOptions = useMemo(() => {
+    const combined = [...options, ...localOptions];
+    const normalized = (Array.isArray(combined) ? combined : []).filter(Boolean).map((op) => typeof op === "string" ? { id: op, nombre: op } : op);
+    const seen = new Set();
+    return normalized.filter(op => {
+      const key = String(op?.nombre || "").trim().toUpperCase();
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    }).sort((a, b) => a.nombre.localeCompare(b.nombre));
+  }, [options, localOptions]);
 
-/* ===================== Helpers ===================== */
-export function normalizaTelefonoAR(raw) {
-  if (!raw) return "";
-  let d = String(raw).replace(/\D/g, "");
-  if (d.startsWith("549")) d = d.slice(3);
-  else if (d.startsWith("54")) d = d.slice(2);
-  if (d.startsWith("0")) d = d.slice(1);
-  if (d.startsWith("15") && d.length >= 10) d = d.slice(2);
-  return d;
-}
-
-/* ===================== Componente Principal ===================== */
-export default function ClienteStep({
-  clienteModo,
-  setClienteModo,
-  clienteId,
-  setClienteId,
-  cliente = {},
-  setCliente = () => {},
-  dniSlots,
-  setDniSlots,
-  TIPO_DNI_SLOTS = [
-    { key: "DNI_FRENTE", label: "DNI frente" },
-    { key: "DNI_DORSO", label: "DNI dorso" },
-  ],
-  onUploadDNI,
-  section = "all", // "all" | "datos" | "fotos"
-}) {
-  const { user } = useAuth();
-  const showDatos = section === "all" || section === "datos";
-  const showFotos = section === "all" || section === "fotos";
-
-  const errors = useMemo(() => {
-    const e = {};
-    if (clienteModo === "existente") {
-      if (!String(clienteId).trim()) e.clienteId = "ID requerido";
-      return e;
+  const handleSaveNew = async () => {
+    const trimmed = newVal.trim();
+    if (!trimmed) {
+      setIsCreating(false);
+      return;
     }
-    if (!cliente?.nombre?.trim()) e.nombre = "Requerido";
-    if (!cliente?.apellido?.trim()) e.apellido = "Requerido";
-    if (!cliente?.telefono?.trim()) e.telefono = "Requerido";
-    if (!cliente?.dni_cuit_cuil?.trim()) e.dni_cuit_cuil = "Requerido";
-    if (!cliente?.localidad?.trim()) e.localidad = "Requerido";
-    return e;
-  }, [clienteModo, clienteId, cliente]);
 
-  const handleUploadToSlot = async (file, key) => {
-    if (!file) return;
+    setSaving(true);
     try {
-      await onUploadDNI?.(file, key);
+      const token = localStorage.getItem("access_token") || localStorage.getItem("token") || localStorage.getItem("jwt");
+      const res = await axios.post(
+        `${API_BASE}${endpoint}`,
+        { nombre: trimmed, activa: true },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      
+      const createdName = res.data.nombre || trimmed;
+      toast.success(`${createdName} agregada correctamente`);
+      
+      setLocalOptions((prev) => [...prev, { id: createdName, nombre: createdName }]);
+      onChange(createdName);
+      
+      setNewVal("");
+      setIsCreating(false);
     } catch (e) {
-      console.error("[ClienteStep] Error uploading:", e);
+      toast.error(e?.response?.data?.nombre?.[0] || "Error al guardar. Puede que ya exista.");
+    } finally {
+      setSaving(false);
     }
   };
 
-  // 🌍 Localidades encadenadas al Partido elegido (se traen de la fuente oficial)
-  const [locOptions, setLocOptions] = useState([]);
-  const [locLoading, setLocLoading] = useState(false);
-  const [locError, setLocError] = useState(false);
-
-  useEffect(() => {
-    const partido = cliente?.partido || "";
-    if (!partido) { setLocOptions([]); setLocError(false); return; }
-    let alive = true;
-    setLocLoading(true);
-    setLocError(false);
-    fetchLocalidadesPorPartido(partido)
-      .then((arr) => {
-        if (!alive) return;
-        setLocOptions(arr);
-        // Sin resultados → habilitamos texto libre para no trabar la carga
-        setLocError(arr.length === 0);
-      })
-      .catch(() => { if (alive) { setLocOptions([]); setLocError(true); } })
-      .finally(() => { if (alive) setLocLoading(false); });
-    return () => { alive = false; };
-  }, [cliente?.partido]);
-
-  // Al cambiar de partido reseteamos la localidad elegida
-  const onChangePartido = (v) => setCliente((s) => ({ ...s, partido: v, localidad: "" }));
-
   return (
-    <motion.fieldset
-      className="rounded-3xl border border-white/10 bg-gradient-to-br from-white/[0.06] to-white/[0.02] p-4 sm:p-6 shadow-xl"
-      variants={sectionVariants}
-      initial="initial"
-      animate="animate"
-    >
-      {showDatos && (
-      <>
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
-        <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-violet-500/10 border border-violet-500/20 text-violet-400">
-               <HiUser className="text-xl" />
-            </div>
-            <div>
-              <legend className="text-white font-bold text-lg leading-none">Perfil del Asegurado</legend>
-              <div className="flex items-center gap-1.5 mt-1">
-                 <HiLocationMarker className="text-emerald-400 text-xs" />
-                 <span className="text-[10px] font-black uppercase tracking-widest text-emerald-400/80">
-                    Sucursal: {user?.perfil?.oficina_nombre || 'Local'}
-                 </span>
-              </div>
-            </div>
-        </div>
-
-        <div className="flex bg-black/40 p-1 rounded-2xl border border-white/10 self-start sm:self-center">
-          <RadioPill
-            checked={clienteModo === "nuevo"}
-            onChange={() => setClienteModo("nuevo")}
-            label="Nuevo Registro"
-          />
-          <RadioPill
-            checked={clienteModo === "existente"}
-            onChange={() => setClienteModo("existente")}
-            label="Buscar Existente"
-          />
-        </div>
+    <motion.div className="flex flex-col gap-1.5 text-xs sm:text-sm" variants={inputVariants} initial="initial" animate="animate">
+      <div className="flex items-center justify-between ml-1">
+        <span className="text-brand-200/60 font-bold uppercase text-[10px] tracking-widest">{label}</span>
+        {isWebAdmin && !isCreating && (
+          <button 
+            type="button" 
+            onClick={() => setIsCreating(true)}
+            className="cursor-pointer text-[9px] font-black uppercase text-brand-secondary-tint bg-brand-secondary/10 hover:bg-brand-secondary/20 px-1.5 py-0.5 rounded transition-colors flex items-center gap-1"
+          >
+            <HiPlus /> Nuevo
+          </button>
+        )}
       </div>
 
-      {clienteModo === "existente" ? (
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-start animate-in fade-in duration-300">
-          <div className="md:col-span-4">
-             <Input
-                label="ID de Cliente"
-                value={clienteId}
-                onChange={setClienteId}
-                inputMode="numeric"
-                placeholder="ID del sistema..."
-                required
-                helper={errors.clienteId ? "Debes ingresar un ID válido" : ""}
-              />
-          </div>
-          <div className="md:col-span-8 pt-6">
-            <div className="p-4 rounded-xl bg-sky-500/5 border border-sky-500/10 flex items-start gap-3">
-               <div className="p-1.5 rounded-lg bg-sky-500/20 text-sky-400 mt-0.5"><HiIdentification /></div>
-               <div>
-                  <p className="text-xs text-sky-200 font-bold uppercase tracking-tight">Recordatorio Operativo</p>
-                  <Note>Al usar un ID existente, el sistema vinculará esta nueva póliza a los datos de contacto ya registrados en la base de datos central.</Note>
-               </div>
-            </div>
-          </div>
+      {isCreating ? (
+        <div className="flex items-center gap-2">
+          <input
+            type="text"
+            value={newVal}
+            onChange={(e) => setNewVal(e.target.value)}
+            placeholder={`Ej: Nuevo ${label.toLowerCase()}`}
+            autoFocus
+            className="flex-1 rounded-xl bg-brand-200/5 border border-brand-secondary/50 px-3 py-2.5 outline-none focus:ring-2 ring-brand-secondary/40 text-brand-200 placeholder:text-brand-200/20 transition-all font-medium"
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                handleSaveNew();
+              }
+              if (e.key === "Escape") setIsCreating(false);
+            }}
+          />
+          <button 
+            type="button" 
+            onClick={handleSaveNew} 
+            disabled={saving}
+            className="cursor-pointer h-10 w-10 shrink-0 flex items-center justify-center bg-brand-primary hover:bg-brand-primary-deep text-white rounded-xl transition-colors shadow-lg disabled:opacity-50"
+          >
+            {saving ? <span className="w-4 h-4 rounded-full border-2 border-white/50 border-t-transparent animate-spin" /> : <HiCheck className="text-lg" />}
+          </button>
+          <button 
+            type="button" 
+            onClick={() => setIsCreating(false)} 
+            disabled={saving}
+            className="cursor-pointer h-10 w-10 shrink-0 flex items-center justify-center bg-brand-200/5 hover:bg-brand-200/10 border border-brand-200/10 text-brand-200/60 rounded-xl transition-colors"
+          >
+            <HiX className="text-lg" />
+          </button>
         </div>
       ) : (
-        <div className="space-y-6 animate-in slide-in-from-bottom-2 duration-400">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Input
-              label="Nombres"
-              value={cliente?.nombre || ""}
-              onChange={(v) => setCliente((s) => ({ ...s, nombre: v }))}
-              autoCapitalize="words"
-              autoComplete="given-name"
-              required
-              placeholder="Ej: Juan Pedro"
-            />
-            <Input
-              label="Apellidos"
-              value={cliente?.apellido || ""}
-              onChange={(v) => setCliente((s) => ({ ...s, apellido: v }))}
-              autoCapitalize="words"
-              autoComplete="family-name"
-              required
-              placeholder="Ej: Pérez"
-            />
-            <Input
-              label="Teléfono WhatsApp"
-              value={cliente?.telefono || ""}
-              onChange={(v) => setCliente((s) => ({ ...s, telefono: v }))}
-              helper="Sin prefijos. Ej: 1166709006"
-              inputMode="tel"
-              autoComplete="tel"
-              required
-              placeholder="1166709006"
-            />
-            <Input
-              label="DNI / CUIT / CUIL"
-              value={cliente?.dni_cuit_cuil || ""}
-              onChange={(v) => setCliente((s) => ({ ...s, dni_cuit_cuil: v }))}
-              inputMode="numeric"
-              required
-              helper={errors.dni_cuit_cuil ? "Campo obligatorio" : ""}
-              placeholder="Sin puntos ni guiones"
-            />
-            <Input
-              label="Localidad / Ciudad"
-              value={cliente?.localidad || ""}
-              onChange={(v) => setCliente((s) => ({ ...s, localidad: v }))}
-              required
-              helper={errors.localidad ? "Campo obligatorio" : ""}
-              placeholder="Ej: Ramos Mejía"
-            />
-            <Input
-              className="sm:col-span-2"
-              label="Dirección de Domicilio"
-              value={cliente?.direccion || ""}
-              onChange={(v) => setCliente((s) => ({ ...s, direccion: v }))}
-              autoComplete="street-address"
-              placeholder="Calle, número, departamento..."
-            />
-          </div>
+        <div className="relative group">
+          <select
+            value={value || ""}
+            onChange={(e) => onChange(e.target.value)}
+            className="cursor-pointer w-full rounded-xl border border-brand-200/10 bg-brand-200/5 px-4 py-2.5 pr-9 outline-none focus:ring-2 ring-brand-secondary/40 text-brand-200 font-medium appearance-none transition-all"
+          >
+            <option value="">— Seleccionar —</option>
+            {mergedOptions.map((op) => (
+              <option key={op?.id} value={op?.nombre || op?.id} className="bg-brand-card-dark text-brand-200">
+                {op?.nombre || op?.id}
+              </option>
+            ))}
+          </select>
+          <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-brand-200/40 group-hover:text-brand-200 transition-colors">▾</span>
         </div>
       )}
-      </>
-      )}
-
-      {showFotos && clienteModo === "nuevo" && (
-        <div className="p-4 rounded-2xl border border-white/5 bg-white/[0.02] shadow-inner">
-          <div className="flex items-center gap-2 text-white/40 mb-4 ml-1">
-            <HiIdentification className="text-lg" />
-            <span className="text-[10px] font-black uppercase tracking-widest">
-              Fotos del asegurado (DNI) <span className="text-rose-400">*</span>
-            </span>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {TIPO_DNI_SLOTS.map(({ key, label }) => {
-              const cargada = Boolean(dniSlots?.[key]?.url);
-              return (
-                <FotoSlot
-                  key={key}
-                  label={`${label}${cargada ? "" : " *"}`}
-                  slot={dniSlots?.[key]}
-                  accept="image/*"
-                  capture={true}
-                  onFile={(file) => handleUploadToSlot(file, key)}
-                  onRemove={() =>
-                    setDniSlots((s) => ({
-                      ...s,
-                      [key]: null,
-                    }))
-                  }
-                />
-              );
-            })}
-          </div>
-          <div className="mt-4 flex items-center gap-2 px-3 py-2 rounded-lg bg-amber-500/5 border border-amber-500/10">
-            <span className="text-[10px] text-amber-400 font-medium italic">
-              * Las fotos del DNI (frente y dorso) son obligatorias para crear la solicitud.
-            </span>
-          </div>
-        </div>
-      )}
-
-      {showFotos && clienteModo === "existente" && (
-        <div className="p-6 rounded-2xl border border-white/5 bg-white/[0.02] text-center">
-          <HiIdentification className="text-3xl text-white/30 mx-auto mb-2" />
-          <p className="text-sm text-white/60 font-medium">
-            Cliente existente: usa la documentación ya registrada en su ficha.
-          </p>
-          <p className="text-[11px] text-white/30 mt-1">No hace falta subir fotos en este paso.</p>
-        </div>
-      )}
-    </motion.fieldset>
+    </motion.div>
   );
-}
-
-export function clienteStepHasErrors(modo, clienteId, cliente) {
-  const e = {};
-  if (modo === "existente") {
-    if (!String(clienteId).trim()) e.clienteId = "ID requerido";
-    return e;
-  }
-  if (!cliente?.nombre?.trim()) e.nombre = "Requerido";
-  if (!cliente?.apellido?.trim()) e.apellido = "Requerido";
-  if (!cliente?.telefono?.trim()) e.telefono = "Requerido";
-  if (!cliente?.dni_cuit_cuil?.trim()) e.dni_cuit_cuil = "Requerido";
-  if (!cliente?.localidad?.trim()) e.localidad = "Requerido";
-  return e;
 }

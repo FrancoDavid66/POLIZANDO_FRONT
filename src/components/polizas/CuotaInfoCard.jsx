@@ -55,8 +55,8 @@ import {
  * Esta es la clave de la Opción A: el dato grande es una FRASE,
  * la fecha es el dato chico de referencia.
  */
-function buildFraseEstado(cuota, estado, todasLasCuotas = []) {
-  const dias = diasHastaVencimiento(cuota, todasLasCuotas);
+function buildFraseEstado(cuota, estado, todasLasCuotas = [], usarPropio = false) {
+  const dias = diasHastaVencimiento(cuota, todasLasCuotas, usarPropio);
   const fechaPagoReal = cuota?.pago_registrado_en || cuota?.fecha_pago;
   const fv = cuota?.fecha_vencimiento ? dayjs(cuota.fecha_vencimiento).startOf("day") : null;
   const fp = fechaPagoReal ? dayjs(fechaPagoReal).startOf("day") : null;
@@ -206,32 +206,32 @@ function buildFraseCobertura(cobertura, estado, cuota) {
  */
 const TONO_STYLES = {
   success: {
-    bg: "bg-emerald-500/10",
-    border: "border-emerald-500/30",
-    title: "text-emerald-200",
-    subtitle: "text-emerald-300/70",
-    iconColor: "text-emerald-400",
+    bg: "bg-brand-primary/10",
+    border: "border-brand-primary/30",
+    title: "text-brand-primary dark:text-brand-primary-tint",
+    subtitle: "text-brand-primary/70 dark:text-brand-primary-tint/70",
+    iconColor: "text-brand-primary dark:text-brand-primary-tint",
   },
   warning: {
-    bg: "bg-orange-500/10",
-    border: "border-orange-500/30",
-    title: "text-orange-100",
-    subtitle: "text-orange-300/80",
-    iconColor: "text-orange-400",
+    bg: "bg-brand-secondary/10",
+    border: "border-brand-secondary/30",
+    title: "text-brand-secondary dark:text-brand-secondary-tint",
+    subtitle: "text-brand-secondary/80 dark:text-brand-secondary-tint/80",
+    iconColor: "text-brand-secondary dark:text-brand-secondary-tint",
   },
   danger: {
-    bg: "bg-rose-500/10",
-    border: "border-rose-500/30",
-    title: "text-rose-100",
-    subtitle: "text-rose-300/80",
-    iconColor: "text-rose-400",
+    bg: "bg-red-500/10",
+    border: "border-red-500/30",
+    title: "text-red-700 dark:text-red-300",
+    subtitle: "text-red-600/80 dark:text-red-300/70",
+    iconColor: "text-red-600 dark:text-red-400",
   },
   neutral: {
-    bg: "bg-white/5",
-    border: "border-white/10",
-    title: "text-white",
-    subtitle: "text-neutral-400",
-    iconColor: "text-neutral-400",
+    bg: "bg-brand-100/5 dark:bg-brand-200/5",
+    border: "border-brand-100/10 dark:border-brand-200/10",
+    title: "text-brand-100 dark:text-brand-200",
+    subtitle: "text-brand-100/50 dark:text-brand-200/50",
+    iconColor: "text-brand-100/50 dark:text-brand-200/50",
   },
 };
 
@@ -292,6 +292,9 @@ function InfoBlock({ tono, Icon, label, titulo, subtitulo, hint }) {
  * @param {"full"|"compact"|"mini"} [props.variant="full"] - Variante visual
  * @param {boolean} [props.showMonto=true] - Mostrar el monto
  * @param {boolean} [props.showAction=true] - Mostrar botón de acción
+ * @param {boolean} [props.usarPropio=false] - true para pólizas CUPONERA
+ *   (AMCA/Antártida/Equidad): usa el vto propio del cupón en vez del de
+ *   la cuota anterior. Ver utils/cuotas.js → esCuponera().
  */
 export default function CuotaInfoCard({
   cuota,
@@ -303,15 +306,16 @@ export default function CuotaInfoCard({
   variant = "full",
   showMonto = true,
   showAction = true,
+  usarPropio = false,
 }) {
   // Cálculos delegados al utils unificado
-  const estado = useMemo(() => getEstadoCuota(cuota, todasLasCuotas), [cuota, todasLasCuotas]);
+  const estado = useMemo(() => getEstadoCuota(cuota, todasLasCuotas, usarPropio), [cuota, todasLasCuotas, usarPropio]);
   const cobertura = useMemo(
     () => calcCobertura(cuota, todasLasCuotas, idx, polizaFechaEmision),
     [cuota, todasLasCuotas, idx, polizaFechaEmision]
   );
 
-  const fraseEstado = useMemo(() => buildFraseEstado(cuota, estado, todasLasCuotas), [cuota, estado, todasLasCuotas]);
+  const fraseEstado = useMemo(() => buildFraseEstado(cuota, estado, todasLasCuotas, usarPropio), [cuota, estado, todasLasCuotas, usarPropio]);
   const fraseCobertura = useMemo(() => buildFraseCobertura(cobertura, estado, cuota), [cobertura, estado, cuota]);
 
   const IconEstado = getIcon("estado", fraseEstado.tono);
@@ -355,15 +359,15 @@ export default function CuotaInfoCard({
 
   // ─── Variante FULL (default): tarjeta completa con número, monto, info y acción ───
   return (
-    <div className="p-4 sm:p-5 bg-neutral-950 hover:bg-neutral-900/90 transition-colors">
+    <div className="p-4 sm:p-5 bg-brand-card dark:bg-brand-card-dark hover:bg-brand-primary/5 dark:hover:bg-brand-200/5 transition-colors">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
 
         {/* ── Bloque 1: Número de cuota + monto ── */}
         <div className="flex flex-col gap-1 md:w-28 shrink-0">
-          <div className="text-xl font-bold text-white">#{cuota?.cuota_nro}</div>
+          <div className="text-xl font-bold text-brand-100 dark:text-brand-200">#{cuota?.cuota_nro}</div>
           {showMonto && (
-            <div className="text-xs text-neutral-400">
-              <span className="text-white font-medium">{fmtMoney(cuota?.monto ?? cuota?.importe)}</span>
+            <div className="text-xs text-brand-100/50 dark:text-brand-200/50">
+              <span className="text-brand-100 dark:text-brand-200 font-medium">{fmtMoney(cuota?.monto ?? cuota?.importe)}</span>
             </div>
           )}
         </div>
@@ -386,7 +390,7 @@ export default function CuotaInfoCard({
           const pagoStyles = pagada ? TONO_STYLES.success : TONO_STYLES.neutral;
 
           // Renglón sutil debajo de la fecha de vencimiento
-          const diasVto = diasHastaVencimiento(cuota, todasLasCuotas);
+          const diasVto = diasHastaVencimiento(cuota, todasLasCuotas, usarPropio);
           let vtoSubtitulo = null;
           let vtoSubAlerta = false;
           if (pagada) {
@@ -418,10 +422,10 @@ export default function CuotaInfoCard({
 
               {/* Flecha central: período de cobertura */}
               <div className="flex flex-col items-center justify-center shrink-0 px-1">
-                <div className="text-[9px] uppercase tracking-wide font-bold text-neutral-400 text-center leading-tight mb-0.5">
+                <div className="text-[9px] uppercase tracking-wide font-bold text-brand-100/40 dark:text-brand-200/40 text-center leading-tight mb-0.5">
                   Período de<br />cobertura
                 </div>
-                <div className="text-2xl text-neutral-500 leading-none">→</div>
+                <div className="text-2xl text-brand-100/30 dark:text-brand-200/30 leading-none">→</div>
               </div>
 
               {/* Box: Vencimiento */}
@@ -450,7 +454,7 @@ export default function CuotaInfoCard({
         {showAction && (
           <div className="flex md:justify-end md:w-44 shrink-0">
             {cuota?.pagado ? (
-              <div className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-emerald-700/40 bg-emerald-700/20 px-3 py-2 text-xs sm:text-sm text-emerald-300 font-bold">
+              <div className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-brand-primary/30 bg-brand-primary/15 px-3 py-2 text-xs sm:text-sm text-brand-primary dark:text-brand-primary-tint font-bold">
                 <HiCheck className="h-4 w-4" /> Pagada
               </div>
             ) : onMarcarPagada ? (
@@ -458,7 +462,7 @@ export default function CuotaInfoCard({
                 type="button"
                 disabled={busy}
                 onClick={() => onMarcarPagada(cuota)}
-                className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-2 text-xs sm:text-sm border border-emerald-500/60 disabled:opacity-60 font-semibold transition-all active:scale-95"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-brand-primary hover:bg-brand-primary-deep text-white px-3 py-2 text-xs sm:text-sm border border-brand-primary/60 disabled:opacity-60 font-semibold transition-all active:scale-95"
               >
                 {busy ? (
                   <HiRefresh className="h-4 w-4 animate-spin" />

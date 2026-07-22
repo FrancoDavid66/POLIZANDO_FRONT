@@ -31,8 +31,8 @@ const AUTO_SEARCH_DEBOUNCE_MS = 600; // espera esta pausa antes de buscar sola
 function Field({ label, icon: Icon, value, onChange, placeholder, onEnter, disabled, autoFocus }) {
   return (
     <label className="flex flex-col gap-1.5">
-      <span className="block text-white/80 font-bold uppercase text-[10px] tracking-widest ml-1 flex items-center gap-1.5">
-        {Icon && <Icon className="text-amber-400" />}
+      <span className="block text-brand-200/80 font-bold uppercase text-[10px] tracking-widest ml-1 flex items-center gap-1.5">
+        {Icon && <Icon className="text-brand-secondary-tint" />}
         {label}
       </span>
       <input
@@ -48,7 +48,7 @@ function Field({ label, icon: Icon, value, onChange, placeholder, onEnter, disab
             onEnter?.();
           }
         }}
-        className="w-full rounded-xl bg-black/40 border border-white/10 px-4 py-3 outline-none focus:ring-2 ring-amber-500/50 focus:border-amber-500/30 text-white placeholder:text-white/20 transition-all shadow-inner text-base"
+        className="w-full rounded-xl bg-brand-200/[0.05] border border-brand-200/10 px-4 py-3 outline-none focus:ring-2 ring-brand-secondary/50 focus:border-brand-secondary/30 text-brand-200 placeholder:text-brand-200/20 transition-all shadow-inner text-base"
       />
     </label>
   );
@@ -210,13 +210,13 @@ export default function VerificarClienteGate({ open, onConfirmNuevo, onCancel, i
             animate={{ scale: 1, y: 0, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
             transition={{ type: "spring", stiffness: 280, damping: 22 }}
-            className="w-full max-w-lg rounded-3xl bg-gradient-to-br from-[#1a1410] via-[#0f0c1e] to-[#0b0f1e] border border-amber-500/30 shadow-2xl shadow-amber-900/40 overflow-hidden"
+            className="w-full max-w-lg rounded-3xl bg-brand-card-dark border border-brand-secondary/30 shadow-2xl shadow-brand-secondary/20 overflow-hidden"
           >
             {/* Header */}
-            <div className="relative px-6 pt-6 pb-5 bg-gradient-to-r from-amber-500/15 via-orange-500/10 to-transparent border-b border-amber-500/20">
+            <div className="relative px-6 pt-6 pb-5 bg-gradient-to-r from-brand-secondary/15 via-brand-secondary-light/10 to-transparent border-b border-brand-secondary/20">
               <button
                 onClick={onCancel}
-                className="absolute top-4 right-4 p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/60 hover:text-white transition-all"
+                className="absolute top-4 right-4 p-1.5 rounded-lg bg-brand-200/5 hover:bg-brand-200/10 text-brand-200/60 hover:text-brand-200 transition-all"
               >
                 <HiX className="text-lg" />
               </button>
@@ -226,16 +226,16 @@ export default function VerificarClienteGate({ open, onConfirmNuevo, onCancel, i
                   initial={{ rotate: -10, scale: 0.8 }}
                   animate={{ rotate: 0, scale: 1 }}
                   transition={{ type: "spring", stiffness: 200 }}
-                  className="p-3 rounded-2xl bg-amber-500/20 border border-amber-500/40 text-amber-300 shadow-lg shadow-amber-900/30 shrink-0"
+                  className="p-3 rounded-2xl bg-brand-secondary/20 border border-brand-secondary/40 text-brand-secondary-tint shadow-lg shadow-brand-secondary/20 shrink-0"
                 >
                   <HiShieldCheck className="text-3xl" />
                 </motion.div>
                 <div className="flex-1 min-w-0">
-                  <h2 className="text-white font-black text-xl leading-tight flex items-center gap-2">
+                  <h2 className="text-brand-200 font-black text-xl leading-tight flex items-center gap-2">
                     Verificación previa
-                    <HiSparkles className="text-amber-400 text-base" />
+                    <HiSparkles className="text-brand-secondary-tint text-base" />
                   </h2>
-                  <p className="text-amber-200/80 text-sm mt-1 font-medium leading-snug">
+                  <p className="text-brand-secondary-tint/80 text-sm mt-1 font-medium leading-snug">
                     Buscamos en TODAS las oficinas del grupo si el cliente o el vehículo ya están registrados.
                   </p>
                 </div>
@@ -267,7 +267,7 @@ export default function VerificarClienteGate({ open, onConfirmNuevo, onCancel, i
                 disabled={searching}
               />
 
-              <p className="text-[10px] text-white/40 italic text-center pt-1">
+              <p className="text-[10px] text-brand-200/40 italic text-center pt-1">
                 💡 Tip: completá ambos campos para una verificación más precisa.
               </p>
 
@@ -276,11 +276,11 @@ export default function VerificarClienteGate({ open, onConfirmNuevo, onCancel, i
                 type="button"
                 onClick={() => verificar()}
                 disabled={(!dni && !patente) || searching}
-                className="w-full py-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-black font-black text-sm uppercase tracking-wider transition-all shadow-lg shadow-amber-900/40 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full py-3 rounded-xl bg-brand-secondary hover:bg-brand-secondary-light text-white font-black text-sm uppercase tracking-wider transition-all shadow-lg shadow-brand-secondary/30 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {searching ? (
                   <>
-                    <span className="inline-block w-3 h-3 rounded-full bg-black/40 animate-pulse" />
+                    <span className="inline-block w-3 h-3 rounded-full bg-white/40 animate-pulse" />
                     Consultando base de datos...
                   </>
                 ) : (
@@ -295,14 +295,14 @@ export default function VerificarClienteGate({ open, onConfirmNuevo, onCancel, i
                 <motion.div
                   initial={{ opacity: 0, scale: 0.95, y: 5 }}
                   animate={{ opacity: 1, scale: 1, y: 0 }}
-                  className="p-4 rounded-xl bg-gradient-to-r from-emerald-500/15 to-emerald-500/5 border border-emerald-500/30 flex items-start gap-3"
+                  className="p-4 rounded-xl bg-gradient-to-r from-brand-primary/15 to-brand-primary/5 border border-brand-primary/30 flex items-start gap-3"
                 >
-                  <div className="p-1.5 rounded-lg bg-emerald-500/20 text-emerald-400 shrink-0">
+                  <div className="p-1.5 rounded-lg bg-brand-primary/20 text-brand-primary-tint shrink-0">
                     <HiCheckCircle className="text-lg" />
                   </div>
                   <div className="flex-1">
-                    <p className="text-sm font-black text-emerald-200">¡Cliente NUEVO!</p>
-                    <p className="text-xs text-emerald-300/70 mt-0.5">
+                    <p className="text-sm font-black text-brand-primary-tint">¡Cliente NUEVO!</p>
+                    <p className="text-xs text-brand-primary-tint/70 mt-0.5">
                       No existe en la base. Hacé click en "Continuar" para crear la solicitud.
                     </p>
                   </div>
@@ -311,10 +311,10 @@ export default function VerificarClienteGate({ open, onConfirmNuevo, onCancel, i
             </div>
 
             {/* Footer */}
-            <div className="px-6 py-4 bg-black/30 border-t border-white/10 flex flex-col-reverse sm:flex-row gap-2 sm:justify-between sm:items-center">
+            <div className="px-6 py-4 bg-brand-200/[0.02] border-t border-brand-200/10 flex flex-col-reverse sm:flex-row gap-2 sm:justify-between sm:items-center">
               <button
                 onClick={onCancel}
-                className="px-5 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-white/70 font-bold uppercase text-[11px] tracking-widest transition-all"
+                className="px-5 py-2.5 rounded-xl bg-brand-200/5 hover:bg-brand-200/10 text-brand-200/70 font-bold uppercase text-[11px] tracking-widest transition-all"
               >
                 Cancelar
               </button>
@@ -323,7 +323,7 @@ export default function VerificarClienteGate({ open, onConfirmNuevo, onCancel, i
                 {esNuevo && !searching && (
                   <button
                     onClick={() => handleContinuar(null)}
-                    className="px-6 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-black uppercase text-[11px] tracking-widest shadow-lg shadow-emerald-900/40 transition-all active:scale-95 flex items-center justify-center gap-2"
+                    className="px-6 py-2.5 rounded-xl bg-brand-primary hover:bg-brand-primary-deep text-white font-black uppercase text-[11px] tracking-widest shadow-lg shadow-brand-primary/30 transition-all active:scale-95 flex items-center justify-center gap-2"
                   >
                     Continuar al alta <HiArrowRight />
                   </button>
@@ -332,7 +332,7 @@ export default function VerificarClienteGate({ open, onConfirmNuevo, onCancel, i
                 {tieneResultado && (
                   <button
                     onClick={reiniciar}
-                    className="px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-white/60 hover:text-white text-[10px] uppercase tracking-widest font-bold transition-all"
+                    className="px-4 py-2.5 rounded-xl bg-brand-200/5 hover:bg-brand-200/10 text-brand-200/60 hover:text-brand-200 text-[10px] uppercase tracking-widest font-bold transition-all"
                   >
                     Buscar otro
                   </button>

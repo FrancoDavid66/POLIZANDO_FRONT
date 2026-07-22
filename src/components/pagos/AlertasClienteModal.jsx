@@ -54,7 +54,7 @@ export default function AlertasClienteModal({
   if (!yaCargo || loading) {
     return (
       <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/85 backdrop-blur-md">
-        <div className="w-10 h-10 border-4 border-rose-500 border-t-transparent rounded-full animate-spin" />
+        <div className="w-10 h-10 border-4 border-red-500 border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -78,24 +78,24 @@ export default function AlertasClienteModal({
           animate={{ scale: 1, opacity: 1, y: 0 }}
           exit={{ scale: 0.95, opacity: 0, y: 10 }}
           transition={{ type: "spring", stiffness: 280, damping: 24 }}
-          className="w-full max-w-2xl max-h-[90vh] flex flex-col bg-slate-950 rounded-3xl border border-slate-800 shadow-2xl overflow-hidden"
+          className="w-full max-w-2xl max-h-[90vh] flex flex-col bg-brand-card-dark rounded-3xl border border-brand-200/10 shadow-2xl overflow-hidden"
         >
-          {hayCriticas && <div className="h-1.5 bg-rose-500 animate-pulse shrink-0" />}
+          {hayCriticas && <div className="h-1.5 bg-red-500 animate-pulse shrink-0" />}
 
           {/* Header */}
-          <div className="px-5 pt-5 pb-3 text-center border-b border-slate-800 shrink-0">
-            <div className="inline-flex items-center justify-center h-12 w-12 rounded-2xl bg-rose-900/40 mb-2">
-              <HiShieldExclamation className="w-7 h-7 text-rose-300" />
+          <div className="px-5 pt-5 pb-3 text-center border-b border-brand-200/10 shrink-0">
+            <div className="inline-flex items-center justify-center h-12 w-12 rounded-2xl bg-red-500/15 mb-2">
+              <HiShieldExclamation className="w-7 h-7 text-red-400" />
             </div>
-            <h2 className={`text-xl font-black ${hayCriticas ? "text-rose-200" : "text-amber-200"}`}>
+            <h2 className={`text-xl font-black ${hayCriticas ? "text-red-300" : "text-brand-secondary-tint"}`}>
               {titulo}
             </h2>
-            <p className="text-sm font-bold text-slate-100 mt-1">
+            <p className="text-sm font-bold text-brand-200 mt-1">
               {clienteNombre}
             </p>
-            <p className="text-xs text-slate-400 mt-1">
+            <p className="text-xs text-brand-200/50 mt-1">
               {alertas.length} alerta{alertas.length !== 1 ? "s" : ""} detectada{alertas.length !== 1 ? "s" : ""}
-              {hayCriticas && <span className="text-rose-400"> · {criticas} crítica{criticas !== 1 ? "s" : ""}</span>}
+              {hayCriticas && <span className="text-red-400"> · {criticas} crítica{criticas !== 1 ? "s" : ""}</span>}
             </p>
           </div>
 
@@ -107,22 +107,22 @@ export default function AlertasClienteModal({
           </div>
 
           {/* Footer fijo */}
-          <div className="p-4 border-t border-slate-800 shrink-0 space-y-2">
+          <div className="p-4 border-t border-brand-200/10 shrink-0 space-y-2">
             <motion.button
               type="button"
               onClick={onConfirm}
               whileTap={{ scale: 0.98 }}
               className={`w-full h-14 rounded-2xl font-black text-base text-white shadow-lg transition-colors inline-flex items-center justify-center gap-2 ${
                 hayCriticas
-                  ? "bg-rose-600 hover:bg-rose-500 shadow-rose-900/40"
-                  : "bg-amber-600 hover:bg-amber-500 shadow-amber-900/40"
+                  ? "bg-red-600 hover:bg-red-500 shadow-red-900/30"
+                  : "bg-brand-secondary hover:bg-brand-secondary-light shadow-brand-secondary/30"
               }`}
             >
               <HiCheckCircle className="w-5 h-5" />
               ENTENDIDO, CONTINUAR
             </motion.button>
             {hayCriticas && (
-              <p className="text-[11px] text-rose-400/70 text-center italic">
+              <p className="text-[11px] text-red-400/70 text-center italic">
                 Al continuar, confirmás que verificaste cada situación antes de cobrar.
               </p>
             )}
@@ -139,12 +139,14 @@ export default function AlertasClienteModal({
 function AlertaCard({ alerta }) {
   const [expanded, setExpanded] = useState(false);
 
+  // 🔧 5 categorías visuales distintas, repartidas entre los 2 tonos de marca
+  // (no hay 5 colores de marca reales — se diferencian con variantes/opacidad).
   const SKINS = {
-    rose:   { bg: "bg-rose-950/40",   border: "border-rose-700/50",   icon: "bg-rose-900/50",   title: "text-rose-200" },
-    amber:  { bg: "bg-amber-950/30",  border: "border-amber-700/50",  icon: "bg-amber-900/50",  title: "text-amber-200" },
-    purple: { bg: "bg-purple-950/30", border: "border-purple-700/50", icon: "bg-purple-900/50", title: "text-purple-200" },
-    sky:    { bg: "bg-sky-950/30",    border: "border-sky-700/50",    icon: "bg-sky-900/50",    title: "text-sky-200" },
-    orange: { bg: "bg-orange-950/30", border: "border-orange-700/50", icon: "bg-orange-900/50", title: "text-orange-200" },
+    rose:   { bg: "bg-red-500/10",             border: "border-red-500/40",             icon: "bg-red-500/20",             title: "text-red-300" },
+    amber:  { bg: "bg-brand-secondary/10",     border: "border-brand-secondary/40",     icon: "bg-brand-secondary/20",     title: "text-brand-secondary-tint" },
+    purple: { bg: "bg-brand-secondary-light/10", border: "border-brand-secondary-light/40", icon: "bg-brand-secondary-light/20", title: "text-brand-secondary-tint" },
+    sky:    { bg: "bg-brand-primary/10",       border: "border-brand-primary/40",       icon: "bg-brand-primary/20",       title: "text-brand-primary-tint" },
+    orange: { bg: "bg-brand-primary-deep/10",  border: "border-brand-primary-deep/40",  icon: "bg-brand-primary-deep/20",  title: "text-brand-primary-tint" },
   };
   const skin = SKINS[alerta.color] || SKINS.rose;
 
@@ -156,13 +158,13 @@ function AlertaCard({ alerta }) {
         </div>
         <div className="flex-1 min-w-0">
           <h3 className={`text-sm font-black ${skin.title}`}>{alerta.titulo}</h3>
-          <p className="text-xs text-slate-400 mt-0.5">{alerta.subtitulo}</p>
+          <p className="text-xs text-brand-200/50 mt-0.5">{alerta.subtitulo}</p>
         </div>
         {alerta.detalle?.length > 0 && (
           <button
             type="button"
             onClick={() => setExpanded((v) => !v)}
-            className="shrink-0 inline-flex items-center gap-0.5 px-2 py-1 rounded-md bg-slate-800/60 hover:bg-slate-700/60 text-slate-300 text-[10px] font-bold transition-colors"
+            className="shrink-0 inline-flex items-center gap-0.5 px-2 py-1 rounded-md bg-brand-200/8 hover:bg-brand-200/15 text-brand-200/70 text-[10px] font-bold transition-colors"
           >
             {expanded ? "Ocultar" : "Ver"}
             {expanded ? <HiChevronUp className="w-3 h-3" /> : <HiChevronDown className="w-3 h-3" />}
@@ -177,15 +179,15 @@ function AlertaCard({ alerta }) {
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="border-t border-slate-700/40"
+            className="border-t border-brand-200/10"
           >
             <div className="px-4 py-3 space-y-1.5">
               {alerta.detalle.map((d, i) => (
-                <div key={i} className="text-xs bg-slate-950/40 rounded-lg px-3 py-2 border border-slate-700/40">
-                  <p className="text-slate-300">{d.texto}</p>
-                  {d.extra && <p className="text-slate-500 mt-0.5 font-mono">{d.extra}</p>}
+                <div key={i} className="text-xs bg-brand-200/[0.03] rounded-lg px-3 py-2 border border-brand-200/10">
+                  <p className="text-brand-200/75">{d.texto}</p>
+                  {d.extra && <p className="text-brand-200/40 mt-0.5 font-mono">{d.extra}</p>}
                   {d.estado && (
-                    <span className="inline-block mt-1 text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
+                    <span className="inline-block mt-1 text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded bg-brand-200/10 text-brand-200/75 border border-brand-200/10">
                       {d.estado}
                     </span>
                   )}

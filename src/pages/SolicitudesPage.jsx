@@ -275,28 +275,28 @@ export default function SolicitudesPage() {
 
   return (
     <PageTransition>
-      <section className="min-h-0 bg-[#0b0f19] text-white flex flex-col overflow-hidden">
+      <section className="min-h-0 bg-brand-card-dark text-brand-200 flex flex-col overflow-hidden">
         <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
-          <div className="sticky top-0 z-20 border-b border-white/10 bg-[#0b0f19]/90 backdrop-blur">
+          <div className="sticky top-0 z-20 border-b border-brand-200/10 bg-brand-card-dark/90 backdrop-blur">
             <div className="px-3 sm:px-4 lg:px-6 pt-3">
 
               {/* Fila 1: título + cargar */}
               <div className="flex items-center justify-between gap-2">
                 <motion.div className="flex items-center gap-3 min-w-0" initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}>
-                  <span className="p-2 rounded-xl bg-white/10 border border-white/10 shrink-0">
-                    <HiShieldCheck className="w-5 h-5 text-emerald-400" />
+                  <span className="p-2 rounded-xl bg-brand-primary/10 border border-brand-primary/20 shrink-0">
+                    <HiShieldCheck className="w-5 h-5 text-brand-primary-tint" />
                   </span>
                   <div className="min-w-0">
-                    <h1 className="text-base sm:text-lg font-semibold text-white truncate">Solicitudes</h1>
-                    <p className="text-[10px] text-emerald-400/80 font-bold uppercase tracking-widest truncate">
-                      Sucursal: {user?.perfil?.oficina_nombre || "Local"}
+                    <h1 className="text-base sm:text-lg font-semibold text-brand-200 truncate">Solicitudes</h1>
+                    <p className="text-[10px] text-brand-primary-tint/80 font-bold uppercase tracking-widest truncate">
+                      {counts.activas} en proceso
                     </p>
                   </div>
                 </motion.div>
                 <motion.button
                   onClick={() => cargar({ silent: false, force: true })}
                   disabled={loading || refreshing}
-                  className="inline-flex items-center gap-2 px-3 py-2.5 rounded-2xl text-[#0b0f1e] font-bold bg-gradient-to-br from-sky-200 to-cyan-200 border border-cyan-200/60 shadow-lg disabled:opacity-60 shrink-0"
+                  className="inline-flex items-center gap-2 px-3 py-2.5 rounded-2xl text-[#0b0f1e] font-bold bg-gradient-to-br from-brand-primary-tint to-brand-primary-tint/70 border border-brand-primary/30 shadow-lg disabled:opacity-60 shrink-0"
                   variants={pressable} initial="initial" whileHover="hover" whileTap="tap"
                 >
                   <HiRefresh className={(loading || refreshing) ? "animate-spin" : ""} />
@@ -308,14 +308,14 @@ export default function SolicitudesPage() {
               <div className="grid grid-cols-2 gap-2.5 mt-3">
                 <motion.button
                   onClick={() => setSubidaRapida(true)}
-                  className="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-2xl text-white font-black uppercase text-[11px] tracking-widest bg-sky-500 border border-sky-400 shadow-xl"
+                  className="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-2xl text-white font-black uppercase text-[11px] tracking-widest bg-brand-secondary border border-brand-secondary-light shadow-xl"
                   initial="initial" whileHover="hover" whileTap="tap" variants={pressable}
                 >
                   <HiLightningBolt className="text-lg" /> Subida rápida
                 </motion.button>
                 <motion.button
                   onClick={openCreate}
-                  className="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-2xl text-black font-black uppercase text-[11px] tracking-widest bg-amber-400 border border-amber-300 shadow-xl"
+                  className="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-2xl text-white font-black uppercase text-[11px] tracking-widest bg-brand-primary border border-brand-primary-deep shadow-xl"
                   initial="initial" whileHover="hover" whileTap="tap" variants={pressable}
                 >
                   <HiPlus className="text-lg" /> Nueva
@@ -324,7 +324,7 @@ export default function SolicitudesPage() {
 
               {/* Tabs: solo proceso / terminadas */}
               <div className="pt-3 pb-3">
-                <div className="rounded-xl overflow-hidden border border-white/10 bg-white/5 flex">
+                <div className="rounded-xl overflow-hidden border border-brand-200/10 bg-brand-200/5 flex">
                   {[
                     { id: "proceso", label: `En proceso (${counts.activas})` },
                     { id: "terminadas", label: `Terminadas (${counts.terminadas})` },
@@ -332,7 +332,7 @@ export default function SolicitudesPage() {
                     <button
                       key={t.id} onClick={() => cambiarTab(t.id)}
                       className={`flex-1 px-4 py-2.5 text-[11px] font-black uppercase tracking-widest transition-all ${
-                        tab === t.id ? "bg-white/20 text-white shadow-inner" : "bg-white/5 text-white/30 hover:text-white/60"
+                        tab === t.id ? "bg-brand-primary/25 text-brand-200 shadow-inner" : "bg-brand-200/5 text-brand-200/30 hover:text-brand-200/60"
                       }`}
                     >
                       {t.label}
@@ -346,21 +346,21 @@ export default function SolicitudesPage() {
             <div className="pb-4 px-3 sm:px-4 lg:px-6">
               <div className="flex flex-col lg:flex-row gap-2">
                 <div className="relative flex-1">
-                  <HiSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/30" />
+                  <HiSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-brand-200/30" />
                   <input
                     value={search} onChange={(e) => setSearch(e.target.value)}
                     placeholder="Buscar cliente, DNI, patente..."
-                    className="w-full pl-10 pr-4 py-3 rounded-xl bg-white/10 border border-white/10 text-white text-sm outline-none focus:ring-2 ring-sky-500/30 placeholder-white/20"
+                    className="w-full pl-10 pr-4 py-3 rounded-xl bg-brand-200/10 border border-brand-200/10 text-brand-200 text-sm outline-none focus:ring-2 ring-brand-primary/40 placeholder-brand-200/20"
                     disabled={!hasLoaded}
                   />
                 </div>
                 <select
                   value={oficinaFilter} onChange={(e) => setOficinaFilter(e.target.value)}
                   disabled={!hasLoaded || !isWebAdmin}
-                  className={`px-4 py-3 rounded-xl bg-white/10 border border-white/10 text-sm text-white outline-none focus:ring-2 ring-sky-500/30 ${!isWebAdmin ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+                  className={`px-4 py-3 rounded-xl bg-brand-200/10 border border-brand-200/10 text-sm text-brand-200 outline-none focus:ring-2 ring-brand-primary/40 ${!isWebAdmin ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
                 >
-                  {isWebAdmin && <option value="TODAS" className="bg-[#0b0f19]">Todas las oficinas</option>}
-                  {oficinasConfig.map((of) => <option key={of.id} value={of.id} className="bg-[#0b0f19]">{of.nombre}</option>)}
+                  {isWebAdmin && <option value="TODAS" className="bg-brand-card-dark">Todas las oficinas</option>}
+                  {oficinasConfig.map((of) => <option key={of.id} value={of.id} className="bg-brand-card-dark">{of.nombre}</option>)}
                 </select>
               </div>
             </div>
@@ -370,16 +370,16 @@ export default function SolicitudesPage() {
           <div className="flex-1 min-h-0 overflow-y-auto px-3 sm:px-4 lg:px-6 pt-4 pb-[calc(env(safe-area-inset-bottom,0px)+120px)] scrollbar-hide relative">
             {!hasLoaded && !loading ? (
               <div className="mt-12 grid place-items-center text-center">
-                <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-12 shadow-2xl backdrop-blur-md max-w-md">
-                  <p className="text-lg font-bold text-white/80">Base de datos desconectada</p>
-                  <p className="text-xs text-white/30 uppercase font-black tracking-widest mt-2">Sincronización requerida para ver datos</p>
-                  <button onClick={() => cargar({ force: true })} className="mt-8 w-full py-4 rounded-2xl bg-gradient-to-br from-emerald-400 to-cyan-400 text-black font-black uppercase text-xs shadow-xl tracking-widest hover:scale-105 transition-all">Sincronizar ahora</button>
+                <div className="rounded-3xl border border-brand-200/10 bg-brand-200/[0.03] p-12 shadow-2xl backdrop-blur-md max-w-md">
+                  <p className="text-lg font-bold text-brand-200/80">Base de datos desconectada</p>
+                  <p className="text-xs text-brand-200/30 uppercase font-black tracking-widest mt-2">Sincronización requerida para ver datos</p>
+                  <button onClick={() => cargar({ force: true })} className="mt-8 w-full py-4 rounded-2xl bg-gradient-to-br from-brand-primary to-brand-primary-deep text-white font-black uppercase text-xs shadow-xl tracking-widest hover:scale-105 transition-all">Sincronizar ahora</button>
                 </div>
               </div>
             ) : (
               <SolicitudesList
                 items={filtrados} loading={loading} refreshing={refreshing}
-                onEliminar={eliminar} onRefrescar={() => cargar({ silent: true })}
+                onEliminar={eliminar}
                 onTerminar={terminar}
               />
             )}
@@ -389,7 +389,7 @@ export default function SolicitudesPage() {
               onClick={() => setSubidaRapida(true)}
               initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
               whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.9 }}
-              className="md:hidden fixed bottom-20 right-4 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-sky-500 text-white shadow-[0_4px_20px_rgba(14,165,233,0.6)] border border-sky-400"
+              className="md:hidden fixed bottom-20 right-4 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-brand-secondary text-white shadow-[0_4px_20px_rgba(226,98,44,0.5)] border border-brand-secondary-light"
             >
               <HiLightningBolt className="h-7 w-7" />
             </motion.button>
@@ -418,17 +418,5 @@ export default function SolicitudesPage() {
         )}
       </section>
     </PageTransition>
-  );
-}
-
-function Kpi({ label, value, icon, color = "text-white" }) {
-  return (
-    <div className="rounded-2xl border border-white/5 bg-gray-900/40 p-4 text-center backdrop-blur-md shadow-lg border-b-2 border-b-white/5">
-      <div className={`flex items-center justify-center gap-2 text-3xl font-black tracking-tighter ${color}`}>
-        {icon ? icon : null}
-        <span>{value}</span>
-      </div>
-      <div className="text-[9px] font-black uppercase tracking-[0.2em] text-white/20 mt-1">{label}</div>
-    </div>
   );
 }

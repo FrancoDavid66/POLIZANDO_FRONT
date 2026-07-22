@@ -25,13 +25,6 @@ const fmtMoney = (n) =>
 const fmtDate  = (d) => d ? dayjs(d).format("DD/MM/YYYY") : "—";
 const fmtDT    = (d) => d ? dayjs(d).format("DD/MM/YYYY HH:mm") : "—";
 
-const OFICINAS = [
-  { value: "ALL", label: "Todas las oficinas" },
-  { value: "1",   label: "5 Esquinas" },
-  { value: "2",   label: "Axion" },
-  { value: "3",   label: "Km 39" },
-];
-
 function EstadoBadge({ verificada }) {
   if (verificada)
     return (
@@ -152,10 +145,17 @@ function VerificarModal({ item, onClose, onVerificada }) {
   );
 }
 
-export default function TransferenciasPanel() {
+export default function TransferenciasPanel({ oficinasAdmin = [], oficinaProp }) {
   const { user } = useAuth();
   const isWebAdmin = user?.perfil?.rol === "ADMIN" || user?.rol === "ADMIN";
   const userOficina = String(user?.perfil?.oficina?.id || user?.perfil?.oficina?.codigo || "");
+
+  // 🚀 Oficinas reales (vienen de la página, que las trae de usuarios/oficinas/).
+  const [oficinasList, setOficinasList] = useState(oficinasAdmin || []);
+  const oficinasOpciones = useMemo(() => [
+    { value: "ALL", label: "Todas las oficinas" },
+    ...oficinasList.map((o) => ({ value: String(o.id), label: o.nombre })),
+  ], [oficinasList]);
 
   const hoy    = dayjs().format("YYYY-MM-DD");
   const hace30 = dayjs().subtract(30, "day").format("YYYY-MM-DD");
@@ -211,6 +211,14 @@ export default function TransferenciasPanel() {
   }, [desde, hasta, oficina, estado, q]);
 
   useEffect(() => { setPage(1); cargar(1); }, [desde, hasta, oficina, estado, q]);
+
+  // 🚀 Oficinas y sucursal controladas desde la página (selector global de arriba).
+  useEffect(() => { if (oficinasAdmin && oficinasAdmin.length) setOficinasList(oficinasAdmin); }, [oficinasAdmin]);
+  useEffect(() => {
+    if (oficinaProp !== undefined && oficinaProp !== null && oficinaProp !== "") {
+      setOficina(String(oficinaProp));
+    }
+  }, [oficinaProp]);
 
   // ── Export state (debe declararse ANTES del useEffect que lo usa) ──
   const [exportFilter,   setExportFilter]   = useState("TODAS");
@@ -467,7 +475,7 @@ export default function TransferenciasPanel() {
             )}
           </form>
           <button onClick={() => setQ(qInput.trim())}
-            className="px-4 py-2 rounded-xl bg-primary-600 hover:bg-primary-500 text-white text-sm font-semibold transition-colors">
+            className="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-sm font-semibold transition-colors">
             Buscar
           </button>
           <button onClick={() => cargar(page)} title="Actualizar"
@@ -573,13 +581,13 @@ export default function TransferenciasPanel() {
             ))}
           </div>
 
-          {/* Oficina (admin) */}
-          {isWebAdmin && (
+          {/* Oficina (admin) — solo si la página no controla ya la sucursal */}
+          {isWebAdmin && oficinaProp === undefined && (
             <div className="flex items-center gap-1.5 bg-slate-950/40 border border-slate-700/40 rounded-xl px-3 py-2">
               <HiOfficeBuilding className="w-4 h-4 text-slate-500 shrink-0" />
               <select value={oficina} onChange={e => setOficina(e.target.value)}
                 className="bg-transparent text-sm text-slate-300 outline-none">
-                {OFICINAS.map(o => <option key={o.value} value={o.value} className="bg-slate-900">{o.label}</option>)}
+                {oficinasOpciones.map(o => <option key={o.value} value={o.value} className="bg-slate-900">{o.label}</option>)}
               </select>
             </div>
           )}
@@ -594,7 +602,7 @@ export default function TransferenciasPanel() {
       <div className="space-y-2">
         {loading ? (
           <div className="flex items-center justify-center py-16 bg-slate-900/50 border border-slate-800/60 rounded-2xl">
-            <span className="w-8 h-8 rounded-full border-2 border-primary-400/40 border-t-primary-400 animate-spin" />
+            <span className="w-8 h-8 rounded-full border-2 border-sky-400/40 border-t-sky-400 animate-spin" />
           </div>
         ) : items.length === 0 ? (
           <div className="py-16 text-center bg-slate-900/50 border border-slate-800/60 rounded-2xl">

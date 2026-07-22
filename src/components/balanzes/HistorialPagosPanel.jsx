@@ -24,6 +24,7 @@ import {
 import { fetchHistorialPagos } from "../../store/slices/pagosSlice";
 import api from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
+import { fmtMoney, fmtDate } from "./format";
 
 
 const FORMAS = [
@@ -31,11 +32,6 @@ const FORMAS = [
   { value: "EFECTIVO",      label: "💵 Efectivo" },
   { value: "TRANSFERENCIA", label: "🏦 Transferencia" },
 ];
-
-const fmtMoney = (n) =>
-  "$ " + Number(n || 0).toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-
-const fmtDate = (d) => d ? dayjs(d).format("DD/MM/YYYY") : "—";
 
 const toNumber = (v) => {
   const n = Number(v);
@@ -581,7 +577,7 @@ export default function HistorialPagosPanel({ oficinasAdmin = [], oficinaProp })
       <div className="bg-slate-900/60 border border-slate-800/60 rounded-2xl p-4 space-y-3">
 
         {/* Fila 1 — búsqueda + export */}
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2">
           <form onSubmit={handleSearch} className="flex-1 flex items-center gap-2 bg-slate-950/60 border border-slate-700/50 rounded-xl px-3 py-2">
             <HiSearch className="w-4 h-4 text-slate-500 shrink-0" />
             <input
@@ -597,10 +593,11 @@ export default function HistorialPagosPanel({ oficinasAdmin = [], oficinaProp })
               </button>
             )}
           </form>
-          <button onClick={handleSearch}
-            className="px-4 py-2 rounded-xl bg-primary-600 hover:bg-primary-500 text-white text-sm font-semibold transition-colors">
-            Buscar
-          </button>
+          <div className="flex items-center gap-2">
+            <button onClick={handleSearch}
+              className="flex-1 sm:flex-none px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-sm font-semibold transition-colors">
+              Buscar
+            </button>
           <button onClick={() => cargar(page)} title="Actualizar"
             className="p-2 rounded-xl border border-slate-700/50 hover:bg-slate-800/60 text-slate-400 transition-colors">
             <HiRefresh className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
@@ -612,10 +609,11 @@ export default function HistorialPagosPanel({ oficinasAdmin = [], oficinaProp })
               <option value="pdf">PDF</option>
             </select>
             <button onClick={handleExport} disabled={exporting || loading}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white text-sm font-semibold transition-colors">
+              className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white text-sm font-semibold transition-colors">
               <HiDownload className={`w-4 h-4 ${exporting ? "animate-bounce" : ""}`} />
               {exporting ? "Descargando…" : exportFormat === "pdf" ? "Descargar PDF" : "Descargar Excel"}
             </button>
+            </div>
           </div>
         </div>
 
@@ -680,7 +678,7 @@ export default function HistorialPagosPanel({ oficinasAdmin = [], oficinaProp })
       <div className="bg-slate-900/50 border border-slate-800/60 rounded-2xl overflow-hidden">
         {loading ? (
           <div className="flex items-center justify-center py-16">
-            <span className="w-8 h-8 rounded-full border-2 border-primary-400/40 border-t-primary-400 animate-spin" />
+            <span className="w-8 h-8 rounded-full border-2 border-sky-400/40 border-t-sky-400 animate-spin" />
           </div>
         ) : historialItems.length === 0 ? (
           <div className="py-16 text-center text-slate-500 text-sm">

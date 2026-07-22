@@ -44,14 +44,14 @@ export default function LectorPdfButton({ onExtraido }) {
   };
 
   return (
-    <div className="rounded-2xl border border-sky-500/30 bg-sky-500/5 p-4 mb-4">
+    <div className="rounded-2xl border border-brand-primary/30 bg-brand-primary/5 p-4 mb-4">
       <div className="flex items-start gap-3">
-        <div className="p-2 rounded-xl bg-sky-500/20 text-sky-300 border border-sky-500/30 shrink-0">
+        <div className="p-2 rounded-xl bg-brand-primary/20 text-brand-primary-tint border border-brand-primary/30 shrink-0">
           <HiDocumentText className="text-xl" />
         </div>
         <div className="flex-1 min-w-0">
-          <h4 className="text-white font-bold text-sm">Autocompletar desde PDF</h4>
-          <p className="text-[11px] text-sky-200/70 mt-0.5">
+          <h4 className="text-brand-200 font-bold text-sm">Autocompletar desde PDF</h4>
+          <p className="text-[11px] text-brand-primary-tint/70 mt-0.5">
             Subí la cuponera y/o el certificado de la compañía. Leemos los datos y completamos el formulario solo.
           </p>
         </div>
@@ -70,7 +70,7 @@ export default function LectorPdfButton({ onExtraido }) {
         type="button"
         onClick={() => inputRef.current?.click()}
         disabled={cargando}
-        className="mt-3 w-full inline-flex items-center justify-center gap-2 h-11 rounded-xl bg-sky-500 hover:bg-sky-400 text-black font-black uppercase text-xs tracking-wider transition-all active:scale-95 disabled:opacity-50"
+        className="mt-3 w-full inline-flex items-center justify-center gap-2 h-11 rounded-xl bg-brand-primary hover:bg-brand-primary-deep text-white font-black uppercase text-xs tracking-wider transition-all active:scale-95 disabled:opacity-50"
       >
         {cargando ? "Leyendo PDF..." : (<><HiUpload className="text-base" /> Subir PDF y autocompletar</>)}
       </button>

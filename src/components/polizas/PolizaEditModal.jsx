@@ -214,9 +214,9 @@ const PolizaEditModal = ({ isOpen, onClose, onSuccess, poliza }) => {
 
     return (
       <div key={key} className="flex flex-col gap-1.5">
-        <label className="block text-[10px] font-black text-white/50 uppercase tracking-widest ml-1">
+        <label className="block text-[10px] font-black text-brand-100/50 dark:text-brand-200/50 uppercase tracking-widest ml-1">
           {LABELS[key] || key.replace("_", " ")}
-          {isOficinaField && !isWebAdmin && <span className="ml-2 text-amber-500">(Solo Admin)</span>}
+          {isOficinaField && !isWebAdmin && <span className="ml-2 text-brand-secondary dark:text-brand-secondary-tint">(Solo Admin)</span>}
         </label>
 
         {esSelect ? (
@@ -226,19 +226,19 @@ const PolizaEditModal = ({ isOpen, onClose, onSuccess, poliza }) => {
               value={formData[key] ?? ""}
               onChange={handleChange}
               disabled={isDisabled}
-              className={`cursor-pointer w-full rounded-xl border border-white/10 px-4 py-3 pr-9 outline-none transition-all font-medium appearance-none ${
+              className={`cursor-pointer w-full rounded-xl border border-brand-100/10 dark:border-brand-200/10 px-4 py-3 pr-9 outline-none transition-all font-medium appearance-none ${
                 isDisabled
-                  ? "bg-black/40 text-white/30 cursor-not-allowed opacity-70"
-                  : "bg-black/40 text-white focus:ring-2 ring-emerald-500/40 hover:bg-white/5"
+                  ? "bg-brand-100/[0.03] dark:bg-brand-200/[0.03] text-brand-100/30 dark:text-brand-200/30 cursor-not-allowed opacity-70"
+                  : "bg-brand-100/[0.03] dark:bg-brand-200/[0.03] text-brand-100 dark:text-brand-200 focus:ring-2 ring-brand-primary/40 hover:bg-brand-100/5 dark:hover:bg-brand-200/5"
               }`}
             >
-              <option value="" className="bg-[#0f1324]">
+              <option value="" className="bg-brand-card-dark">
                 — Seleccionar —
               </option>
 
               {key === "oficina" ? (
                 oficinas.map((opt) => (
-                  <option key={opt.id} value={opt.id} className="bg-[#0f1324]">
+                  <option key={opt.id} value={opt.id} className="bg-brand-card-dark">
                     {opt.nombre}
                   </option>
                 ))
@@ -249,14 +249,14 @@ const PolizaEditModal = ({ isOpen, onClose, onSuccess, poliza }) => {
                   ? opcionesCobertura
                   : TIPOS_VEHICULO
                 ).map((opt) => (
-                  <option key={opt} value={opt} className="bg-[#0f1324]">
+                  <option key={opt} value={opt} className="bg-brand-card-dark">
                     {opt}
                   </option>
                 ))
               )}
             </select>
             {!isDisabled && (
-              <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-white/40 group-hover:text-white transition-colors">
+              <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-brand-100/40 dark:text-brand-200/40 group-hover:text-brand-100 dark:group-hover:text-brand-200 transition-colors">
                 ▾
               </span>
             )}
@@ -268,7 +268,7 @@ const PolizaEditModal = ({ isOpen, onClose, onSuccess, poliza }) => {
             name={key}
             value={formData[key] ?? ""}
             onChange={handleChange}
-            className="cursor-text w-full rounded-xl border border-white/10 px-4 py-3 outline-none transition-all font-medium bg-black/40 text-white placeholder:text-white/20 focus:ring-2 ring-emerald-500/40 hover:bg-white/5"
+            className="cursor-text w-full rounded-xl border border-brand-100/10 dark:border-brand-200/10 px-4 py-3 outline-none transition-all font-medium bg-brand-100/[0.03] dark:bg-brand-200/[0.03] text-brand-100 dark:text-brand-200 placeholder:text-brand-100/20 dark:placeholder:text-brand-200/20 focus:ring-2 ring-brand-primary/40 hover:bg-brand-100/5 dark:hover:bg-brand-200/5"
             placeholder={key === "patente" ? "ABC 123" : key === "anio" ? "2024" : ""}
           />
         )}
@@ -279,29 +279,29 @@ const PolizaEditModal = ({ isOpen, onClose, onSuccess, poliza }) => {
   return (
     <AnimatePresence>
       <motion.div
-        className="fixed inset-0 z-50 flex items-stretch sm:items-center justify-center bg-black/70 px-2 sm:px-0 backdrop-blur-sm"
+        className="fixed inset-0 z-50 flex items-stretch sm:items-center justify-center bg-black/60 px-2 sm:px-0 backdrop-blur-sm"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
       >
         <motion.div
-          className="relative bg-[#030712] rounded-3xl shadow-[0_0_60px_rgba(0,0,0,0.7)] w-full sm:w-[95%] sm:max-w-4xl max-h-[100vh] sm:max-h-[90vh] flex flex-col overflow-hidden border border-white/5"
+          className="relative bg-brand-card dark:bg-brand-card-dark rounded-3xl shadow-2xl w-full sm:w-[95%] sm:max-w-4xl max-h-[100vh] sm:max-h-[90vh] flex flex-col overflow-hidden border border-brand-100/10 dark:border-brand-200/10"
           variants={modalVariants}
           initial="initial"
           animate="animate"
           exit="exit"
         >
           {/* Header */}
-          <div className="shrink-0 flex items-center justify-between px-6 py-4 border-b border-white/5 bg-[#010409]/80 backdrop-blur">
+          <div className="shrink-0 flex items-center justify-between px-6 py-4 border-b border-brand-100/10 dark:border-brand-200/10 bg-brand-100/[0.02] dark:bg-brand-200/[0.02]">
             <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 shrink-0 shadow-inner">
+              <div className="p-2.5 rounded-xl bg-brand-secondary/10 border border-brand-secondary/20 text-brand-secondary dark:text-brand-secondary-tint shrink-0">
                 <HiDocumentText className="text-xl" />
               </div>
               <div>
-                <h2 className="text-base sm:text-xl font-black text-white uppercase tracking-widest leading-none mb-1.5">
+                <h2 className="font-heading text-base sm:text-xl font-bold text-brand-100 dark:text-brand-200 uppercase tracking-tight leading-none mb-1.5">
                   Editar Póliza
                 </h2>
-                <p className="text-[10px] font-bold text-amber-400/80 uppercase tracking-wider">
+                <p className="text-[10px] font-bold text-brand-secondary/80 dark:text-brand-secondary-tint/80 uppercase tracking-wider">
                   ID Sistema: {poliza.id}
                 </p>
               </div>
@@ -309,18 +309,18 @@ const PolizaEditModal = ({ isOpen, onClose, onSuccess, poliza }) => {
             <button
               type="button"
               onClick={onClose}
-              className="cursor-pointer group h-10 w-10 flex items-center justify-center rounded-full bg-black/30 text-white/50 hover:bg-white/5 hover:text-amber-400 transition-all border border-white/5 hover:border-amber-400/20 shadow-inner"
+              className="cursor-pointer group h-10 w-10 flex items-center justify-center rounded-full bg-brand-100/5 dark:bg-brand-200/5 text-brand-100/50 dark:text-brand-200/50 hover:bg-brand-100/10 dark:hover:bg-brand-200/10 hover:text-brand-secondary dark:hover:text-brand-secondary-tint transition-all border border-brand-100/10 dark:border-brand-200/10"
             >
               <HiX className="text-xl group-hover:scale-110 transition-transform" />
             </button>
           </div>
 
           {/* Body */}
-          <div className="flex-1 overflow-y-auto px-6 py-6 bg-black/10">
+          <div className="flex-1 overflow-y-auto px-6 py-6">
             <form onSubmit={handleSubmit} className="space-y-8">
               {/* ── Bloque 1: Datos de la póliza ── */}
               <div>
-                <h3 className="text-[10px] font-black text-emerald-400/80 uppercase tracking-widest mb-4 ml-1">
+                <h3 className="text-[10px] font-black text-brand-primary dark:text-brand-primary-tint uppercase tracking-widest mb-4 ml-1">
                   Datos de la Póliza
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5">
@@ -330,13 +330,13 @@ const PolizaEditModal = ({ isOpen, onClose, onSuccess, poliza }) => {
 
               {/* ── Bloque 2: Datos técnicos del vehículo ── */}
               <div>
-                <h3 className="text-[10px] font-black text-sky-400/80 uppercase tracking-widest mb-4 ml-1">
+                <h3 className="text-[10px] font-black text-brand-secondary dark:text-brand-secondary-tint uppercase tracking-widest mb-4 ml-1">
                   Datos Técnicos del Vehículo
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5">
                   {/* Combustible (select con valor actual inyectado) */}
                   <div className="flex flex-col gap-1.5">
-                    <label className="block text-[10px] font-black text-white/50 uppercase tracking-widest ml-1">
+                    <label className="block text-[10px] font-black text-brand-100/50 dark:text-brand-200/50 uppercase tracking-widest ml-1">
                       {LABELS.combustible}
                     </label>
                     <div className="relative group">
@@ -344,18 +344,18 @@ const PolizaEditModal = ({ isOpen, onClose, onSuccess, poliza }) => {
                         name="combustible"
                         value={formData.combustible ?? ""}
                         onChange={handleChange}
-                        className="cursor-pointer w-full rounded-xl border border-white/10 px-4 py-3 pr-9 outline-none transition-all font-medium appearance-none bg-black/40 text-white focus:ring-2 ring-sky-500/40 hover:bg-white/5"
+                        className="cursor-pointer w-full rounded-xl border border-brand-100/10 dark:border-brand-200/10 px-4 py-3 pr-9 outline-none transition-all font-medium appearance-none bg-brand-100/[0.03] dark:bg-brand-200/[0.03] text-brand-100 dark:text-brand-200 focus:ring-2 ring-brand-secondary/40 hover:bg-brand-100/5 dark:hover:bg-brand-200/5"
                       >
-                        <option value="" className="bg-[#0f1324]">
+                        <option value="" className="bg-brand-card-dark">
                           — Seleccionar —
                         </option>
                         {opcionesCombustible.map((opt) => (
-                          <option key={opt} value={opt} className="bg-[#0f1324]">
+                          <option key={opt} value={opt} className="bg-brand-card-dark">
                             {opt}
                           </option>
                         ))}
                       </select>
-                      <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-white/40 group-hover:text-white transition-colors">
+                      <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-brand-100/40 dark:text-brand-200/40 group-hover:text-brand-100 dark:group-hover:text-brand-200 transition-colors">
                         ▾
                       </span>
                     </div>
@@ -363,7 +363,7 @@ const PolizaEditModal = ({ isOpen, onClose, onSuccess, poliza }) => {
 
                   {/* Carrocería */}
                   <div className="flex flex-col gap-1.5">
-                    <label className="block text-[10px] font-black text-white/50 uppercase tracking-widest ml-1">
+                    <label className="block text-[10px] font-black text-brand-100/50 dark:text-brand-200/50 uppercase tracking-widest ml-1">
                       {LABELS.carroceria}
                     </label>
                     <div className="relative group">
@@ -371,18 +371,18 @@ const PolizaEditModal = ({ isOpen, onClose, onSuccess, poliza }) => {
                         name="carroceria"
                         value={formData.carroceria ?? ""}
                         onChange={handleChange}
-                        className="cursor-pointer w-full rounded-xl border border-white/10 px-4 py-3 pr-9 outline-none transition-all font-medium appearance-none bg-black/40 text-white focus:ring-2 ring-sky-500/40 hover:bg-white/5"
+                        className="cursor-pointer w-full rounded-xl border border-brand-100/10 dark:border-brand-200/10 px-4 py-3 pr-9 outline-none transition-all font-medium appearance-none bg-brand-100/[0.03] dark:bg-brand-200/[0.03] text-brand-100 dark:text-brand-200 focus:ring-2 ring-brand-secondary/40 hover:bg-brand-100/5 dark:hover:bg-brand-200/5"
                       >
-                        <option value="" className="bg-[#0f1324]">
+                        <option value="" className="bg-brand-card-dark">
                           — Seleccionar —
                         </option>
                         {opcionesCarroceria.map((opt) => (
-                          <option key={opt} value={opt} className="bg-[#0f1324]">
+                          <option key={opt} value={opt} className="bg-brand-card-dark">
                             {opt}
                           </option>
                         ))}
                       </select>
-                      <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-white/40 group-hover:text-white transition-colors">
+                      <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-brand-100/40 dark:text-brand-200/40 group-hover:text-brand-100 dark:group-hover:text-brand-200 transition-colors">
                         ▾
                       </span>
                     </div>
@@ -390,7 +390,7 @@ const PolizaEditModal = ({ isOpen, onClose, onSuccess, poliza }) => {
 
                   {/* N° de Chasis */}
                   <div className="flex flex-col gap-1.5">
-                    <label className="block text-[10px] font-black text-white/50 uppercase tracking-widest ml-1">
+                    <label className="block text-[10px] font-black text-brand-100/50 dark:text-brand-200/50 uppercase tracking-widest ml-1">
                       {LABELS.numero_chasis}
                     </label>
                     <input
@@ -398,14 +398,14 @@ const PolizaEditModal = ({ isOpen, onClose, onSuccess, poliza }) => {
                       name="numero_chasis"
                       value={formData.numero_chasis ?? ""}
                       onChange={handleChange}
-                      className="cursor-text w-full rounded-xl border border-white/10 px-4 py-3 outline-none transition-all font-mono uppercase bg-black/40 text-white placeholder:text-white/20 focus:ring-2 ring-sky-500/40 hover:bg-white/5"
+                      className="cursor-text w-full rounded-xl border border-brand-100/10 dark:border-brand-200/10 px-4 py-3 outline-none transition-all font-mono uppercase bg-brand-100/[0.03] dark:bg-brand-200/[0.03] text-brand-100 dark:text-brand-200 placeholder:text-brand-100/20 dark:placeholder:text-brand-200/20 focus:ring-2 ring-brand-secondary/40 hover:bg-brand-100/5 dark:hover:bg-brand-200/5"
                       placeholder="8AP…"
                     />
                   </div>
 
                   {/* N° de Motor */}
                   <div className="flex flex-col gap-1.5">
-                    <label className="block text-[10px] font-black text-white/50 uppercase tracking-widest ml-1">
+                    <label className="block text-[10px] font-black text-brand-100/50 dark:text-brand-200/50 uppercase tracking-widest ml-1">
                       {LABELS.numero_motor}
                     </label>
                     <input
@@ -413,14 +413,14 @@ const PolizaEditModal = ({ isOpen, onClose, onSuccess, poliza }) => {
                       name="numero_motor"
                       value={formData.numero_motor ?? ""}
                       onChange={handleChange}
-                      className="cursor-text w-full rounded-xl border border-white/10 px-4 py-3 outline-none transition-all font-mono uppercase bg-black/40 text-white placeholder:text-white/20 focus:ring-2 ring-sky-500/40 hover:bg-white/5"
+                      className="cursor-text w-full rounded-xl border border-brand-100/10 dark:border-brand-200/10 px-4 py-3 outline-none transition-all font-mono uppercase bg-brand-100/[0.03] dark:bg-brand-200/[0.03] text-brand-100 dark:text-brand-200 placeholder:text-brand-100/20 dark:placeholder:text-brand-200/20 focus:ring-2 ring-brand-secondary/40 hover:bg-brand-100/5 dark:hover:bg-brand-200/5"
                       placeholder="Ej: HFX…"
                     />
                   </div>
 
                   {/* Observaciones (ocupa las 2 columnas) */}
                   <div className="flex flex-col gap-1.5 sm:col-span-2">
-                    <label className="block text-[10px] font-black text-white/50 uppercase tracking-widest ml-1">
+                    <label className="block text-[10px] font-black text-brand-100/50 dark:text-brand-200/50 uppercase tracking-widest ml-1">
                       {LABELS.observaciones}
                     </label>
                     <textarea
@@ -428,7 +428,7 @@ const PolizaEditModal = ({ isOpen, onClose, onSuccess, poliza }) => {
                       value={formData.observaciones ?? ""}
                       onChange={handleChange}
                       rows={3}
-                      className="cursor-text w-full rounded-xl border border-white/10 px-4 py-3 outline-none transition-all font-medium resize-none bg-black/40 text-white placeholder:text-white/20 focus:ring-2 ring-sky-500/40 hover:bg-white/5"
+                      className="cursor-text w-full rounded-xl border border-brand-100/10 dark:border-brand-200/10 px-4 py-3 outline-none transition-all font-medium resize-none bg-brand-100/[0.03] dark:bg-brand-200/[0.03] text-brand-100 dark:text-brand-200 placeholder:text-brand-100/20 dark:placeholder:text-brand-200/20 focus:ring-2 ring-brand-secondary/40 hover:bg-brand-100/5 dark:hover:bg-brand-200/5"
                       placeholder="Notas adicionales del vehículo…"
                     />
                   </div>
@@ -436,19 +436,19 @@ const PolizaEditModal = ({ isOpen, onClose, onSuccess, poliza }) => {
               </div>
 
               {/* Footer */}
-              <div className="flex flex-col sm:flex-row justify-end gap-3 pt-6 border-t border-white/5">
+              <div className="flex flex-col sm:flex-row justify-end gap-3 pt-6 border-t border-brand-100/10 dark:border-brand-200/10">
                 <button
                   type="button"
                   onClick={onClose}
                   disabled={saving}
-                  className="cursor-pointer h-11 px-6 text-xs uppercase font-black text-white/50 hover:text-white hover:bg-white/5 rounded-xl transition-all tracking-widest disabled:opacity-50"
+                  className="cursor-pointer h-11 px-6 text-xs uppercase font-black text-brand-100/50 dark:text-brand-200/50 hover:text-brand-100 dark:hover:text-brand-200 hover:bg-brand-100/5 dark:hover:bg-brand-200/5 rounded-xl transition-all tracking-widest disabled:opacity-50"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
                   disabled={saving}
-                  className="cursor-pointer h-11 px-8 rounded-xl bg-emerald-600 text-white text-xs uppercase font-black hover:bg-emerald-500 shadow-lg shadow-emerald-900/30 active:scale-95 transition-all tracking-widest disabled:opacity-50 flex items-center justify-center gap-2"
+                  className="cursor-pointer h-11 px-8 rounded-xl bg-brand-primary text-white text-xs uppercase font-black hover:bg-brand-primary-deep shadow-lg shadow-brand-primary/30 active:scale-95 transition-all tracking-widest disabled:opacity-50 flex items-center justify-center gap-2"
                 >
                   {saving ? (
                     <div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />

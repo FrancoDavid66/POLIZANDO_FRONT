@@ -14,7 +14,7 @@ import toast from "react-hot-toast";
 
 // 🚀 IMPORTACIONES DE SEGURIDAD
 import { useAuth } from "../../../context/AuthContext";
-import { solicitudesApi } from "../../../api/solicitudes";
+import { solicitudesApi } from "../../../services/solicitudes";
 
 const modalVariants = {
   initial: { opacity: 0, scale: 0.95 },
@@ -135,57 +135,57 @@ export default function ResponsablesCrudModal({ open, onClose, onChanged }) {
   return (
     <AnimatePresence>
       <motion.div className="fixed inset-0 z-[200] grid place-items-center bg-black/80 backdrop-blur-sm p-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose}>
-        <motion.div variants={modalVariants} initial="initial" animate="animate" exit="exit" className="w-full max-w-2xl rounded-3xl border border-white/10 bg-[#0b0f1e] shadow-2xl overflow-hidden flex flex-col" onClick={(e) => e.stopPropagation()}>
+        <motion.div variants={modalVariants} initial="initial" animate="animate" exit="exit" className="w-full max-w-2xl rounded-3xl border border-brand-200/10 bg-brand-card-dark shadow-2xl overflow-hidden flex flex-col" onClick={(e) => e.stopPropagation()}>
           
           {/* Header */}
-          <div className="px-6 py-5 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
+          <div className="px-6 py-5 border-b border-brand-200/5 flex items-center justify-between bg-brand-200/[0.02]">
             <div className="flex items-center gap-3">
-               <div className="h-10 w-10 rounded-xl bg-sky-500/10 flex items-center justify-center text-sky-400 border border-sky-500/20"><HiUserGroup className="text-xl" /></div>
+               <div className="h-10 w-10 rounded-xl bg-brand-primary/10 flex items-center justify-center text-brand-primary-tint border border-brand-primary/20"><HiUserGroup className="text-xl" /></div>
                <div>
-                  <h4 className="text-white font-black text-lg leading-none uppercase tracking-tighter">Gestión de Personal</h4>
-                  <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-1">
+                  <h4 className="text-brand-200 font-black text-lg leading-none uppercase tracking-tighter">Gestión de Personal</h4>
+                  <p className="text-[10px] text-brand-200/40 font-bold uppercase tracking-widest mt-1">
                     {isWebAdmin ? "Control Global" : `Oficina: ${user?.perfil?.oficina_nombre || 'Local'}`}
                   </p>
                </div>
             </div>
-            <button onClick={onClose} className="p-2 text-white/20 hover:text-white transition-all"><HiX className="text-2xl" /></button>
+            <button onClick={onClose} className="p-2 text-brand-200/20 hover:text-brand-200 transition-all"><HiX className="text-2xl" /></button>
           </div>
 
           <div className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-hide">
             
             {/* Registro de Personal */}
-            <motion.section className="p-5 rounded-2xl border border-white/10 bg-white/[0.03] shadow-inner">
+            <motion.section className="p-5 rounded-2xl border border-brand-200/10 bg-brand-200/[0.03] shadow-inner">
               {!creating ? (
-                <button onClick={() => setCreating(true)} className="w-full py-3 rounded-xl border border-dashed border-white/20 text-white/40 font-black uppercase text-[10px] tracking-widest hover:border-sky-500/50 hover:text-sky-400 transition-all flex items-center justify-center gap-2">
+                <button onClick={() => setCreating(true)} className="w-full py-3 rounded-xl border border-dashed border-brand-200/20 text-brand-200/40 font-black uppercase text-[10px] tracking-widest hover:border-brand-primary/50 hover:text-brand-primary-tint transition-all flex items-center justify-center gap-2">
                   <HiPlus /> Registrar nuevo responsable
                 </button>
               ) : (
                 <div className="space-y-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-1">
-                        <label className="text-[9px] font-black text-gray-500 uppercase ml-1">Nombre Completo</label>
-                        <input value={nuevoNombre} onChange={(e) => setNuevoNombre(e.target.value)} placeholder="Ej: CARLOS..." className="w-full h-12 px-4 rounded-xl bg-black/40 border border-white/10 text-white font-bold text-sm outline-none focus:ring-2 ring-sky-500/50" />
+                        <label className="text-[9px] font-black text-brand-200/40 uppercase ml-1">Nombre Completo</label>
+                        <input value={nuevoNombre} onChange={(e) => setNuevoNombre(e.target.value)} placeholder="Ej: CARLOS..." className="w-full h-12 px-4 rounded-xl bg-brand-200/[0.05] border border-brand-200/10 text-brand-200 font-bold text-sm outline-none focus:ring-2 ring-brand-primary/50" />
                     </div>
                     
                     {isWebAdmin && (
                         <div className="space-y-1">
-                            <label className="text-[9px] font-black text-sky-400/50 uppercase ml-1">Sucursal</label>
-                            <select value={nuevoOficina} onChange={(e) => setNuevoOficina(e.target.value)} className="w-full h-12 px-4 rounded-xl bg-black/40 border border-sky-500/20 text-sky-400 font-bold text-sm outline-none cursor-pointer">
-                                <option value="" className="bg-[#0b0f1e] text-slate-400">— Elegir Oficina —</option>
-                                {oficinasReal.map(o => <option key={o.id} value={o.id} className="bg-[#0b0f1e] text-white">{o.nombre}</option>)}
+                            <label className="text-[9px] font-black text-brand-secondary-tint/70 uppercase ml-1">Sucursal</label>
+                            <select value={nuevoOficina} onChange={(e) => setNuevoOficina(e.target.value)} className="w-full h-12 px-4 rounded-xl bg-brand-200/[0.05] border border-brand-secondary/20 text-brand-secondary-tint font-bold text-sm outline-none cursor-pointer">
+                                <option value="" className="bg-brand-card-dark text-brand-200/40">— Elegir Oficina —</option>
+                                {oficinasReal.map(o => <option key={o.id} value={o.id} className="bg-brand-card-dark text-brand-200">{o.nombre}</option>)}
                             </select>
                         </div>
                     )}
                   </div>
 
-                  <div className="flex justify-between items-center pt-2 border-t border-white/5">
+                  <div className="flex justify-between items-center pt-2 border-t border-brand-200/5">
                      <label className="flex items-center gap-3 cursor-pointer group">
-                        <input type="checkbox" checked={nuevoActivo} onChange={(e) => setNuevoActivo(e.target.checked)} className="w-5 h-5 accent-emerald-500 rounded border-none" />
-                        <span className="text-[10px] font-black text-white/30 uppercase group-hover:text-white transition-colors">Activo en Sistema</span>
+                        <input type="checkbox" checked={nuevoActivo} onChange={(e) => setNuevoActivo(e.target.checked)} className="w-5 h-5 accent-brand-primary rounded border-none" />
+                        <span className="text-[10px] font-black text-brand-200/30 uppercase group-hover:text-brand-200 transition-colors">Activo en Sistema</span>
                      </label>
                      <div className="flex gap-2">
-                        <button onClick={() => setCreating(false)} className="px-4 py-2 rounded-xl text-white/40 font-bold uppercase text-[10px] hover:text-white">Cancelar</button>
-                        <button onClick={onCreate} disabled={saving} className="px-8 py-2 rounded-xl bg-sky-500 text-black font-black uppercase text-[10px] tracking-widest shadow-lg shadow-sky-900/20 active:scale-95 transition-all">
+                        <button onClick={() => setCreating(false)} className="px-4 py-2 rounded-xl text-brand-200/40 font-bold uppercase text-[10px] hover:text-brand-200">Cancelar</button>
+                        <button onClick={onCreate} disabled={saving} className="px-8 py-2 rounded-xl bg-brand-primary text-white font-black uppercase text-[10px] tracking-widest shadow-lg shadow-brand-primary/20 active:scale-95 transition-all">
                             {saving ? "Registrando..." : "Confirmar Alta"}
                         </button>
                      </div>
@@ -197,25 +197,25 @@ export default function ResponsablesCrudModal({ open, onClose, onChanged }) {
             {/* Filtro de Búsqueda */}
             <div className="space-y-3">
                 <div className="relative">
-                  <HiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" />
-                  <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Filtrar por nombre o sucursal..." className="w-full pl-12 pr-4 py-3 rounded-2xl bg-black/40 border border-white/5 text-white text-xs outline-none focus:border-white/20" />
+                  <HiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-200/20" />
+                  <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Filtrar por nombre o sucursal..." className="w-full pl-12 pr-4 py-3 rounded-2xl bg-brand-200/[0.05] border border-brand-200/5 text-brand-200 text-xs outline-none focus:border-brand-200/20" />
                 </div>
 
-                <div className="rounded-2xl border border-white/10 bg-black/20 overflow-hidden divide-y divide-white/5">
+                <div className="rounded-2xl border border-brand-200/10 bg-brand-200/[0.02] overflow-hidden divide-y divide-brand-200/5">
                   {loading ? (
-                    <div className="p-12 text-center text-sky-400 text-[10px] font-black uppercase tracking-widest animate-pulse">Sincronizando...</div>
+                    <div className="p-12 text-center text-brand-primary-tint text-[10px] font-black uppercase tracking-widest animate-pulse">Sincronizando...</div>
                   ) : filtered.length === 0 ? (
-                    <div className="p-12 text-center text-white/10 text-[10px] font-black uppercase tracking-widest italic">No hay responsables registrados</div>
+                    <div className="p-12 text-center text-brand-200/15 text-[10px] font-black uppercase tracking-widest italic">No hay responsables registrados</div>
                   ) : (
                     filtered.map((it) => (
-                        <motion.div key={it.id} className="p-4 flex items-center justify-between group hover:bg-white/[0.02] transition-colors" variants={itemVariants}>
+                        <motion.div key={it.id} className="p-4 flex items-center justify-between group hover:bg-brand-200/[0.02] transition-colors" variants={itemVariants}>
                           <div className="flex items-center gap-4">
-                             <div className={`h-10 w-10 rounded-full flex items-center justify-center font-black text-xs ${it.activo ? 'bg-emerald-500/10 text-emerald-500' : 'bg-rose-500/10 text-rose-500'}`}>
+                             <div className={`h-10 w-10 rounded-full flex items-center justify-center font-black text-xs ${it.activo ? 'bg-brand-primary/10 text-brand-primary-tint' : 'bg-red-500/10 text-red-400'}`}>
                                 {it.nombre.substring(0, 2).toUpperCase()}
                              </div>
                              <div className="flex flex-col">
-                                <p className={`font-black text-sm uppercase tracking-tight ${!it.activo ? 'text-white/20 line-through' : 'text-white'}`}>{it.nombre}</p>
-                                <div className="flex items-center gap-1.5 text-[9px] font-black text-sky-400/60 uppercase tracking-widest">
+                                <p className={`font-black text-sm uppercase tracking-tight ${!it.activo ? 'text-brand-200/20 line-through' : 'text-brand-200'}`}>{it.nombre}</p>
+                                <div className="flex items-center gap-1.5 text-[9px] font-black text-brand-primary-tint/60 uppercase tracking-widest">
                                     <HiOfficeBuilding /> {getOficinaNombre(it.oficina)}
                                 </div>
                              </div>
@@ -223,7 +223,7 @@ export default function ResponsablesCrudModal({ open, onClose, onChanged }) {
                           
                           <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                              {isWebAdmin && (
-                                <button onClick={() => { if(confirm(`¿Eliminar definitivamente a "${it.nombre}"?`)) solicitudesApi.eliminarEmpleado(it.id).then(() => fetchData()); }} className="p-2 text-white/10 hover:text-rose-500 transition-all hover:bg-rose-500/10 rounded-lg">
+                                <button onClick={() => { if(confirm(`¿Eliminar definitivamente a "${it.nombre}"?`)) solicitudesApi.eliminarEmpleado(it.id).then(() => fetchData()); }} className="p-2 text-brand-200/15 hover:text-red-400 transition-all hover:bg-red-500/10 rounded-lg">
                                     <HiTrash className="text-lg" />
                                 </button>
                              )}
@@ -235,8 +235,8 @@ export default function ResponsablesCrudModal({ open, onClose, onChanged }) {
             </div>
           </div>
 
-          <div className="p-4 border-t border-white/5 bg-black/40 text-center">
-             <p className="text-[9px] font-black text-gray-600 uppercase tracking-[0.2em]">Thames Security Multi-tenant System</p>
+          <div className="p-4 border-t border-brand-200/5 bg-brand-200/[0.02] text-center">
+             <p className="text-[9px] font-black text-brand-200/25 uppercase tracking-[0.2em]">Polizando · Sistema Multi-tenant</p>
           </div>
         </motion.div>
       </motion.div>

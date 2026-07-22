@@ -2,13 +2,13 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-const BASE_URL = import.meta.env.VITE_API_URL; 
+const BASE_URL = import.meta.env.VITE_API_URL;
 
 /**
  * 🔐 Función auxiliar para obtener el token del almacenamiento local.
  */
 const getAuthHeaders = () => {
-  const token = localStorage.getItem("access_token") || localStorage.getItem("token"); 
+  const token = localStorage.getItem("access_token") || localStorage.getItem("token");
   return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
@@ -25,9 +25,9 @@ export const fetchBalanceDiario = createAsyncThunk(
         params.oficina = oficina;
       }
 
-      const res = await axios.get(`${BASE_URL}balance-diario/`, { 
+      const res = await axios.get(`${BASE_URL}balance-diario/`, {
         params,
-        headers: getAuthHeaders() 
+        headers: getAuthHeaders()
       });
       return res.data;
     } catch (err) {
@@ -48,9 +48,9 @@ export const enviarBalanceWhatsapp = createAsyncThunk(
       if (oficina && oficina !== 'ALL') payload.oficina = oficina;
 
       const res = await axios.post(`${BASE_URL}balance-diario/enviar/`, payload, {
-        headers: getAuthHeaders() 
+        headers: getAuthHeaders()
       });
-      return res.data; 
+      return res.data;
     } catch (err) {
       const msg = err?.response?.data?.detail || err?.response?.data?.error || "No se pudo enviar el balance por WhatsApp";
       return rejectWithValue(msg);
@@ -68,7 +68,7 @@ export const fetchCategorias = createAsyncThunk(
         params,
         headers: getAuthHeaders(),
       });
-      return res.data.results || res.data; 
+      return res.data.results || res.data;
     } catch (err) {
       return rejectWithValue(err?.response?.data || "Error al obtener categorías");
     }
@@ -105,121 +105,21 @@ export const deleteCategoria = createAsyncThunk(
   }
 );
 
-// 🚀 NUEVO: GET Lista de Oficinas (Para el selector de admin)
-export const fetchOficinasList = createAsyncThunk(
-  "balance/fetchOficinasList",
-  async (_, { rejectWithValue }) => {
-    try {
-      // Ajusta la ruta a 'usuarios/oficinas/' si en tu backend está allí
-      const res = await axios.get(`${BASE_URL}oficinas/`, {
-        headers: getAuthHeaders(),
-      });
-      return res.data.results || res.data;
-    } catch (err) {
-      return rejectWithValue(err?.response?.data || "Error al cargar las oficinas");
-    }
-  }
-);
-
-// 🚀 NUEVO: POST Crear un Ingreso
-export const createIngreso = createAsyncThunk(
-  "balance/createIngreso",
-  async (data, { rejectWithValue }) => {
-    try {
-      const res = await axios.post(`${BASE_URL}ingresos/`, data, {
-        headers: getAuthHeaders(),
-      });
-      return res.data;
-    } catch (err) {
-      return rejectWithValue(err?.response?.data || "Error al registrar el ingreso");
-    }
-  }
-);
-
-// 🚀 NUEVO: POST Crear un Egreso
-export const createEgreso = createAsyncThunk(
-  "balance/createEgreso",
-  async (data, { rejectWithValue }) => {
-    try {
-      const res = await axios.post(`${BASE_URL}egresos/`, data, {
-        headers: getAuthHeaders(),
-      });
-      return res.data;
-    } catch (err) {
-      return rejectWithValue(err?.response?.data || "Error al registrar el egreso");
-    }
-  }
-);
-
 // =============== SLICE ===============
-// ── Historial de ingresos (con filtros completos) ──────────────────
-export const fetchHistorialIngresos = createAsyncThunk(
-  "balance/fetchHistorialIngresos",
-  async ({ oficina, desde, hasta, forma_pago, q, page = 1, page_size = 50 } = {}, { rejectWithValue }) => {
-    try {
-      const params = { page, page_size };
-      if (oficina && oficina !== "ALL") params.oficina = oficina;
-      if (desde)      params.fecha__gte = desde;
-      if (hasta)      params.fecha__lte = hasta;
-      if (forma_pago && forma_pago !== "TODAS") params.forma_pago = forma_pago.toLowerCase();
-      if (q)          params.search = q;
-      const res = await axios.get(`${BASE_URL}ingresos/`, { params, headers: getAuthHeaders() });
-      return res.data;
-    } catch (err) {
-      return rejectWithValue(err?.response?.data || "Error al obtener historial");
-    }
-  }
-);
-
-// ── Exportar historial a Excel ────────────────────────────────────
-export const exportHistorialExcel = createAsyncThunk(
-  "balance/exportHistorialExcel",
-  async ({ oficina, desde, hasta, forma_pago, q } = {}, { rejectWithValue }) => {
-    try {
-      const params = { formato: "excel", page_size: 9999 };
-      if (oficina && oficina !== "ALL") params.oficina = oficina;
-      if (desde)      params.fecha__gte = desde;
-      if (hasta)      params.fecha__lte = hasta;
-      if (forma_pago && forma_pago !== "TODAS") params.forma_pago = forma_pago.toLowerCase();
-      if (q)          params.search = q;
-      const res = await axios.get(`${BASE_URL}ingresos/export/`, {
-        params, headers: getAuthHeaders(), responseType: "blob"
-      });
-      const url = URL.createObjectURL(res.data);
-      const a = document.createElement("a");
-      a.href = url;
-      const hoy = new Date().toISOString().slice(0, 10);
-      a.download = `Historial_Pagos_${hoy}.xlsx`;
-      document.body.appendChild(a); a.click(); a.remove();
-      URL.revokeObjectURL(url);
-      return { ok: true };
-    } catch (err) {
-      return rejectWithValue("No se pudo descargar el Excel");
-    }
-  }
-);
-
 const initialState = {
   data: null,
   status: "idle",
   error: null,
-  
+
   envioStatus: "idle",
   envioError: null,
   mensajeEnviado: null,
-  
+
   categorias: [],
   categoriasStatus: "idle",
 
+  // Se llena desde los modales (selector de sucursal del admin)
   oficinas: [],
-  oficinasStatus: "idle",
-
-  // Historial de ingresos
-  historialItems: [],
-  historialCount: 0,
-  historialNext: null,
-  historialPrev: null,
-  historialStatus: "idle",
 };
 
 const balanceSlice = createSlice({
@@ -241,7 +141,7 @@ const balanceSlice = createSlice({
       })
       .addCase(fetchBalanceDiario.fulfilled, (state, action) => {
         state.status = "succeeded";
-        state.data = action.payload; 
+        state.data = action.payload;
       })
       .addCase(fetchBalanceDiario.rejected, (state, action) => {
         state.status = "failed";
@@ -269,7 +169,7 @@ const balanceSlice = createSlice({
       })
       .addCase(fetchCategorias.fulfilled, (state, action) => {
         state.categoriasStatus = "succeeded";
-        state.categorias = action.payload; 
+        state.categorias = action.payload;
       })
       .addCase(fetchCategorias.rejected, (state) => {
         state.categoriasStatus = "failed";
@@ -279,34 +179,6 @@ const balanceSlice = createSlice({
       })
       .addCase(deleteCategoria.fulfilled, (state, action) => {
         state.categorias = state.categorias.filter((c) => c.id !== action.payload);
-      })
-
-      // --- Oficinas ---
-      .addCase(fetchOficinasList.pending, (state) => {
-        state.oficinasStatus = "loading";
-      })
-      .addCase(fetchOficinasList.fulfilled, (state, action) => {
-        state.oficinasStatus = "succeeded";
-        state.oficinas = action.payload;
-      })
-      .addCase(fetchOficinasList.rejected, (state) => {
-        state.oficinasStatus = "failed";
-      })
-
-      // --- Historial Ingresos ---
-      .addCase(fetchHistorialIngresos.pending, (state) => {
-        state.historialStatus = "loading";
-      })
-      .addCase(fetchHistorialIngresos.fulfilled, (state, action) => {
-        state.historialStatus = "succeeded";
-        const data = action.payload;
-        state.historialItems = Array.isArray(data.results) ? data.results : (Array.isArray(data) ? data : []);
-        state.historialCount = data.count ?? state.historialItems.length;
-        state.historialNext  = data.next  ?? null;
-        state.historialPrev  = data.previous ?? null;
-      })
-      .addCase(fetchHistorialIngresos.rejected, (state) => {
-        state.historialStatus = "failed";
       });
   },
 });

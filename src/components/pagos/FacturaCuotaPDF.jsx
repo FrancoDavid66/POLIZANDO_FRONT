@@ -1,14 +1,17 @@
 // src/components/pagos/FacturaCuotaPDF.jsx
 import { Page, Text, View, Document, StyleSheet } from "@react-pdf/renderer";
+import { formatMoney } from "../../utils/formatMoney";
+import { formatDate } from "../../utils/formatDate";
 
 const A4_WIDTH = 595.28;
 const A4_HEIGHT = 841.89;
 
-const PRIMARY = "#8B1E3F";
-const PRIMARY_DARK = "#5E1329";
-const BORDER = "#E6C9D2";
+// 🔧 Marca Polizando (antes: PRIMARY="#8B1E3F" vino/marrón + "Servicios Jurídicos y Seguros")
+const PRIMARY = "#1F7A4C";
+const PRIMARY_DARK = "#14603B";
+const BORDER = "#BCD7C9";
 const TEXT = "#111827";
-const MUTED_BG = "#FBEFF3";
+const MUTED_BG = "#EFF6F1";
 const ALERT_BG = "#FEF2F2";
 const ALERT_TEXT = "#991B1B";
 
@@ -17,69 +20,14 @@ const safe = (v, d = "—") =>
 
 // 🚀 FUNCIÓN A PRUEBA DE FALLOS PARA HORA Y FECHA
 const fmtDateTimeHM = (d) => {
-  if (!d) return "—";
-  try {
-    let dateObj;
-    // Comprobamos si ya es un objeto Date real
-    if (Object.prototype.toString.call(d) === '[object Date]') {
-      dateObj = d;
-    } else {
-      const s = String(d).trim();
-      dateObj = new Date(s.length === 10 ? s + "T12:00:00" : s);
-    }
-    
-    if (Number.isNaN(dateObj.getTime())) return "—";
-    
-    const day = String(dateObj.getDate()).padStart(2, "0");
-    const month = String(dateObj.getMonth() + 1).padStart(2, "0");
-    const year = dateObj.getFullYear();
-    const hours = String(dateObj.getHours()).padStart(2, "0");
-    const mins = String(dateObj.getMinutes()).padStart(2, "0");
-    
-    const tieneHoraReal = dateObj.getHours() !== 12 || dateObj.getMinutes() !== 0;
-    const horaTxt = tieneHoraReal ? ` ${hours}:${mins} hs` : ""; 
-    return `${day}/${month}/${year}${horaTxt}`;
-  } catch {
-    return "—";
-  }
+  const s = formatDate(d, { withTime: true, smartTime: true });
+  return s.includes(":") ? `${s} hs` : s; // el original agregaba " hs" solo cuando mostraba la hora
 };
 
 // 🚀 FUNCIÓN A PRUEBA DE FALLOS SOLO PARA FECHA (Corrige la rayita)
-const fmtDateOnly = (d) => {
-  if (!d) return "—";
-  try {
-    let dt;
-    // Comprobamos si ya es un objeto Date real
-    if (Object.prototype.toString.call(d) === '[object Date]') {
-      dt = d;
-    } else {
-      const s = String(d).trim();
-      dt = new Date(s.length === 10 ? s + "T12:00:00" : s);
-    }
+const fmtDateOnly = (d) => formatDate(d);
 
-    if (Number.isNaN(dt.getTime())) return "—";
-
-    const day = String(dt.getDate()).padStart(2, "0");
-    const month = String(dt.getMonth() + 1).padStart(2, "0");
-    const year = dt.getFullYear();
-    
-    return `${day}/${month}/${year}`;
-  } catch {
-    return "—";
-  }
-};
-
-const fmtMoney = (n) => {
-  try {
-    const num = Number(n || 0);
-    return `AR$ ${num.toLocaleString("es-AR", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    })}`;
-  } catch {
-    return "AR$ 0,00";
-  }
-};
+const fmtMoney = (n) => formatMoney(n, { symbol: "AR$" });
 
 // Determina si se está pagando fuera de término
 const isPagoAtrasado = (cuota) => {
@@ -131,7 +79,7 @@ const styles = StyleSheet.create({
     borderRadius: 8, 
     borderWidth: 1, 
     borderColor: PRIMARY, 
-    backgroundColor: "#FFF6F8", 
+    backgroundColor: "#F6FBF8", 
     paddingVertical: 12, 
     paddingHorizontal: 16, 
     marginBottom: 16 
@@ -223,7 +171,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12, 
     fontSize: 13, 
     fontWeight: "bold", 
-    backgroundColor: "#FCF7F9" 
+    backgroundColor: "#F3FAF6" 
   },
   alertBox: { 
     marginTop: 16, 
@@ -290,7 +238,7 @@ const FacturaCuotaPDF = ({
         <View style={styles.header}>
           <Text style={styles.headerTitle}>COMPROBANTE DE PAGO</Text>
           <Text style={styles.headerSubtitle}>
-            Servicios Jurídicos y Seguros
+            Polizando · Seguro digital
           </Text>
         </View>
 

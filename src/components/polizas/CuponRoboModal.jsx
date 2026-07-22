@@ -96,36 +96,36 @@ export default function CuponRoboModal({ isOpen, onClose, poliza }) {
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          className="fixed inset-0 z-[120] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
+          className="fixed inset-0 z-[120] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
         >
           <motion.div
-            className="relative w-full max-w-lg rounded-2xl border border-white/10 bg-neutral-950/95 p-5 sm:p-6 shadow-2xl"
+            className="relative w-full max-w-lg rounded-2xl border border-brand-100/10 dark:border-brand-200/10 bg-brand-card dark:bg-brand-card-dark p-5 sm:p-6 shadow-2xl"
             initial={{ scale: 0.9, opacity: 0, y: 16 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 16 }}
           >
             <button
               type="button"
               onClick={handleClose}
-              className="absolute right-4 top-4 inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/5 text-neutral-400 hover:bg-white/10 hover:text-neutral-50 disabled:opacity-50 transition-colors"
+              className="absolute right-4 top-4 inline-flex h-8 w-8 items-center justify-center rounded-full border border-brand-100/10 dark:border-brand-200/10 bg-brand-100/5 dark:bg-brand-200/5 text-brand-100/50 dark:text-brand-200/50 hover:bg-brand-100/10 dark:hover:bg-brand-200/10 hover:text-brand-100 dark:hover:text-brand-200 disabled:opacity-50 transition-colors"
               disabled={creating}
             >
               <HiX className="h-4 w-4" />
             </button>
 
             <div className="mb-5 flex flex-col sm:flex-row sm:items-center gap-3 pr-8">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary-500/20 text-primary-300 shrink-0 border border-primary-500/20">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-primary/15 text-brand-primary dark:text-brand-primary-tint shrink-0 border border-brand-primary/20">
                 <HiCalendar className="h-5 w-5" />
               </div>
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                   <h2 className="text-sm font-bold text-neutral-50 uppercase tracking-tight">
+                   <h2 className="text-sm font-bold text-brand-100 dark:text-brand-200 uppercase tracking-tight">
                     Vincular cupón de robo
                   </h2>
-                  <span className="px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 text-[9px] font-black uppercase border border-emerald-500/20">
+                  <span className="px-1.5 py-0.5 rounded bg-brand-primary/10 text-brand-primary dark:text-brand-primary-tint text-[9px] font-black uppercase border border-brand-primary/20">
                     {user?.perfil?.oficina_nombre || 'Local'}
                   </span>
                 </div>
-                <p className="text-[10px] text-neutral-400 leading-snug font-medium">
+                <p className="text-[10px] text-brand-100/50 dark:text-brand-200/50 leading-snug font-medium">
                   Asigna el cupón a una de las cuotas existentes de la compañía.
                 </p>
               </div>
@@ -134,20 +134,20 @@ export default function CuponRoboModal({ isOpen, onClose, poliza }) {
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Selector de Cuota */}
               <div className="space-y-1.5">
-                <label className="text-[11px] font-bold text-neutral-400 uppercase tracking-tighter">
+                <label className="text-[11px] font-bold text-brand-100/50 dark:text-brand-200/50 uppercase tracking-tighter">
                   Cuota correspondiente
                 </label>
-                <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-neutral-900/80 px-3 py-2.5 focus-within:ring-2 ring-primary-500/40 transition-all">
-                  <HiCalendar className="h-4 w-4 text-neutral-500" />
+                <div className="flex items-center gap-2 rounded-xl border border-brand-100/10 dark:border-brand-200/10 bg-brand-100/[0.03] dark:bg-brand-200/[0.03] px-3 py-2.5 focus-within:ring-2 ring-brand-primary/40 transition-all">
+                  <HiCalendar className="h-4 w-4 text-brand-100/40 dark:text-brand-200/40" />
                   <select
-                    className="flex-1 bg-transparent text-xs text-neutral-50 outline-none cursor-pointer"
+                    className="flex-1 bg-transparent text-xs text-brand-100 dark:text-brand-200 outline-none cursor-pointer"
                     value={cuotaId}
                     onChange={(e) => setCuotaId(e.target.value)}
                     required
                   >
-                    <option value="" className="bg-neutral-900 text-neutral-500">Seleccioná una cuota de la póliza...</option>
+                    <option value="" className="bg-brand-card-dark text-brand-200/50">Seleccioná una cuota de la póliza...</option>
                     {cuotas.map((cuota) => (
-                      <option key={cuota.id} value={cuota.id} className="bg-neutral-900 text-neutral-50">
+                      <option key={cuota.id} value={cuota.id} className="bg-brand-card-dark text-brand-200">
                         Cuota #{cuota.cuota_nro} - Vence: {dayjs(cuota.fecha_vencimiento).format("DD/MM/YYYY")}
                       </option>
                     ))}
@@ -157,18 +157,18 @@ export default function CuponRoboModal({ isOpen, onClose, poliza }) {
 
               {/* Estado */}
               <div className="space-y-1.5">
-                <label className="text-[11px] font-bold text-neutral-400 uppercase tracking-tighter">
+                <label className="text-[11px] font-bold text-brand-100/50 dark:text-brand-200/50 uppercase tracking-tighter">
                   Estado inicial
                 </label>
-                <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-neutral-900/80 px-3 py-2.5 focus-within:ring-2 ring-primary-500/40 transition-all">
-                  <HiCheckCircle className="h-4 w-4 text-neutral-500" />
+                <div className="flex items-center gap-2 rounded-xl border border-brand-100/10 dark:border-brand-200/10 bg-brand-100/[0.03] dark:bg-brand-200/[0.03] px-3 py-2.5 focus-within:ring-2 ring-brand-primary/40 transition-all">
+                  <HiCheckCircle className="h-4 w-4 text-brand-100/40 dark:text-brand-200/40" />
                   <select
-                    className="flex-1 bg-transparent text-xs text-neutral-50 outline-none cursor-pointer"
+                    className="flex-1 bg-transparent text-xs text-brand-100 dark:text-brand-200 outline-none cursor-pointer"
                     value={estado}
                     onChange={(e) => setEstado(e.target.value)}
                   >
                     {ESTADOS.map((opt) => (
-                      <option key={opt.value} value={opt.value} className="bg-neutral-900 text-neutral-50">
+                      <option key={opt.value} value={opt.value} className="bg-brand-card-dark text-brand-200">
                         {opt.label}
                       </option>
                     ))}
@@ -179,31 +179,31 @@ export default function CuponRoboModal({ isOpen, onClose, poliza }) {
               {isPagada && (
                 <motion.div 
                   initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }}
-                  className="space-y-3 rounded-2xl border border-primary-500/25 bg-primary-500/5 px-3 py-4"
+                  className="space-y-3 rounded-2xl border border-brand-primary/20 bg-brand-primary/5 px-3 py-4"
                 >
-                  <p className="text-[10px] font-bold text-primary-300 uppercase tracking-widest text-center">
+                  <p className="text-[10px] font-bold text-brand-primary dark:text-brand-primary-tint uppercase tracking-widest text-center">
                     Registro de Egreso (Compañía)
                   </p>
                   <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-neutral-400 uppercase">Fecha y hora de pago</label>
-                    <input type="datetime-local" className="w-full rounded-xl border border-white/10 bg-neutral-950 px-3 py-2 text-xs text-neutral-50 outline-none" value={pagoFecha} onChange={(e) => setPagoFecha(e.target.value)} />
+                    <label className="text-[10px] font-bold text-brand-100/50 dark:text-brand-200/50 uppercase">Fecha y hora de pago</label>
+                    <input type="datetime-local" className="w-full rounded-xl border border-brand-100/10 dark:border-brand-200/10 bg-brand-100/[0.03] dark:bg-brand-200/[0.03] px-3 py-2 text-xs text-brand-100 dark:text-brand-200 outline-none" value={pagoFecha} onChange={(e) => setPagoFecha(e.target.value)} />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-neutral-400 uppercase">Medio / billetera usada</label>
-                    <input type="text" className="w-full rounded-xl border border-white/10 bg-neutral-950 px-3 py-2 text-xs text-neutral-50 outline-none" value={medioCobro} onChange={(e) => setMedioCobro(e.target.value)} />
+                    <label className="text-[10px] font-bold text-brand-100/50 dark:text-brand-200/50 uppercase">Medio / billetera usada</label>
+                    <input type="text" className="w-full rounded-xl border border-brand-100/10 dark:border-brand-200/10 bg-brand-100/[0.03] dark:bg-brand-200/[0.03] px-3 py-2 text-xs text-brand-100 dark:text-brand-200 outline-none" value={medioCobro} onChange={(e) => setMedioCobro(e.target.value)} />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-neutral-400 uppercase">Foto del cupón (URL)</label>
-                    <input type="url" className="w-full rounded-xl border border-white/10 bg-neutral-950 px-3 py-2 text-xs text-neutral-50 outline-none" value={fotoUrl} onChange={(e) => setFotoUrl(e.target.value)} />
+                    <label className="text-[10px] font-bold text-brand-100/50 dark:text-brand-200/50 uppercase">Foto del cupón (URL)</label>
+                    <input type="url" className="w-full rounded-xl border border-brand-100/10 dark:border-brand-200/10 bg-brand-100/[0.03] dark:bg-brand-200/[0.03] px-3 py-2 text-xs text-brand-100 dark:text-brand-200 outline-none" value={fotoUrl} onChange={(e) => setFotoUrl(e.target.value)} />
                   </div>
                 </motion.div>
               )}
 
               <div className="mt-6 flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 pt-2">
-                <button type="button" onClick={handleClose} className="inline-flex flex-1 sm:flex-none items-center justify-center rounded-xl border border-white/10 px-4 py-2.5 text-xs font-bold text-neutral-400 hover:bg-white/5 hover:text-white transition-all uppercase" disabled={creating}>Cancelar</button>
-                <button type="submit" disabled={creating} className="inline-flex flex-1 sm:flex-none items-center justify-center gap-2 rounded-xl bg-primary-500 px-6 py-2.5 text-xs font-black text-neutral-950 hover:bg-primary-400 transition-all uppercase">
+                <button type="button" onClick={handleClose} className="inline-flex flex-1 sm:flex-none items-center justify-center rounded-xl border border-brand-100/10 dark:border-brand-200/10 px-4 py-2.5 text-xs font-bold text-brand-100/50 dark:text-brand-200/50 hover:bg-brand-100/5 dark:hover:bg-brand-200/5 hover:text-brand-100 dark:hover:text-brand-200 transition-all uppercase" disabled={creating}>Cancelar</button>
+                <button type="submit" disabled={creating} className="inline-flex flex-1 sm:flex-none items-center justify-center gap-2 rounded-xl bg-brand-primary px-6 py-2.5 text-xs font-black text-white hover:bg-brand-primary-deep transition-all uppercase">
                   <span>Guardar cupón</span>
-                  {creating && <span className="h-3 w-3 animate-spin rounded-full border-2 border-neutral-950 border-t-transparent" />}
+                  {creating && <span className="h-3 w-3 animate-spin rounded-full border-2 border-white border-t-transparent" />}
                 </button>
               </div>
             </form>

@@ -69,12 +69,12 @@ export default function SetFotoPerfilButton({ polizaId, onPerfilActualizado }) {
         onClick={openPicker}
         disabled={busy}
         title={`Cambiar foto de perfil como: ${user?.perfil?.nombre || 'Usuario'}`}
-        className={`inline-flex items-center gap-2 rounded-lg border border-white/10 
-                    bg-white/5 px-3 py-1.5 text-xs sm:text-sm text-white/90 
-                    hover:bg-white/10 transition shadow-lg
+        className={`inline-flex items-center gap-2 rounded-lg border border-brand-100/10 dark:border-brand-200/10 
+                    bg-brand-100/5 dark:bg-brand-200/5 px-3 py-1.5 text-xs sm:text-sm text-brand-100/80 dark:text-brand-200/80 
+                    hover:bg-brand-100/10 dark:hover:bg-brand-200/10 transition
                     disabled:opacity-60 disabled:cursor-not-allowed`}
       >
-        <HiCamera className="h-4 w-4 text-primary-300" />
+        <HiCamera className="h-4 w-4 text-brand-primary dark:text-brand-primary-tint" />
         <span className="hidden sm:inline">
           {busy ? "Subiendo..." : "Cambiar foto"}
         </span>

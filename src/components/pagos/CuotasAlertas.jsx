@@ -1,4 +1,4 @@
-/* src/components/pagos/CuotasAlertas.jsx — Buckets 3/0/3/7/30 + Export CSV/Excel/PDF + filtros Oficina + Compañía + búsqueda intencional */
+/* src/components/pagos/CuotasAlertas.jsx — Buckets 3/0/3/7/30 + Export CSV/Excel/PDF + filtro Compañía + búsqueda intencional */
 import { useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import dayjs from "dayjs";
@@ -7,121 +7,14 @@ import {
   HiClock,
   HiExclamation,
   HiBadgeCheck,
-  HiOfficeBuilding,
   HiChevronDown,
   HiShieldCheck,
   HiQuestionMarkCircle,
 } from "react-icons/hi";
 import { fetchCuotasAVencer } from "../../store/slices/pagosSlice";
-
-// 🎯 Lógica unificada de cuotas (fuente única de verdad)
-import {
-  diasHastaVencimiento,
-  fmtMoney as utilFmtMoney,
-  fmtFecha,
-} from "../../utils/cuotas";
+import { formatMoney } from "../../utils/formatMoney";
 
 dayjs.locale("es");
-
-// ✅ Solo 3 oficinas + Todas
-const FILTERS = [
-  {
-    key: "ALL",
-    label: "Todas",
-    active:
-      "bg-slate-700 text-slate-100 border-slate-600 ",
-    inactive:
-      "bg-slate-900/50 text-slate-100 border-slate-700/80 hover:border-sky-300/60 hover: hover:bg-slate-900/70",
-    ring: "focus-visible:ring-sky-200/80",
-    badgeActive: "bg-slate-600 text-slate-100",
-    badgeInactive: "bg-slate-800 text-slate-400",
-  },
-  {
-    key: "1",
-    label: "5 esquinas (1)",
-    active:
-      "bg-slate-700 text-slate-100 border-slate-600 ",
-    inactive:
-      "bg-slate-900/50 text-slate-100 border-slate-700/80 hover:border-emerald-300/60 hover: hover:bg-slate-900/70",
-    ring: "focus-visible:ring-emerald-200/80",
-    badgeActive: "bg-slate-600 text-slate-100",
-    badgeInactive: "bg-slate-800 text-slate-400",
-  },
-  {
-    key: "2",
-    label: "axion (2)",
-    active:
-      "bg-slate-700 text-slate-100 border-slate-600 ",
-    inactive:
-      "bg-slate-900/50 text-slate-100 border-slate-700/80 hover:border-cyan-200/60 hover: hover:bg-slate-900/70",
-    ring: "focus-visible:ring-cyan-100/80",
-    badgeActive: "bg-slate-600 text-slate-100",
-    badgeInactive: "bg-slate-800 text-slate-400",
-  },
-  {
-    key: "3",
-    label: "kilometro 39 (3)",
-    active:
-      "bg-slate-700 text-slate-100 border-slate-600 ",
-    inactive:
-      "bg-slate-900/50 text-slate-100 border-slate-700/80 hover:border-fuchsia-200/60 hover: hover:bg-slate-900/70",
-    ring: "focus-visible:ring-fuchsia-200/80",
-    badgeActive: "bg-slate-600 text-slate-100",
-    badgeInactive: "bg-slate-800 text-slate-400",
-  },
-];
-
-const getFilterMeta = (key) => FILTERS.find((f) => f.key === key) || FILTERS[0];
-
-const oficinaLabelFromKey = (k) => {
-  if (k === "1") return "5 esquinas (1)";
-  if (k === "2") return "axion (2)";
-  if (k === "3") return "kilometro 39 (3)";
-  return "Sin oficina";
-};
-
-/** Extrae un valor "raw" de oficina desde varios posibles campos */
-const extractRawOficina = (cuota) => {
-  return (
-    cuota?.poliza?.oficina ??
-    cuota?.poliza?.oficina_nombre ??
-    cuota?.poliza?.oficinaName ??
-    cuota?.poliza?.oficina_id ??
-    cuota?.poliza?.oficinaId ??
-    cuota?.oficina ??
-    cuota?.oficina_nombre ??
-    cuota?.oficina_id ??
-    cuota?.oficinaId ??
-    ""
-  );
-};
-
-/**
- * Normaliza oficina -> "1" | "2" | "3" | ""
- */
-const normalizeOficina3 = (raw) => {
-  const s0 = String(raw ?? "").trim();
-  if (!s0) return "";
-
-  const up = s0.toUpperCase();
-
-  if (s0 === "1" || s0 === "2" || s0 === "3") return s0;
-
-  if (/\bOFI\s*[-_]*\s*1\b/.test(up) || /\bOFI1\b/.test(up)) return "1";
-  if (/\bOFI\s*[-_]*\s*2\b/.test(up) || /\bOFI2\b/.test(up)) return "2";
-  if (/\bOFI\s*[-_]*\s*3\b/.test(up) || /\bOFI3\b/.test(up)) return "3";
-
-  if ((/\(1\)/.test(up) || /\b1\b/.test(up)) && /ESQUINAS/.test(up)) return "1";
-  if (/\(2\)/.test(up) || /AXION/.test(up)) return "2";
-  if (/\(3\)/.test(up) || /KILOMETRO\s*39/.test(up) || /\bKM\s*39\b/.test(up))
-    return "3";
-
-  if (/5\s*ESQUINAS/.test(up)) return "1";
-  if (/AXION/.test(up)) return "2";
-  if (/KILOMETRO\s*39/.test(up) || /\bKM\s*39\b/.test(up)) return "3";
-
-  return "";
-};
 
 /** Compañía: extrae desde varios campos posibles */
 const extractRawCompania = (cuota) => {
@@ -157,10 +50,7 @@ function getDiasRelativos(fechaStr, hoy) {
  * 🎯 Formato de moneda con 2 decimales (más legible para alertas).
  */
 function fmtMoney(n) {
-  return new Intl.NumberFormat("es-AR", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(Number(n || 0));
+  return formatMoney(n, { symbol: "" });
 }
 
 /**
@@ -171,7 +61,7 @@ function getCardStyleByDias(dias) {
   if (dias === null) {
     return {
       label: "Sin fecha de vencimiento",
-      classes: "bg-neutral-400/20 border-neutral-300/30 text-neutral-100",
+      classes: "bg-brand-200/10 border-brand-200/20 text-brand-200/90",
       Icon: HiExclamation,
       tooltip: "Esta cuota no tiene fecha de vencimiento cargada.",
     };
@@ -180,7 +70,7 @@ function getCardStyleByDias(dias) {
     const abs = Math.abs(dias);
     return {
       label: `Lleva ${abs} día${abs === 1 ? "" : "s"} sin pagar`,
-      classes: "bg-rose-950/30 border-rose-900 text-rose-200",
+      classes: "bg-red-950/25 border-red-900/50 text-red-200",
       Icon: HiExclamation,
       tooltip: `La cuota tenía que pagarse hace ${abs} día${abs === 1 ? "" : "s"}. El auto está SIN cobertura del seguro desde esa fecha.`,
     };
@@ -188,14 +78,14 @@ function getCardStyleByDias(dias) {
   if (dias === 0) {
     return {
       label: "Tiene que pagar hoy",
-      classes: "bg-slate-900 border-slate-700 text-slate-200",
+      classes: "bg-brand-card-dark border-brand-200/15 text-brand-200/90",
       Icon: HiClock,
       tooltip: "Esta cuota vence hoy. Si no se cobra, mañana el auto va a quedar sin cobertura.",
     };
   }
   return {
     label: dias === 1 ? "Le falta 1 día" : `Le faltan ${dias} días`,
-    classes: "bg-amber-950/20 border-amber-900 text-amber-200",
+    classes: "bg-brand-secondary/12 border-brand-secondary/40 text-brand-secondary-tint",
     Icon: HiClock,
     tooltip: `Faltan ${dias} día${dias === 1 ? "" : "s"} para el vencimiento. Hay que avisarle al cliente.`,
   };
@@ -387,12 +277,6 @@ function openPrintToPDF({ title, header, rows }) {
 function CuotaAlertaCard({ cuota, dias }) {
   const { label, classes, Icon, tooltip } = getCardStyleByDias(dias);
 
-  const rawOfi = extractRawOficina(cuota);
-  const ofiNorm = normalizeOficina3(rawOfi);
-
-  const ofiLabelFromBackend = String(cuota?.poliza?.oficina_nombre || "").trim();
-  const ofiLabel = ofiLabelFromBackend || (ofiNorm ? oficinaLabelFromKey(ofiNorm) : "Sin oficina");
-
   const compLabel = labelCompania(extractRawCompania(cuota));
 
   const asegurado = formatAseguradoName(cuota);
@@ -421,10 +305,6 @@ function CuotaAlertaCard({ cuota, dias }) {
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <span className="inline-flex items-center gap-1 rounded-xl border border-white/10 bg-white/5 px-2 py-0.5 text-xs">
-            <HiOfficeBuilding className="w-4 h-4" />
-            {ofiLabel}
-          </span>
           <span className="inline-flex items-center gap-1 rounded-xl border border-white/10 bg-white/5 px-2 py-0.5 text-xs">
             <HiShieldCheck className="w-4 h-4" />
             {compLabel}
@@ -479,16 +359,16 @@ function BucketSection({ bucket, items }) {
   if (!items || items.length === 0) return null;
 
   return (
-    <div className="rounded-lg border border-slate-800 bg-slate-900/40 p-4">
+    <div className="rounded-lg border border-brand-200/10 bg-brand-200/[0.04] p-4">
       <div className="flex flex-wrap items-start justify-between gap-3 mb-3">
         <div className="min-w-0">
-          <h3 className="text-sm font-medium text-slate-200">
-            {bucket.title} <span className="text-slate-300 font-normal">({items.length})</span>
+          <h3 className="text-sm font-medium text-brand-200/90">
+            {bucket.title} <span className="text-brand-200/60 font-normal">({items.length})</span>
           </h3>
-          <p className="text-[11px] text-slate-500 mt-0.5">{bucket.subtitle}</p>
+          <p className="text-[11px] text-brand-200/45 mt-0.5">{bucket.subtitle}</p>
         </div>
 
-        <div className="text-xs text-slate-500 rounded-md border border-slate-800 bg-slate-900/60 px-2 py-1.5">
+        <div className="text-xs text-brand-200/50 rounded-md border border-brand-200/10 bg-brand-200/[0.05] px-2 py-1.5">
           {bucket.message}
         </div>
       </div>
@@ -503,23 +383,20 @@ function BucketSection({ bucket, items }) {
 }
 
 /**
- * Props opcionales (modo controlado):
- * - oficina: "ALL" | "1" | "2" | "3"
- * - onOficinaChange(oficinaKey)
- * - isWebAdmin: boolean 🚀 (NUEVO)
+ * 🔧 Antes tenía un filtro entero de "3 oficinas + Todas" hardcodeado con
+ * nombres de Thames ("5 esquinas"/"axion"/"kilometro 39"), atado además a
+ * un modo admin/no-admin distinto. Polizando no tiene sucursales, así que
+ * todo eso se sacó: ya no hay prop `oficina`/`onOficinaChange`/`isWebAdmin`,
+ * ni filtro ni chips ni columna de oficina en la exportación.
  */
-export default function CuotasAlertas({ oficina, onOficinaChange, isWebAdmin }) {
+export default function CuotasAlertas() {
   const dispatch = useDispatch();
   const { cuotasAVencer, status, error } = useSelector((s) => s.pagos);
-
-  const [oficinaSelInternal, setOficinaSelInternal] = useState("ALL");
-  const oficinaSel = oficina ?? oficinaSelInternal;
-  const setOficinaSel = onOficinaChange ?? setOficinaSelInternal;
 
   const [companiaSel, setCompaniaSel] = useState("ALL"); // key normalizada (lower)
   const [exportFormat, setExportFormat] = useState("csv"); // csv | excel | pdf
 
-  // ✅ NUEVO: búsqueda intencional
+  // ✅ búsqueda intencional
   const [hasSearched, setHasSearched] = useState(false);
 
   const runSearch = () => {
@@ -553,8 +430,8 @@ export default function CuotasAlertas({ oficina, onOficinaChange, isWebAdmin }) 
     };
   }, [listAll]);
 
-  /** Primero aplico filtro por compañía */
-  const listByCompany = useMemo(() => {
+  /** Filtro por compañía (única dimensión de filtro que queda) */
+  const cuotasFiltradas = useMemo(() => {
     if (!companiaSel || companiaSel === "ALL") return listAll;
     return listAll.filter((cuota) => {
       const raw = extractRawCompania(cuota);
@@ -563,30 +440,6 @@ export default function CuotasAlertas({ oficina, onOficinaChange, isWebAdmin }) 
       return key === companiaSel;
     });
   }, [listAll, companiaSel]);
-
-  /** Conteos de oficina SOBRE lo que queda por compañía (para que los números tengan sentido) */
-  const conteosOficina = useMemo(() => {
-    const list = Array.isArray(listByCompany) ? listByCompany : [];
-    const c = { ALL: list.length, "1": 0, "2": 0, "3": 0 };
-
-    for (const cuota of list) {
-      const raw = extractRawOficina(cuota);
-      const b = normalizeOficina3(raw);
-      if (b) c[b] += 1;
-    }
-    return c;
-  }, [listByCompany]);
-
-  /** Luego aplico filtro por oficina */
-  const cuotasFiltradas = useMemo(() => {
-    const list = Array.isArray(listByCompany) ? listByCompany : [];
-    if (!oficinaSel || oficinaSel === "ALL") return list;
-
-    return list.filter((cuota) => {
-      const raw = extractRawOficina(cuota);
-      return normalizeOficina3(raw) === oficinaSel;
-    });
-  }, [listByCompany, oficinaSel]);
 
   const buckets = useMemo(() => {
     const hoy = dayjs().startOf("day");
@@ -623,7 +476,7 @@ export default function CuotasAlertas({ oficina, onOficinaChange, isWebAdmin }) 
     return Object.values(buckets || {}).reduce((acc, arr) => acc + (arr?.length || 0), 0);
   }, [buckets]);
 
-  /** Export: dedupe por cliente (solo visibles: compañía + oficina) */
+  /** Export: dedupe por cliente (según filtro de compañía) */
   const buildAseguradosTable = () => {
     const hoy = dayjs().startOf("day");
     const allItems = Object.entries(buckets || {}).flatMap(([bucketKey, arr]) =>
@@ -651,11 +504,6 @@ export default function CuotasAlertas({ oficina, onOficinaChange, isWebAdmin }) 
         `nom:${apellido}|${nombre}` ||
         `cuota:${cuota?.id}`;
 
-      const rawOfi = extractRawOficina(cuota);
-      const ofiNorm = normalizeOficina3(rawOfi);
-      const ofiLabelFromBackend = String(cuota?.poliza?.oficina_nombre || "").trim();
-      const oficinaLabel = ofiLabelFromBackend || (ofiNorm ? oficinaLabelFromKey(ofiNorm) : "Sin oficina");
-
       const compLabel = labelCompania(extractRawCompania(cuota));
 
       const pol = cuota?.poliza || {};
@@ -675,7 +523,6 @@ export default function CuotasAlertas({ oficina, onOficinaChange, isWebAdmin }) 
           dni,
           telefono,
           email,
-          oficina: oficinaLabel,
           compania: compLabel,
           cuotas_count: 1,
           buckets: new Set([it.bucketKey]),
@@ -714,7 +561,6 @@ export default function CuotasAlertas({ oficina, onOficinaChange, isWebAdmin }) 
       "dni_cuit_cuil",
       "telefono",
       "email",
-      "oficina",
       "compania",
       "cuotas_en_alerta",
       "buckets",
@@ -732,7 +578,6 @@ export default function CuotasAlertas({ oficina, onOficinaChange, isWebAdmin }) 
       x.dni,
       x.telefono,
       x.email,
-      x.oficina,
       x.compania,
       x.cuotas_count,
       Array.from(x.buckets).join("|"),
@@ -749,9 +594,8 @@ export default function CuotasAlertas({ oficina, onOficinaChange, isWebAdmin }) 
   const doExport = () => {
     const { header, rows } = buildAseguradosTable();
 
-    const fileOfi = oficinaSel && oficinaSel !== "ALL" ? `ofi_${oficinaSel}` : "todas";
     const fileComp = companiaSel && companiaSel !== "ALL" ? `comp_${companiaSel}` : "todas";
-    const baseName = `asegurados_alertas_${fileOfi}_${fileComp}_${dayjs().format("YYYY-MM-DD_HH-mm")}`;
+    const baseName = `asegurados_alertas_${fileComp}_${dayjs().format("YYYY-MM-DD_HH-mm")}`;
 
     if (exportFormat === "csv") {
       downloadCSV(`${baseName}.csv`, header, rows);
@@ -763,7 +607,7 @@ export default function CuotasAlertas({ oficina, onOficinaChange, isWebAdmin }) 
     }
 
     openPrintToPDF({
-      title: `Asegurados en alertas (${getFilterMeta(oficinaSel).label} / ${
+      title: `Asegurados en alertas (${
         companiaSel === "ALL"
           ? "Todas las compañías"
           : companiasMeta.options.find((o) => o.key === companiaSel)?.label || "Compañía"
@@ -777,19 +621,19 @@ export default function CuotasAlertas({ oficina, onOficinaChange, isWebAdmin }) 
   if (!hasSearched) {
     return (
       <motion.div
-        className="mt-4 rounded-lg border border-slate-800 bg-slate-900/60 p-4"
+        className="mt-4 rounded-lg border border-brand-200/10 bg-brand-200/[0.04] p-4"
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.25 }}
       >
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-primary-400 text-slate-950">
+            <span className="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-brand-primary text-white">
               <HiClock className="w-5 h-5" />
             </span>
             <div>
-              <h2 className="text-lg font-semibold">Alertas de cuotas (agrupadas por urgencia)</h2>
-              <p className="text-[11px] text-slate-500 mt-0.5">
+              <h2 className="text-lg font-semibold text-brand-200">Alertas de cuotas (agrupadas por urgencia)</h2>
+              <p className="text-[11px] text-brand-200/50 mt-0.5">
                 La búsqueda es intencional para que la página cargue más rápido.
               </p>
             </div>
@@ -798,14 +642,14 @@ export default function CuotasAlertas({ oficina, onOficinaChange, isWebAdmin }) 
           <button
             type="button"
             onClick={runSearch}
-            className="h-9 px-3 rounded-lg border text-sm font-medium transition-colors cursor-pointer bg-slate-800 hover:bg-slate-700 border-slate-700 text-slate-200"
+            className="h-9 px-3 rounded-lg border text-sm font-medium transition-colors cursor-pointer bg-brand-200/10 hover:bg-brand-200/15 border-brand-200/15 text-brand-200/85"
             title="Buscar cuotas por vencer o vencidas"
           >
             Buscar
           </button>
         </div>
 
-        <div className="mt-4 rounded-lg border border-slate-800 bg-slate-900/30 p-4 text-slate-400">
+        <div className="mt-4 rounded-lg border border-brand-200/10 bg-brand-200/[0.03] p-4 text-brand-200/50">
           Elegí filtros (opcional) y tocá <span className="font-semibold">Buscar</span> para ver las alertas.
         </div>
       </motion.div>
@@ -815,11 +659,11 @@ export default function CuotasAlertas({ oficina, onOficinaChange, isWebAdmin }) 
   // ✅ loading / error solo aplican DESPUÉS de buscar
   if (status === "loading") {
     return (
-      <div className="mt-6 rounded-2xl border border-slate-700/60 bg-slate-900/60 p-4">
-        <div className="h-4 w-52 rounded bg-slate-700/50 animate-pulse mb-3" />
+      <div className="mt-6 rounded-2xl border border-brand-200/15 bg-brand-200/[0.04] p-4">
+        <div className="h-4 w-52 rounded bg-brand-200/10 animate-pulse mb-3" />
         <div className="space-y-2">
-          <div className="h-16 rounded-xl border border-slate-700/50 bg-slate-800/40 animate-pulse" />
-          <div className="h-16 rounded-xl border border-slate-700/50 bg-slate-800/40 animate-pulse" />
+          <div className="h-16 rounded-xl border border-brand-200/15 bg-brand-200/8 animate-pulse" />
+          <div className="h-16 rounded-xl border border-brand-200/15 bg-brand-200/8 animate-pulse" />
         </div>
       </div>
     );
@@ -827,7 +671,7 @@ export default function CuotasAlertas({ oficina, onOficinaChange, isWebAdmin }) 
 
   if (status === "failed") {
     return (
-      <div className="mt-6 rounded-2xl border border-rose-500/30 bg-rose-500/10 p-4 text-rose-100">
+      <div className="mt-6 rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-red-200">
         Error cargando alertas: {String(error || "desconocido")}
       </div>
     );
@@ -837,33 +681,33 @@ export default function CuotasAlertas({ oficina, onOficinaChange, isWebAdmin }) 
   if (!cuotasAVencer || cuotasAVencer.length === 0) {
     return (
       <motion.div
-        className="mt-4 rounded-lg border border-slate-800 bg-slate-900/60 p-4"
+        className="mt-4 rounded-lg border border-brand-200/10 bg-brand-200/[0.04] p-4"
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.25 }}
       >
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-primary-400 text-slate-950">
+            <span className="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-brand-primary text-white">
               <HiClock className="w-5 h-5" />
             </span>
             <div>
-              <h2 className="text-lg font-semibold">Alertas de cuotas (agrupadas por urgencia)</h2>
-              <p className="text-[11px] text-slate-500 mt-0.5">Sin resultados para esta búsqueda.</p>
+              <h2 className="text-lg font-semibold text-brand-200">Alertas de cuotas (agrupadas por urgencia)</h2>
+              <p className="text-[11px] text-brand-200/50 mt-0.5">Sin resultados para esta búsqueda.</p>
             </div>
           </div>
 
           <button
             type="button"
             onClick={runSearch}
-            className="h-9 px-3 rounded-lg border text-sm font-medium transition-colors cursor-pointer bg-slate-800 hover:bg-slate-700 border-slate-700 text-slate-200"
+            className="h-9 px-3 rounded-lg border text-sm font-medium transition-colors cursor-pointer bg-brand-200/10 hover:bg-brand-200/15 border-brand-200/15 text-brand-200/85"
             title="Volver a buscar"
           >
             Buscar
           </button>
         </div>
 
-        <div className="mt-4 rounded-lg border border-slate-800 bg-slate-900/30 p-4 text-slate-400">
+        <div className="mt-4 rounded-lg border border-brand-200/10 bg-brand-200/[0.03] p-4 text-brand-200/50">
           Probá cambiar filtros y tocá <span className="font-semibold">Buscar</span> otra vez.
         </div>
       </motion.div>
@@ -879,25 +723,25 @@ export default function CuotasAlertas({ oficina, onOficinaChange, isWebAdmin }) 
       (buckets?.["30_despues"]?.length || 0) >
     0;
 
-  const optStyle = { backgroundColor: "#0b0e12", color: "#e5e7eb" };
+  const optStyle = { backgroundColor: "#605750", color: "#F4EFE6" };
 
   return (
     <motion.div
-      className="mt-4 rounded-lg border border-slate-800 bg-slate-900/60 p-4"
+      className="mt-4 rounded-lg border border-brand-200/10 bg-brand-200/[0.04] p-4"
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.25 }}
     >
       <div className="flex items-start justify-between gap-3 mb-3">
         <div className="flex items-center gap-2">
-          <span className="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-primary-400 text-slate-950">
+          <span className="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-brand-primary text-white">
             <HiClock className="w-5 h-5" />
           </span>
           <div>
-            <h2 className="text-lg font-semibold">Alertas de cuotas (agrupadas por urgencia)</h2>
-            <p className="text-[11px] text-slate-500 mt-0.5">
-              Mostrando <span className="font-semibold text-slate-50">{totalMostrado}</span> (filtradas) de{" "}
-              <span className="font-semibold text-slate-50">{cuotasAVencer.length}</span> (totales)
+            <h2 className="text-lg font-semibold text-brand-200">Alertas de cuotas (agrupadas por urgencia)</h2>
+            <p className="text-[11px] text-brand-200/50 mt-0.5">
+              Mostrando <span className="font-semibold text-brand-200">{totalMostrado}</span> (filtradas) de{" "}
+              <span className="font-semibold text-brand-200">{cuotasAVencer.length}</span> (totales)
             </p>
           </div>
         </div>
@@ -907,7 +751,7 @@ export default function CuotasAlertas({ oficina, onOficinaChange, isWebAdmin }) 
           <button
             type="button"
             onClick={runSearch}
-            className="h-9 px-3 rounded-lg border text-sm font-medium transition-colors cursor-pointer bg-slate-800 hover:bg-slate-700 border-slate-700 text-slate-200"
+            className="h-9 px-3 rounded-lg border text-sm font-medium transition-colors cursor-pointer bg-brand-200/10 hover:bg-brand-200/15 border-brand-200/15 text-brand-200/85"
             title="Actualizar búsqueda"
           >
             Buscar
@@ -919,11 +763,11 @@ export default function CuotasAlertas({ oficina, onOficinaChange, isWebAdmin }) 
               onChange={(e) => setExportFormat(e.target.value)}
               className={[
                 "h-10 pl-3 pr-10 rounded-2xl border text-sm outline-none transition",
-                "border-neutral-800 bg-neutral-950 text-neutral-100",
-                "focus:ring-2 focus:ring-indigo-400/60 focus:border-indigo-400/60",
+                "border-brand-200/15 bg-brand-card-dark text-brand-200",
+                "focus:ring-2 focus:ring-brand-secondary/50 focus:border-brand-secondary/50",
                 "appearance-none cursor-pointer",
               ].join(" ")}
-              style={{ backgroundColor: "#0b0e12", color: "#e5e7eb" }}
+              style={optStyle}
               title="Formato de exportación"
             >
               <option value="csv" style={optStyle}>
@@ -936,7 +780,7 @@ export default function CuotasAlertas({ oficina, onOficinaChange, isWebAdmin }) 
                 PDF (imprimir/guardar)
               </option>
             </select>
-            <HiChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-300" />
+            <HiChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-200/50" />
           </div>
 
           <button
@@ -946,8 +790,8 @@ export default function CuotasAlertas({ oficina, onOficinaChange, isWebAdmin }) 
             className={[
               "h-10 px-4 rounded-2xl border text-sm font-semibold transition",
               totalMostrado === 0
-                ? "opacity-40 cursor-not-allowed bg-slate-900 border-slate-800 text-slate-500"
-                : "cursor-pointer bg-slate-800 hover:bg-slate-700 border-slate-700 text-slate-200",
+                ? "opacity-40 cursor-not-allowed bg-brand-200/5 border-brand-200/10 text-brand-200/30"
+                : "cursor-pointer bg-brand-200/10 hover:bg-brand-200/15 border-brand-200/15 text-brand-200/85",
             ].join(" ")}
             title="Exporta los asegurados visibles (según filtros)"
           >
@@ -956,9 +800,9 @@ export default function CuotasAlertas({ oficina, onOficinaChange, isWebAdmin }) 
         </div>
       </div>
 
-      {/* ✅ FILTRO COMPAÑÍA */}
+      {/* ✅ FILTRO COMPAÑÍA (única dimensión de filtro) */}
       <div className="flex flex-wrap items-center gap-2 mb-4">
-        <span className="inline-flex items-center gap-2 text-xs text-slate-300">
+        <span className="inline-flex items-center gap-2 text-xs text-brand-200/75">
           <HiShieldCheck className="w-4 h-4" />
           Compañía:
         </span>
@@ -969,11 +813,11 @@ export default function CuotasAlertas({ oficina, onOficinaChange, isWebAdmin }) 
             onChange={(e) => setCompaniaSel(e.target.value)}
             className={[
               "h-10 pl-3 pr-10 rounded-2xl border text-sm outline-none transition",
-              "border-neutral-800 bg-neutral-950 text-neutral-100",
-              "focus:ring-2 focus:ring-sky-300/60 focus:border-sky-300/60",
+              "border-brand-200/15 bg-brand-card-dark text-brand-200",
+              "focus:ring-2 focus:ring-brand-secondary/50 focus:border-brand-secondary/50",
               "appearance-none cursor-pointer min-w-[260px]",
             ].join(" ")}
-            style={{ backgroundColor: "#0b0e12", color: "#e5e7eb" }}
+            style={optStyle}
             title="Filtrar por compañía"
           >
             <option value="ALL" style={optStyle}>
@@ -985,72 +829,18 @@ export default function CuotasAlertas({ oficina, onOficinaChange, isWebAdmin }) 
               </option>
             ))}
           </select>
-          <HiChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-300" />
+          <HiChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-200/50" />
         </div>
 
         {companiaSel !== "ALL" && (
           <button
             type="button"
             onClick={() => setCompaniaSel("ALL")}
-            className="h-10 px-3 rounded-2xl border border-white/15 bg-white/5 hover:bg-white/10 text-slate-100 text-sm cursor-pointer"
+            className="h-10 px-3 rounded-2xl border border-brand-200/15 bg-brand-200/8 hover:bg-brand-200/15 text-brand-200/85 text-sm cursor-pointer"
             title="Quitar filtro de compañía"
           >
             Limpiar
           </button>
-        )}
-      </div>
-
-      {/* ✅ CHIPS OFICINA CON ESCUDO BLINDADO */}
-      <div className="flex flex-wrap items-center gap-2 mb-4">
-        <span className="inline-flex items-center gap-2 text-xs text-slate-300">
-          <HiOfficeBuilding className="w-4 h-4" />
-          Oficina:
-        </span>
-
-        {isWebAdmin ? (
-          FILTERS.map((f) => {
-            const active = oficinaSel === f.key;
-            const count = conteosOficina?.[f.key] ?? 0;
-            const disabled = f.key !== "ALL" && count === 0;
-
-            return (
-              <motion.button
-                key={f.key}
-                type="button"
-                whileHover={!disabled ? { scale: 1.03 } : undefined}
-                whileTap={!disabled ? { scale: 0.98 } : undefined}
-                onClick={() => {
-                  if (disabled) return;
-                  setOficinaSel(f.key);
-                }}
-                className={[
-                  "inline-flex items-center gap-2 rounded-2xl border px-3 py-2 text-sm transition backdrop-blur-md",
-                  "focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950",
-                  f.ring,
-                  active ? f.active : f.inactive,
-                  disabled ? "opacity-35 cursor-not-allowed hover:scale-100" : "cursor-pointer",
-                ].join(" ")}
-              >
-                <span className="font-semibold">{f.label}</span>
-                <span
-                  className={[
-                    "ml-1 inline-flex min-w-[28px] justify-center rounded-xl px-2 py-0.5 text-xs font-semibold",
-                    active ? f.badgeActive : f.badgeInactive,
-                  ].join(" ")}
-                >
-                  {count}
-                </span>
-              </motion.button>
-            );
-          })
-        ) : (
-          // 🚀 Si no es admin, mostramos solo su oficina fija como un badge
-          <div className="inline-flex items-center gap-2 rounded-2xl border px-3 py-2 text-sm transition backdrop-blur-md border-slate-600 bg-slate-800 text-slate-300">
-            <span className="font-semibold">{getFilterMeta(oficinaSel).label}</span>
-            <span className="ml-1 inline-flex min-w-[28px] justify-center rounded-xl px-2 py-0.5 text-xs font-semibold bg-slate-950/30 text-emerald-100">
-              {conteosOficina?.[oficinaSel] ?? 0}
-            </span>
-          </div>
         )}
       </div>
 
@@ -1063,13 +853,13 @@ export default function CuotasAlertas({ oficina, onOficinaChange, isWebAdmin }) 
         <BucketSection bucket={BUCKETS[4]} items={buckets?.["30_despues"]} />
 
         {otros.length > 0 && (
-          <div className="rounded-lg border border-slate-800 bg-slate-900/20 p-4">
+          <div className="rounded-lg border border-brand-200/10 bg-brand-200/[0.02] p-4">
             <div className="flex items-center justify-between gap-3 mb-3">
               <div>
-                <h3 className="text-sm font-medium text-slate-200">
-                  Otros <span className="text-slate-300 font-normal">({otros.length})</span>
+                <h3 className="text-sm font-medium text-brand-200/90">
+                  Otros <span className="text-brand-200/60 font-normal">({otros.length})</span>
                 </h3>
-                <p className="text-[11px] text-slate-500 mt-0.5">
+                <p className="text-[11px] text-brand-200/50 mt-0.5">
                   Cuotas que no entran en los grupos principales
                 </p>
               </div>
@@ -1084,8 +874,8 @@ export default function CuotasAlertas({ oficina, onOficinaChange, isWebAdmin }) 
         )}
 
         {!anyBucket && totalMostrado === 0 && (
-          <div className="rounded-lg border border-slate-800 bg-slate-900/30 p-4 text-slate-400">
-            No hay alertas para <span className="font-semibold">{getFilterMeta(oficinaSel).label}</span>
+          <div className="rounded-lg border border-brand-200/10 bg-brand-200/[0.03] p-4 text-brand-200/50">
+            No hay alertas
             {companiaSel !== "ALL" ? (
               <>
                 {" "}

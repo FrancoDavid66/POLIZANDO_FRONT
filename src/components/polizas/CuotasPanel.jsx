@@ -1,61 +1,27 @@
 // src/components/polizas/CuotasPanel.jsx
+//
+// Refactor: antes tenía su propia lógica de estado de cuota (esCuponera,
+// fechaObjetivo, estadoReal) duplicando lo que ya existe en utils/cuotas.js
+// y su propio renderizado de fila en vez de usar CuotaInfoCard (que se
+// documenta a sí mismo como "la fuente visual única para mostrar una cuota
+// en toda la app"). Ahora usa ambos de verdad.
+//
+// El caso CUPONERA (AMCA/Antártida/Equidad → cada cuota vence en su propia
+// fecha, no en la de la anterior) se preservó — ahora vive centralizado en
+// utils/cuotas.js como esCuponera() + el parámetro usarPropio, en vez de
+// vivir solo acá.
+
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import dayjs from "dayjs";
 import toast from "react-hot-toast";
-import { HiCheckCircle, HiClock, HiExclamationCircle, HiShieldCheck, HiShieldExclamation } from "react-icons/hi";
+import { HiShieldCheck, HiShieldExclamation } from "react-icons/hi";
 
 import { pagarCuota } from "../../store/slices/polizasSlice";
+import { esCuponera, resumenCuotas, fmtFecha } from "../../utils/cuotas";
+import CuotaInfoCard from "./CuotaInfoCard";
 
-const CARD = "rounded-2xl border border-white/[0.06] bg-[#121829]";
-
-/* ═══════════════════════════════════════════════════════════════════
-   ¿La póliza usa CUPONERA? (AMCA / Antártida / La Equidad)
-   ───────────────────────────────────────────────────────────────────
-   En esas compañías, cada cupón trae IMPRESA su propia fecha de pago
-   (la de Rapipago / Pago Fácil). Por eso la cuota se muestra y se evalúa
-   por su PROPIO fecha_vencimiento, no por el de la cuota anterior.
-   ═══════════════════════════════════════════════════════════════════ */
-function esCuponera(poliza) {
-  const c = `${poliza?.compania || ""} ${poliza?.compania_nombre || ""}`.toLowerCase();
-  return /amca|antartida|antártida|equidad|mutual/.test(c);
-}
-
-/* ═══════════════════════════════════════════════════════════════════
-   FECHA OBJETIVO DE UNA CUOTA
-   ───────────────────────────────────────────────────────────────────
-   - Cuponera (usarPropio = true) → su PROPIO vto (fecha del cupón).
-   - Resto (NRE, etc.)            → vto de la cuota ANTERIOR (pago por
-     adelantado). Cuota #1 (no hay anterior) = su propio vto.
-   ═══════════════════════════════════════════════════════════════════ */
-function fechaObjetivo(idx, lista, usarPropio) {
-  const actual = lista[idx];
-  const propio = actual?.fecha_vencimiento ? dayjs(actual.fecha_vencimiento).startOf("day") : null;
-  if (usarPropio) return propio;
-  if (idx > 0) {
-    const anterior = lista[idx - 1];
-    if (anterior?.fecha_vencimiento) return dayjs(anterior.fecha_vencimiento).startOf("day");
-  }
-  return propio;
-}
-
-function estadoReal(idx, lista, usarPropio) {
-  const c = lista[idx];
-  if (c?.pagado) return "pagada";
-  const payby = fechaObjetivo(idx, lista, usarPropio);
-  if (!payby || !payby.isValid()) return "pendiente";
-  const diff = payby.diff(dayjs().startOf("day"), "day");
-  if (diff < 0) return "vencida";
-  if (diff === 0) return "vence_hoy";
-  return "pendiente";
-}
-
-const ROW = {
-  pagada:    { icon: HiCheckCircle,       color: "text-emerald-400" },
-  vencida:   { icon: HiExclamationCircle, color: "text-rose-400" },
-  vence_hoy: { icon: HiClock,             color: "text-orange-400" },
-  pendiente: { icon: HiClock,             color: "text-amber-400" },
-};
+const CARD = "rounded-2xl border border-brand-100/10 dark:border-brand-200/10 bg-brand-card dark:bg-brand-card-dark";
 
 export default function CuotasPanel({ poliza }) {
   const dispatch = useDispatch();
@@ -67,7 +33,7 @@ export default function CuotasPanel({ poliza }) {
 
   const [busyIds, setBusyIds] = useState({});
 
-  // ¿Esta póliza usa cuponera? (AMCA/Antártida/La Equidad → fecha propia)
+  // ¿Esta póliza usa cuponera? (AMCA/Antártida/La Equidad → fecha propia del cupón)
   const usarPropio = useMemo(
     () => esCuponera(poliza),
     [poliza?.compania, poliza?.compania_nombre]
@@ -79,20 +45,15 @@ export default function CuotasPanel({ poliza }) {
     [rows]
   );
 
-  // Resumen calculado con la fecha objetivo correcta según el tipo de póliza.
-  const resumen = useMemo(() => {
-    let pagadas = 0, pendientes = 0, vencidas = 0;
-    cuotasOrdenadas.forEach((_c, i) => {
-      const st = estadoReal(i, cuotasOrdenadas, usarPropio);
-      if (st === "pagada") pagadas += 1;
-      else if (st === "vencida") vencidas += 1;
-      else pendientes += 1; // pendiente + vence_hoy
-    });
-    return { total: cuotasOrdenadas.length, pagadas, pendientes, vencidas };
-  }, [cuotasOrdenadas, usarPropio]);
-
+  // Resumen: ahora delegado a utils/cuotas.js, con el flag de cuponera.
+  const resumen = useMemo(
+    () => resumenCuotas(cuotasOrdenadas, usarPropio),
+    [cuotasOrdenadas, usarPropio]
+  );
 
   // Cobertura real: hasta cuándo quedó cubierto el cliente según la última cuota PAGADA.
+  // (Esto no depende de cuponera — es sobre secuencia de pagos, no de qué fecha
+  // se usa para juzgar mora; ver nota en utils/cuotas.js sobre calcCobertura.)
   const coberturaResumen = useMemo(() => {
     const pagadas = cuotasOrdenadas.filter((c) => c.pagado);
     if (!pagadas.length) return null;
@@ -133,13 +94,6 @@ export default function CuotasPanel({ poliza }) {
     }
   };
 
-  const fmtMonto = (m) => {
-    const n = Number(m || 0);
-    if (!n) return null;
-    return `$ ${n.toLocaleString("es-AR")}`;
-  };
-  const fmtFecha = (d) => (d ? dayjs(d).format("DD/MM/YYYY") : "—");
-
   return (
     <div className="space-y-4">
       {/* Cobertura real (hasta cuándo está cubierto) */}
@@ -147,26 +101,30 @@ export default function CuotasPanel({ poliza }) {
         <div
           className={`flex items-center gap-3 rounded-2xl border p-4 ${
             coberturaResumen.vigente
-              ? "border-emerald-500/30 bg-emerald-500/10"
-              : "border-rose-500/30 bg-rose-500/10"
+              ? "border-brand-primary/30 bg-brand-primary/10"
+              : "border-red-500/30 bg-red-500/10"
           }`}
         >
           {coberturaResumen.vigente ? (
-            <HiShieldCheck className="h-6 w-6 shrink-0 text-emerald-400" />
+            <HiShieldCheck className="h-6 w-6 shrink-0 text-brand-primary dark:text-brand-primary-tint" />
           ) : (
-            <HiShieldExclamation className="h-6 w-6 shrink-0 text-rose-400" />
+            <HiShieldExclamation className="h-6 w-6 shrink-0 text-red-600 dark:text-red-400" />
           )}
           <div>
             <div
               className={`text-[10px] uppercase tracking-wide font-bold ${
-                coberturaResumen.vigente ? "text-emerald-300/70" : "text-rose-300/70"
+                coberturaResumen.vigente
+                  ? "text-brand-primary/70 dark:text-brand-primary-tint/70"
+                  : "text-red-600/70 dark:text-red-400/70"
               }`}
             >
               {coberturaResumen.vigente ? "Cobertura vigente hasta" : "Cobertura vencida desde"}
             </div>
             <div
               className={`text-lg font-bold ${
-                coberturaResumen.vigente ? "text-emerald-200" : "text-rose-200"
+                coberturaResumen.vigente
+                  ? "text-brand-primary dark:text-brand-primary-tint"
+                  : "text-red-700 dark:text-red-300"
               }`}
             >
               {fmtFecha(coberturaResumen.hasta)}
@@ -174,91 +132,58 @@ export default function CuotasPanel({ poliza }) {
           </div>
         </div>
       ) : (
-        <div className="rounded-2xl border border-white/[0.06] bg-[#121829] p-4 text-sm text-slate-400">
+        <div className={`${CARD} p-4 text-sm text-brand-100/50 dark:text-brand-200/50`}>
           Sin pagos registrados todavía · no hay cobertura activa.
         </div>
       )}
 
       {/* Progreso */}
       <div>
-        <div className="mb-2 flex items-center justify-between text-xs text-slate-400">
+        <div className="mb-2 flex items-center justify-between text-xs text-brand-100/50 dark:text-brand-200/50">
           <span>{resumen.pagadas} de {resumen.total} pagadas</span>
           <span>{progreso}%</span>
         </div>
-        <div className="h-2 overflow-hidden rounded-full bg-white/[0.06]">
-          <div className="h-full rounded-full bg-emerald-400 transition-all" style={{ width: `${progreso}%` }} />
+        <div className="h-2 overflow-hidden rounded-full bg-brand-100/8 dark:bg-brand-200/8">
+          <div className="h-full rounded-full bg-brand-primary transition-all" style={{ width: `${progreso}%` }} />
         </div>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-2.5">
         <div className={`${CARD} p-3 text-center`}>
-          <div className="text-lg font-semibold text-emerald-400">{resumen.pagadas}</div>
-          <div className="text-[10px] uppercase tracking-wide text-slate-500">Pagadas</div>
+          <div className="text-lg font-semibold text-brand-primary dark:text-brand-primary-tint">{resumen.pagadas}</div>
+          <div className="text-[10px] uppercase tracking-wide text-brand-100/40 dark:text-brand-200/40">Pagadas</div>
         </div>
         <div className={`${CARD} p-3 text-center`}>
-          <div className="text-lg font-semibold text-amber-400">{resumen.pendientes}</div>
-          <div className="text-[10px] uppercase tracking-wide text-slate-500">Pendientes</div>
+          <div className="text-lg font-semibold text-brand-secondary dark:text-brand-secondary-tint">{resumen.pendientes}</div>
+          <div className="text-[10px] uppercase tracking-wide text-brand-100/40 dark:text-brand-200/40">Pendientes</div>
         </div>
         <div className={`${CARD} p-3 text-center`}>
-          <div className="text-lg font-semibold text-rose-400">{resumen.vencidas}</div>
-          <div className="text-[10px] uppercase tracking-wide text-slate-500">Vencidas</div>
+          <div className="text-lg font-semibold text-red-600 dark:text-red-400">{resumen.vencidas}</div>
+          <div className="text-[10px] uppercase tracking-wide text-brand-100/40 dark:text-brand-200/40">Vencidas</div>
         </div>
       </div>
 
-      {/* Lista de cuotas */}
-      <div className={`${CARD} overflow-hidden`}>
+      {/* Lista de cuotas — cada fila es un CuotaInfoCard, la fuente visual única */}
+      <div className={`${CARD} overflow-hidden divide-y divide-brand-100/8 dark:divide-brand-200/8`}>
         {cuotasOrdenadas.length === 0 ? (
-          <div className="p-8 text-center text-sm text-slate-500">
+          <div className="p-8 text-center text-sm text-brand-100/40 dark:text-brand-200/40">
             Esta póliza no tiene cuotas registradas.
           </div>
         ) : (
-          cuotasOrdenadas.map((c, i) => {
-            const monto = fmtMonto(c.monto);
-            const st = estadoReal(i, cuotasOrdenadas, usarPropio);
-            const payby = fechaObjetivo(i, cuotasOrdenadas, usarPropio);
-            const cfg = ROW[st] || ROW.pendiente;
-            const Icon = cfg.icon;
-
-            let sub;
-            if (st === "pagada") {
-              sub = `Pagada${c.fecha_pago ? " · " + fmtFecha(c.fecha_pago) : ""}`;
-            } else if (st === "vencida") {
-              sub = `Impaga · venció el ${fmtFecha(payby)}`;
-            } else if (st === "vence_hoy") {
-              sub = "Vence hoy · pagar hoy";
-            } else {
-              sub = `A pagar antes del ${fmtFecha(payby)}`;
-            }
-
-            return (
-              <div key={c.id} className="flex items-center justify-between gap-3 border-b border-white/5 px-3.5 py-3 last:border-0">
-                <div className="flex min-w-0 items-center gap-3">
-                  <Icon className={`h-5 w-5 shrink-0 ${cfg.color}`} />
-                  <div className="min-w-0">
-                    <div className="text-[13px] font-medium text-slate-100">
-                      Cuota {c.cuota_nro}{monto ? <span className="ml-1.5 text-slate-500">· {monto}</span> : null}
-                    </div>
-                    <div className={`text-[11px] ${cfg.color}`}>{sub}</div>
-                  </div>
-                </div>
-
-                {!c.pagado ? (
-                  <button
-                    onClick={() => handleMarcarPagada(c)}
-                    disabled={!!busyIds[c.id]}
-                    className={`shrink-0 rounded-lg border px-3 py-1.5 text-[11px] font-semibold transition disabled:opacity-50 ${
-                      st === "vencida"
-                        ? "border-rose-500/25 bg-rose-500/10 text-rose-300 hover:bg-rose-500/20"
-                        : "border-emerald-500/25 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20"
-                    }`}
-                  >
-                    {busyIds[c.id] ? "..." : "Marcar pagada"}
-                  </button>
-                ) : null}
-              </div>
-            );
-          })
+          cuotasOrdenadas.map((c, i) => (
+            <CuotaInfoCard
+              key={c.id}
+              cuota={c}
+              todasLasCuotas={cuotasOrdenadas}
+              idx={i}
+              polizaFechaEmision={poliza?.fecha_emision}
+              onMarcarPagada={handleMarcarPagada}
+              busy={!!busyIds[c.id]}
+              variant="full"
+              usarPropio={usarPropio}
+            />
+          ))
         )}
       </div>
     </div>

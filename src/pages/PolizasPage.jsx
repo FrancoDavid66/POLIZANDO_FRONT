@@ -246,12 +246,12 @@ export default function PolizasPage() {
   const isWebAdmin = user?.perfil?.rol === "ADMIN";
 
   return (
-    <div className="relative mx-auto max-w-7xl px-3 py-3 text-slate-100 sm:px-4 sm:py-4">
+    <div className="relative mx-auto max-w-7xl px-3 py-3 text-brand-100 dark:text-brand-200 sm:px-4 sm:py-4">
       {/* Header */}
       <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-xl font-bold tracking-tight sm:text-2xl">Pólizas</h1>
-          <p className="text-xs text-slate-400 sm:text-sm">
+          <h1 className="font-heading text-xl font-bold tracking-tight sm:text-2xl">Pólizas</h1>
+          <p className="text-xs text-brand-100/50 dark:text-brand-200/50 sm:text-sm">
             {isWebAdmin ? "Buscá y filtrá sin cargar todo el universo." : `Gestionando cartera de: ${user?.perfil?.oficina_nombre || "Sucursal"}`}
           </p>
         </div>
@@ -259,12 +259,12 @@ export default function PolizasPage() {
           <button
             type="button"
             onClick={() => setExportModalOpen(true)}
-            className="inline-flex items-center gap-1.5 rounded-xl border border-indigo-500/30 bg-indigo-500/10 px-3 py-2 text-xs font-bold text-indigo-300 transition-colors hover:bg-indigo-500/20 sm:text-sm"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-brand-secondary/30 bg-brand-secondary/10 px-3 py-2 text-xs font-bold text-brand-secondary dark:text-brand-secondary-tint transition-colors hover:bg-brand-secondary/15 sm:text-sm"
           >
             <HiDownload size={16} /> Exportar planilla
           </button>
-          <Link to="/clientes" className="rounded-xl border border-slate-700 bg-slate-800/60 px-3 py-2 text-xs hover:bg-slate-700 sm:text-sm">Ver clientes</Link>
-          <Link to="/solicitudes" className="rounded-xl border border-slate-700 bg-slate-800/60 px-3 py-2 text-xs hover:bg-slate-700 sm:text-sm">Ver solicitudes</Link>
+          <Link to="/clientes" className="rounded-xl border border-brand-100/10 dark:border-brand-200/10 bg-brand-100/5 dark:bg-brand-200/5 px-3 py-2 text-xs hover:bg-brand-100/10 dark:hover:bg-brand-200/10 sm:text-sm">Ver clientes</Link>
+          <Link to="/solicitudes" className="rounded-xl border border-brand-100/10 dark:border-brand-200/10 bg-brand-100/5 dark:bg-brand-200/5 px-3 py-2 text-xs hover:bg-brand-100/10 dark:hover:bg-brand-200/10 sm:text-sm">Ver solicitudes</Link>
         </div>
       </div>
 
@@ -305,14 +305,14 @@ export default function PolizasPage() {
       />
 
       {error && status === "failed" && (
-        <div className="mt-2 rounded-xl border border-rose-700/50 bg-rose-950/30 p-3 text-xs text-rose-100">
+        <div className="mt-2 rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-700 dark:text-red-300">
           {typeof error === "string" ? error : JSON.stringify(error)}
         </div>
       )}
 
-      <div className="mt-2 text-xs text-slate-400 sm:text-sm">
+      <div className="mt-2 text-xs text-brand-100/50 dark:text-brand-200/50 sm:text-sm">
         Mostrando {listFiltrada.length} de {totalLabel} pólizas ({pagingLabel})
-        {companiaLocal ? <span className="ml-1 text-sky-400">· filtrado por “{companiaLocal}”</span> : null}
+        {companiaLocal ? <span className="ml-1 text-brand-primary dark:text-brand-primary-tint">· filtrado por "{companiaLocal}"</span> : null}
       </div>
 
       <div className="mt-2 sm:mt-3">
@@ -334,42 +334,42 @@ export default function PolizasPage() {
           >
             <motion.div
               initial={{ scale: 0.95, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.95, opacity: 0, y: 20 }}
-              className="flex w-full max-w-sm flex-col rounded-3xl border border-slate-800 bg-slate-900 shadow-2xl"
+              className="flex w-full max-w-sm flex-col rounded-3xl border border-brand-100/10 dark:border-brand-200/10 bg-brand-card dark:bg-brand-card-dark shadow-2xl"
             >
-              <div className="flex items-center justify-between rounded-t-3xl border-b border-slate-800 bg-slate-950/40 p-5">
-                <h3 className="flex items-center gap-2 text-lg font-black text-white">
-                  <HiDownload className="text-indigo-400" /> Planilla de auditoría
+              <div className="flex items-center justify-between rounded-t-3xl border-b border-brand-100/10 dark:border-brand-200/10 bg-brand-100/[0.02] dark:bg-brand-200/[0.02] p-5">
+                <h3 className="font-heading flex items-center gap-2 text-lg font-bold text-brand-100 dark:text-brand-200">
+                  <HiDownload className="text-brand-primary dark:text-brand-primary-tint" /> Planilla de auditoría
                 </h3>
-                <button onClick={() => setExportModalOpen(false)} className="rounded-full bg-slate-800 p-2 text-slate-500 transition-colors hover:bg-rose-500 hover:text-white">
+                <button onClick={() => setExportModalOpen(false)} className="rounded-full bg-brand-100/8 dark:bg-brand-200/8 p-2 text-brand-100/50 dark:text-brand-200/50 transition-colors hover:bg-red-500 hover:text-white">
                   <HiX size={20} />
                 </button>
               </div>
 
               <div className="p-6">
-                <label className="mb-3 block text-center text-[11px] font-bold uppercase tracking-widest text-slate-400">Formato de descarga</label>
+                <label className="mb-3 block text-center text-[11px] font-bold uppercase tracking-widest text-brand-100/50 dark:text-brand-200/50">Formato de descarga</label>
                 <div className="flex gap-3">
                   <button
                     onClick={() => setExportFormat("pdf")}
-                    className={`flex-1 rounded-xl border-2 py-3 font-black transition-all ${exportFormat === "pdf" ? "border-rose-500 bg-rose-500/10 text-rose-400" : "border-slate-800 bg-slate-800/60 text-slate-500 hover:border-slate-700"}`}
+                    className={`flex-1 rounded-xl border-2 py-3 font-black transition-all ${exportFormat === "pdf" ? "border-red-500 bg-red-500/10 text-red-600 dark:text-red-400" : "border-brand-100/10 dark:border-brand-200/10 bg-brand-100/5 dark:bg-brand-200/5 text-brand-100/50 dark:text-brand-200/50 hover:border-brand-100/20 dark:hover:border-brand-200/20"}`}
                   >
                     📄 Imprimir PDF
                   </button>
                   <button
                     onClick={() => setExportFormat("xlsx")}
-                    className={`flex-1 rounded-xl border-2 py-3 font-black transition-all ${exportFormat === "xlsx" ? "border-emerald-500 bg-emerald-500/10 text-emerald-400" : "border-slate-800 bg-slate-800/60 text-slate-500 hover:border-slate-700"}`}
+                    className={`flex-1 rounded-xl border-2 py-3 font-black transition-all ${exportFormat === "xlsx" ? "border-brand-primary bg-brand-primary/10 text-brand-primary dark:text-brand-primary-tint" : "border-brand-100/10 dark:border-brand-200/10 bg-brand-100/5 dark:bg-brand-200/5 text-brand-100/50 dark:text-brand-200/50 hover:border-brand-100/20 dark:hover:border-brand-200/20"}`}
                   >
                     📊 Bajar Excel
                   </button>
                 </div>
-                <p className="mt-4 text-center text-[10px] leading-relaxed text-slate-500">
+                <p className="mt-4 text-center text-[10px] leading-relaxed text-brand-100/40 dark:text-brand-200/40">
                   La planilla se generará con las columnas adaptadas para control manual.
                 </p>
               </div>
 
-              <div className="rounded-b-3xl border-t border-slate-800 bg-slate-950/40 p-5">
+              <div className="rounded-b-3xl border-t border-brand-100/10 dark:border-brand-200/10 bg-brand-100/[0.02] dark:bg-brand-200/[0.02] p-5">
                 <button
                   onClick={handleConfirmExport}
-                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-500 py-3.5 font-black uppercase tracking-widest text-white shadow-lg shadow-indigo-900/30 transition-all hover:bg-indigo-400 active:scale-95"
+                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-primary py-3.5 font-black uppercase tracking-widest text-white shadow-lg shadow-brand-primary/30 transition-all hover:bg-brand-primary-deep active:scale-95"
                 >
                   <HiDownload size={18} /> Descargar planilla
                 </button>

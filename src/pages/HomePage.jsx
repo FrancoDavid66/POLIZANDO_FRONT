@@ -14,8 +14,7 @@ import Card from "../components/comunes/Card";
 import BalanceChart from "../components/balanzes/BalanceChart";
 
 // 🚀 Modales ya existentes para cargar ingreso / egreso
-import IngresoCreateModal from "../components/balanzes/IngresoCreateModal";
-import EgresoCreateModal from "../components/balanzes/EgresoCreateModal";
+import MovimientoModal from "../components/balanzes/MovimientoModal";
 
 import {
   HiCash,
@@ -30,8 +29,7 @@ import {
   HiArrowCircleUp,
 } from "react-icons/hi";
 
-import { fetchIngresos } from "../store/slices/ingresosSlice";
-import { fetchEgresos } from "../store/slices/egresosSlice";
+import { fetchIngresos, fetchEgresos } from "../store/slices/cajaSlices";
 import {
   fetchPolizasKpis,
   selectPolizasKpis,
@@ -676,8 +674,8 @@ const HomePage = () => {
       </div>
 
       {/* 🚀 Modales de Caja Rápida (los mismos que en Balances) */}
-      <IngresoCreateModal isOpen={modalIngresoAbierto} onClose={cerrarIngreso} />
-      <EgresoCreateModal isOpen={modalEgresoAbierto} onClose={cerrarEgreso} />
+      <MovimientoModal tipo="ingreso" modo="crear" isOpen={modalIngresoAbierto} onClose={cerrarIngreso} />
+      <MovimientoModal tipo="egreso" modo="crear" isOpen={modalEgresoAbierto} onClose={cerrarEgreso} />
     </motion.div>
   );
 };

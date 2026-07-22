@@ -14,7 +14,6 @@ import toast from "react-hot-toast";
 import { Link } from "react-router-dom"; // 🚀 IMPORTAMOS LINK
 
 // 🚀 IMPORTACIONES DE SEGURIDAD
-import { useAuth } from "../../context/AuthContext";
 import api from "../../services/api";
 
 // Definimos variants inline para animaciones profesionales
@@ -94,7 +93,6 @@ function splitNombreApellido(fullName) {
 
 /* ================== COMPONENTE ================== */
 export default function FichaEmisionModal({ solicitud, onClose }) {
-  const { user } = useAuth(); // 🚀 Identificamos sucursal del usuario
   const [docs, setDocs] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -144,26 +142,23 @@ export default function FichaEmisionModal({ solicitud, onClose }) {
 
         <motion.div
           variants={modalVariants} initial="initial" animate="animate" exit="exit"
-          className="relative w-full max-w-6xl h-[95vh] sm:h-auto mx-auto rounded-3xl border border-white/10 shadow-2xl overflow-hidden flex flex-col bg-[#0b0f1e]"
+          className="relative w-full max-w-6xl h-[95vh] sm:h-auto mx-auto rounded-3xl border border-brand-200/10 shadow-2xl overflow-hidden flex flex-col bg-brand-card-dark"
         >
           {/* Header Blindado */}
-          <div className="sticky top-0 z-10 flex items-center justify-between px-6 py-4 border-b border-white/5 bg-[#0f0c28]/90 backdrop-blur">
+          <div className="sticky top-0 z-10 flex items-center justify-between px-6 py-4 border-b border-brand-200/5 bg-brand-card-dark/95 backdrop-blur">
             <div className="flex flex-col gap-1">
-               <h3 className="text-white font-black text-lg uppercase tracking-tighter">
+               <h3 className="text-brand-200 font-black text-lg uppercase tracking-tighter">
                 Ficha Técnica de Emisión
               </h3>
               <div className="flex items-center gap-2">
-                 <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">
+                 <span className="text-[10px] font-bold text-brand-200/40 uppercase tracking-widest">
                     ID: #{solicitud?.codigo || solicitud?.id}
-                 </span>
-                 <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 text-[9px] font-black uppercase border border-emerald-500/20">
-                    Sucursal: {user?.perfil?.oficina_nombre || 'Local'}
                  </span>
               </div>
             </div>
             <motion.button
               onClick={onClose}
-              className="h-10 w-10 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 text-white/50 hover:text-white transition-all"
+              className="h-10 w-10 flex items-center justify-center rounded-xl bg-brand-200/5 border border-brand-200/10 text-brand-200/50 hover:text-brand-200 transition-all"
               variants={buttonVariants} whileHover="hover" whileTap="tap"
             >
               <HiX className="text-xl" />
@@ -175,10 +170,10 @@ export default function FichaEmisionModal({ solicitud, onClose }) {
             
             <motion.div className="grid grid-cols-1 lg:grid-cols-2 gap-6" variants={sectionVariants} initial="initial" animate="animate">
               {/* Bloque Asegurado */}
-              <section className="rounded-2xl border border-white/10 bg-white/[0.02] p-5 shadow-inner">
-                <div className="flex items-center gap-2 mb-4 border-b border-white/5 pb-2">
-                   <HiUser className="text-emerald-400" />
-                   <h4 className="text-white font-bold text-xs uppercase tracking-widest">Datos del Asegurado</h4>
+              <section className="rounded-2xl border border-brand-200/10 bg-brand-200/[0.02] p-5 shadow-inner">
+                <div className="flex items-center gap-2 mb-4 border-b border-brand-200/5 pb-2">
+                   <HiUser className="text-brand-primary-tint" />
+                   <h4 className="text-brand-200 font-bold text-xs uppercase tracking-widest">Datos del Asegurado</h4>
                 </div>
                 <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {/* 🚀 CLIENTE CON ENLACE */}
@@ -198,10 +193,10 @@ export default function FichaEmisionModal({ solicitud, onClose }) {
               </section>
 
               {/* Bloque Vehículo */}
-              <section className="rounded-2xl border border-white/10 bg-white/[0.02] p-5 shadow-inner">
-                <div className="flex items-center gap-2 mb-4 border-b border-white/5 pb-2">
-                   <HiOfficeBuilding className="text-sky-400" />
-                   <h4 className="text-white font-bold text-xs uppercase tracking-widest">Datos de la Unidad</h4>
+              <section className="rounded-2xl border border-brand-200/10 bg-brand-200/[0.02] p-5 shadow-inner">
+                <div className="flex items-center gap-2 mb-4 border-b border-brand-200/5 pb-2">
+                   <HiOfficeBuilding className="text-brand-secondary-tint" />
+                   <h4 className="text-brand-200 font-bold text-xs uppercase tracking-widest">Datos de la Unidad</h4>
                 </div>
                 <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <DataBox label="Marca" value={solicitud?.vehiculo_marca} />
@@ -213,8 +208,8 @@ export default function FichaEmisionModal({ solicitud, onClose }) {
             </motion.div>
 
             {/* Configuración de Póliza */}
-            <motion.section className="rounded-2xl border border-white/10 bg-white/[0.02] p-5" variants={sectionVariants}>
-              <h4 className="text-white/40 font-black text-[10px] uppercase tracking-widest mb-4">Configuración de Solicitud</h4>
+            <motion.section className="rounded-2xl border border-brand-200/10 bg-brand-200/[0.02] p-5" variants={sectionVariants}>
+              <h4 className="text-brand-200/40 font-black text-[10px] uppercase tracking-widest mb-4">Configuración de Solicitud</h4>
               <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                 <FieldBox label="Cobertura Solicitada" value={solicitud?.cobertura_solicitada} />
                 <FieldBox label="Compañía Preferida" value={solicitud?.compania_preferida} />
@@ -230,8 +225,8 @@ export default function FichaEmisionModal({ solicitud, onClose }) {
               </div>
 
               {solicitud?.observaciones && (
-                <div className="mt-6 p-4 rounded-xl bg-black/20 border border-white/5">
-                  <div className="text-white/30 text-[10px] font-black uppercase tracking-widest mb-2">Observaciones Internas</div>
+                <div className="mt-6 p-4 rounded-xl bg-brand-200/[0.02] border border-brand-200/5">
+                  <div className="text-brand-200/30 text-[10px] font-black uppercase tracking-widest mb-2">Observaciones Internas</div>
                   <CopyValue text={solicitud.observaciones} />
                 </div>
               )}
@@ -241,22 +236,22 @@ export default function FichaEmisionModal({ solicitud, onClose }) {
             <motion.section className="space-y-4" variants={sectionVariants}>
               <div className="flex items-center justify-between px-1">
                 <div className="flex items-center gap-2">
-                  <HiPhotograph className="text-rose-400" />
-                  <h4 className="text-white font-bold text-xs uppercase tracking-widest">Evidencia Fotográfica ({imagenes.length})</h4>
+                  <HiPhotograph className="text-brand-secondary-tint" />
+                  <h4 className="text-brand-200 font-bold text-xs uppercase tracking-widest">Evidencia Fotográfica ({imagenes.length})</h4>
                 </div>
-                {otros.length > 0 && <span className="text-[10px] font-bold text-white/30 uppercase">{otros.length} Docs Adicionales</span>}
+                {otros.length > 0 && <span className="text-[10px] font-bold text-brand-200/30 uppercase">{otros.length} Docs Adicionales</span>}
               </div>
 
               {loading ? (
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {Array.from({ length: 4 }).map((_, i) => <div key={i} className="aspect-video rounded-2xl bg-white/5 animate-pulse" />)}
+                  {Array.from({ length: 4 }).map((_, i) => <div key={i} className="aspect-video rounded-2xl bg-brand-200/5 animate-pulse" />)}
                 </div>
               ) : (
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   {imagenes.map((d) => (
                     <motion.a
                       key={d.id} href={d.url} target="_blank" rel="noreferrer"
-                      className="group relative block aspect-video rounded-2xl overflow-hidden border border-white/10 bg-black/40 shadow-lg"
+                      className="group relative block aspect-video rounded-2xl overflow-hidden border border-brand-200/10 bg-black/40 shadow-lg"
                       variants={fieldVariants} whileHover="hover"
                     >
                       <motion.img src={d.url} alt="" className="w-full h-full object-cover transition duration-500 group-hover:scale-110" variants={imageVariants} />
@@ -272,19 +267,19 @@ export default function FichaEmisionModal({ solicitud, onClose }) {
           </div>
 
           {/* Footer de Acciones */}
-          <div className="p-6 border-t border-white/5 bg-[#0f0c28]/95 flex flex-col sm:flex-row items-center justify-between gap-4">
-             <p className="text-[10px] font-bold text-white/20 uppercase tracking-widest text-center sm:text-left">
+          <div className="p-6 border-t border-brand-200/5 bg-brand-card-dark/95 flex flex-col sm:flex-row items-center justify-between gap-4">
+             <p className="text-[10px] font-bold text-brand-200/20 uppercase tracking-widest text-center sm:text-left">
                 Verificá que toda la documentación sea legible antes de proceder a la emisión definitiva.
              </p>
              <div className="flex gap-3 w-full sm:w-auto">
                 <motion.button
                   onClick={copiarResumen}
-                  className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-white text-black font-black uppercase text-xs shadow-xl transition-all active:scale-95"
+                  className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-brand-primary text-white font-black uppercase text-xs shadow-xl transition-all active:scale-95"
                   variants={buttonVariants} whileHover="hover" whileTap="tap"
                 >
                   <HiClipboardCopy className="text-lg" /> Copiar Resumen
                 </motion.button>
-                <button onClick={onClose} className="flex-1 sm:flex-none px-8 py-3 rounded-xl bg-white/5 text-white font-bold uppercase text-xs hover:bg-white/10 transition-all">
+                <button onClick={onClose} className="flex-1 sm:flex-none px-8 py-3 rounded-xl bg-brand-200/5 text-brand-200 font-bold uppercase text-xs hover:bg-brand-200/10 transition-all">
                   Cerrar
                 </button>
              </div>
@@ -301,8 +296,8 @@ export default function FichaEmisionModal({ solicitud, onClose }) {
 function DataBox({ label, value, className = "", linkTo }) {
   return (
     <div className="flex flex-col gap-1">
-      <span className="text-[10px] font-black text-white/30 uppercase tracking-widest ml-1">{label}</span>
-      <div className={`p-2.5 rounded-xl bg-black/40 border border-white/5 shadow-inner ${className}`}>
+      <span className="text-[10px] font-black text-brand-200/30 uppercase tracking-widest ml-1">{label}</span>
+      <div className={`p-2.5 rounded-xl bg-black/30 border border-brand-200/5 shadow-inner ${className}`}>
          <CopyValue text={value} linkTo={linkTo} />
       </div>
     </div>
@@ -312,8 +307,8 @@ function DataBox({ label, value, className = "", linkTo }) {
 function FieldBox({ label, value, linkTo }) {
   return (
     <motion.div variants={fieldVariants} className="flex flex-col gap-1">
-      <div className="text-[10px] font-black text-white/30 uppercase tracking-widest ml-1">{label}</div>
-      <div className="p-3 rounded-xl bg-white/5 border border-white/5">
+      <div className="text-[10px] font-black text-brand-200/30 uppercase tracking-widest ml-1">{label}</div>
+      <div className="p-3 rounded-xl bg-brand-200/5 border border-brand-200/5">
         <CopyValue text={value} linkTo={linkTo} />
       </div>
     </motion.div>
@@ -342,18 +337,18 @@ function CopyValue({ text, linkTo }) {
           to={linkTo} 
           target="_blank" 
           rel="noopener noreferrer"
-          className="truncate text-xs sm:text-sm font-bold text-sky-400 hover:text-sky-300 hover:underline decoration-sky-400/30 underline-offset-4 transition-all"
+          className="truncate text-xs sm:text-sm font-bold text-brand-secondary-tint hover:brightness-110 hover:underline decoration-brand-secondary/30 underline-offset-4 transition-all"
         >
           {String(display)}
         </Link>
       ) : (
-        <span className="truncate text-xs sm:text-sm font-bold text-white/90">{String(display)}</span>
+        <span className="truncate text-xs sm:text-sm font-bold text-brand-200/90">{String(display)}</span>
       )}
 
       <button
         onClick={onCopy} title="Copiar al portapapeles"
         className={`shrink-0 h-7 w-7 rounded-lg flex items-center justify-center transition-all ${
-          ok ? 'bg-emerald-500 text-white' : 'bg-white/5 text-white/20 group-hover/copy:bg-white/10 group-hover/copy:text-white/60'
+          ok ? 'bg-brand-primary text-white' : 'bg-brand-200/5 text-brand-200/20 group-hover/copy:bg-brand-200/10 group-hover/copy:text-brand-200/60'
         }`}
       >
         {ok ? <HiCheck className="text-sm" /> : <HiClipboardCopy className="text-sm" />}

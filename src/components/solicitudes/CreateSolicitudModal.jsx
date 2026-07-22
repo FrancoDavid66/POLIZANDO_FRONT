@@ -157,24 +157,8 @@ export default function CreateSolicitudModal({
   const [responsableId, setResponsableId] = useState(initialResponsableId ? String(initialResponsableId) : "");
 
   // Listas para el paso de Asignación
-  const [oficinasList, setOficinasList] = useState(Array.isArray(oficinas) ? oficinas : []);
   const [empleados, setEmpleados] = useState([]);
   const [empleadosLoading, setEmpleadosLoading] = useState(false);
-
-  // Trae oficinas si es admin y no llegaron por props
-  useEffect(() => {
-    if (!isWebAdmin) return;
-    if (Array.isArray(oficinas) && oficinas.length) { setOficinasList(oficinas); return; }
-    let alive = true;
-    (async () => {
-      try {
-        const res = await api.get("/usuarios/oficinas/");
-        const arr = Array.isArray(res.data) ? res.data : res.data?.results || [];
-        if (alive) setOficinasList(arr);
-      } catch { /* noop */ }
-    })();
-    return () => { alive = false; };
-  }, [isWebAdmin, oficinas]);
 
   // Trae responsables (empleados activos)
   useEffect(() => {
@@ -425,7 +409,6 @@ export default function CreateSolicitudModal({
     }
     if (!(poliza.compania || "").trim()) e.compania = "Compañía";
     if (!(poliza.cobertura || "").trim()) e.cobertura = "Cobertura";
-    if (!(poliza.oficina || "").trim()) e.oficina = "Sucursal";
     return e;
   }, [polizaModo, poliza, polizaId]);
 
@@ -456,8 +439,8 @@ export default function CreateSolicitudModal({
   };
 
   const responsableOk = Boolean(String(responsableId).trim());
-  const oficinaOk = isWebAdmin ? Boolean(String(poliza.oficina || "").trim()) : true;
-  const canStepAsignacion = responsableOk && oficinaOk;          // paso 1
+  const oficinaOk = true; // 🔧 sin sucursales, ya no se exige elegir oficina
+  const canStepAsignacion = responsableOk;          // paso 1
   const datosClienteOk = Object.keys(paso1Errors).length === 0;  // paso 2
   const fotosClienteOk = Object.keys(fotosClienteErrors).length === 0; // paso 3
   const companiaOk = Object.keys(companiaErrors).length === 0;   // paso 4
@@ -469,27 +452,17 @@ export default function CreateSolicitudModal({
   //    Sin esto, un cliente existente se podía duplicar si el PDF no traía DNI.
   const dniOk = clienteModo === "existente" || !paso1Errors.dni_cuit_cuil;
   const canSubmit = modoRapido
-    ? (responsableOk && oficinaOk && dniOk && !saving)
-    : (responsableOk && oficinaOk && datosClienteOk && polizaOk && !saving);
+    ? (responsableOk && dniOk && !saving)
+    : (responsableOk && datosClienteOk && polizaOk && !saving);
 
-  // Responsables visibles: admin → TODOS (sin importar la oficina); empleado → los suyos
+  // Responsables visibles: todos los activos, sin distinción de sucursal
   const empleadosVisibles = useMemo(() => {
-    // El admin puede asignar cualquier responsable de cualquier sucursal.
-    // El empleado ve los que le devuelve el backend (los de su oficina).
     return empleados;
   }, [empleados]);
 
-  // Admin elige sucursal en el paso 1 (al cambiarla, resetea el responsable)
-  const elegirOficina = (oficinaId) => {
-    const id = String(oficinaId || "").trim();
-    if (!id) return;
-    setPoliza((p) => ({ ...p, oficina: id }));
-    setResponsableId("");
-  };
-
   const goToStep = (target) => {
     if (target === step) return;
-    if (target >= 2 && !canStepAsignacion) return toast.error(isWebAdmin ? "Elegí sucursal y responsable" : "Elegí el responsable");
+    if (target >= 2 && !canStepAsignacion) return toast.error("Elegí el responsable");
     if (target >= 3 && !datosClienteOk) return toast.error(listaFaltantes(paso1Errors));
     if (target >= 4 && !companiaOk) return toast.error(listaFaltantes(companiaErrors));
     if (target >= 5 && !autoOk) return toast.error(listaFaltantes(autoErrors));
@@ -608,18 +581,11 @@ export default function CreateSolicitudModal({
     );
 
   const onSubmit = async () => {
-    console.log("%c[ALTA] onSubmit ▶", "color:#0ea5e9;font-weight:bold", {
-      canSubmit, modoRapido, responsableId, oficina: poliza.oficina,
-      compania: poliza.compania, cobertura: poliza.cobertura,
-      telefono: cliente.telefono,
-    });
     if (!canSubmit) {
-      console.warn("[ALTA] ⛔ canSubmit=false → no se crea.");
       // 🆕 Mensaje dinámico: antes siempre decía "revisá responsable", aunque
       //    el problema fuera otro (ej: DNI faltante en carga rápida) y confundía.
       const faltan = {};
       if (!responsableOk) faltan.responsable = "Responsable";
-      if (!oficinaOk) faltan.oficina = "Sucursal";
       if (modoRapido && !dniOk) faltan.dni = "DNI del cliente";
       if (!modoRapido && !datosClienteOk) faltan.datos = "datos del cliente";
       if (!modoRapido && !polizaOk) faltan.poliza = "datos de la póliza";
@@ -756,9 +722,7 @@ export default function CreateSolicitudModal({
         };
       });
 
-      console.log("%c[ALTA] payload ▶", "color:#a855f7;font-weight:bold", payload);
       const raw = await solicitudesApi.crearCompleto(payload);
-      console.log("%c[ALTA] ✅ creada OK", "color:#10b981;font-weight:bold", raw);
       toast.success("Solicitud creada con éxito");
 
       try {
@@ -806,13 +770,6 @@ export default function CreateSolicitudModal({
     return () => (document.body.style.overflow = prev);
   }, []);
 
-  const selectedOficinaObj = oficinas.find((o) => String(o.id) === String(poliza.oficina));
-  const headerOficinaName = isWebAdmin
-    ? selectedOficinaObj
-      ? selectedOficinaObj.nombre
-      : "SELECCIONANDO SUCURSAL..."
-    : user?.perfil?.oficina_nombre || "Local";
-
   // 🚀 Si el gate de verificación está abierto, mostramos SOLO el gate
   if (verifyOpen) {
     return (
@@ -842,38 +799,26 @@ export default function CreateSolicitudModal({
         initial="initial"
         animate="animate"
         exit="exit"
-        className="relative w-full sm:max-w-5xl h-[100dvh] sm:h-auto sm:max-h-[90vh] sm:mx-auto sm:rounded-2xl border border-white/10 shadow-2xl flex flex-col overflow-hidden bg-[#0b0f1e]"
+        className="relative w-full sm:max-w-5xl h-[100dvh] sm:h-auto sm:max-h-[90vh] sm:mx-auto sm:rounded-2xl border border-brand-200/10 shadow-2xl flex flex-col overflow-hidden bg-brand-card-dark"
       >
-        <div className="shrink-0 border-b border-white/10 bg-[#0f0c28]/80 backdrop-blur px-4 py-3 flex items-center justify-between">
-          <h3 className="text-white font-bold flex items-center gap-2 text-lg">
-            <span className="p-1.5 rounded-lg bg-emerald-500/20 text-emerald-400">
+        <div className="shrink-0 border-b border-brand-200/10 bg-brand-card-dark/90 backdrop-blur px-4 py-3 flex items-center justify-between">
+          <h3 className="text-brand-200 font-bold flex items-center gap-2 text-lg">
+            <span className="p-1.5 rounded-lg bg-brand-primary/20 text-brand-primary-tint">
               <HiSparkles />
             </span>
             Crear Solicitud
-            <span className="text-[10px] uppercase bg-white/10 px-2 py-0.5 rounded ml-2 text-white/50">
-              {headerOficinaName}
-            </span>
-
-            {isWebAdmin && poliza.oficina && (
-              <button
-                onClick={() => setStep(1)}
-                className="text-[9px] uppercase font-black bg-sky-500/20 text-sky-400 px-2 py-1 rounded ml-1 hover:bg-sky-500/40 transition-colors"
-              >
-                Cambiar Sucursal
-              </button>
-            )}
           </h3>
           <button
             onClick={onClose}
             disabled={saving}
-            className="p-2 rounded-full hover:bg-white/10 text-white/40 hover:text-white transition-all"
+            className="p-2 rounded-full hover:bg-brand-200/10 text-brand-200/40 hover:text-brand-200 transition-all"
           >
             <HiX />
           </button>
         </div>
 
         {!modoRapido && (
-        <div className="shrink-0 px-4 py-3 bg-white/5 border-b border-white/10 overflow-x-auto no-scrollbar">
+        <div className="shrink-0 px-4 py-3 bg-brand-200/5 border-b border-brand-200/10 overflow-x-auto no-scrollbar">
           <div className="flex gap-2 min-w-max">
             <StepBadge
               active={step === 1}
@@ -881,7 +826,7 @@ export default function CreateSolicitudModal({
               icon={<HiUser />}
               label="Asignación"
               onClick={() => goToStep(1)}
-              color="from-violet-400/20 to-indigo-500/20"
+              color="from-brand-primary/25 to-brand-primary-deep/25"
             />
             <StepBadge
               active={step === 2}
@@ -889,7 +834,7 @@ export default function CreateSolicitudModal({
               icon={<HiUser />}
               label="Datos asegurado"
               onClick={() => goToStep(2)}
-              color="from-emerald-400/20 to-emerald-500/20"
+              color="from-brand-primary/25 to-brand-primary-deep/25"
             />
             <StepBadge
               active={step === 3}
@@ -897,7 +842,7 @@ export default function CreateSolicitudModal({
               icon={<HiShieldCheck />}
               label="Compañía"
               onClick={() => goToStep(3)}
-              color="from-sky-400/20 to-sky-500/20"
+              color="from-brand-secondary/25 to-brand-secondary-light/25"
             />
             <StepBadge
               active={step === 4}
@@ -905,7 +850,7 @@ export default function CreateSolicitudModal({
               icon={<HiShieldCheck />}
               label="Datos del auto"
               onClick={() => goToStep(4)}
-              color="from-cyan-400/20 to-cyan-500/20"
+              color="from-brand-primary/25 to-brand-primary-deep/25"
             />
             <StepBadge
               active={step === 5}
@@ -913,7 +858,7 @@ export default function CreateSolicitudModal({
               icon={<HiShieldCheck />}
               label="Fechas"
               onClick={() => goToStep(5)}
-              color="from-indigo-400/20 to-indigo-500/20"
+              color="from-brand-secondary/25 to-brand-secondary-light/25"
             />
             <StepBadge
               active={step === 6}
@@ -921,7 +866,7 @@ export default function CreateSolicitudModal({
               icon={<HiDocumentText />}
               label="Resumen"
               onClick={() => goToStep(6)}
-              color="from-amber-400/20 to-amber-500/20"
+              color="from-brand-secondary/25 to-brand-secondary-light/25"
             />
           </div>
         </div>
@@ -930,8 +875,8 @@ export default function CreateSolicitudModal({
         <div className="flex-1 min-h-0 overflow-y-auto px-4 py-6 scrollbar-hide">
           <AnimatePresence mode="wait">
             {step === 0 && cargandoCliente && (
-              <div className="flex flex-col items-center justify-center py-16 text-white/60 text-sm">
-                <div className="h-8 w-8 rounded-full border-2 border-white/20 border-t-sky-400 animate-spin mb-3" />
+              <div className="flex flex-col items-center justify-center py-16 text-brand-200/60 text-sm">
+                <div className="h-8 w-8 rounded-full border-2 border-brand-200/20 border-t-brand-primary animate-spin mb-3" />
                 Cargando datos del cliente…
               </div>
             )}
@@ -962,11 +907,6 @@ export default function CreateSolicitudModal({
                 exit="exit"
               >
                 <AsignacionStep
-                  isWebAdmin={isWebAdmin}
-                  oficinasList={oficinasList}
-                  oficinaSel={poliza.oficina}
-                  onElegirOficina={elegirOficina}
-                  userOficinaNombre={user?.perfil?.oficina_nombre || "Mi sucursal"}
                   empleados={empleadosVisibles}
                   empleadosLoading={empleadosLoading}
                   responsableId={responsableId}
@@ -1100,11 +1040,11 @@ export default function CreateSolicitudModal({
         </div>
 
         {!(modoRapido && step === 0) && (
-        <div className="shrink-0 border-t border-white/10 bg-[#0f0c28]/95 backdrop-blur p-3 sm:p-4 flex items-center justify-between gap-2 sm:gap-3" style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 0.75rem)" }}>
+        <div className="shrink-0 border-t border-brand-200/10 bg-brand-card-dark/95 backdrop-blur p-3 sm:p-4 flex items-center justify-between gap-2 sm:gap-3" style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 0.75rem)" }}>
           <button
             onClick={onClose}
             disabled={saving}
-            className="hidden sm:inline-flex px-6 py-2.5 rounded-2xl bg-white/5 text-white/70 hover:bg-white/10 font-bold uppercase text-xs transition-all"
+            className="hidden sm:inline-flex px-6 py-2.5 rounded-2xl bg-brand-200/5 text-brand-200/70 hover:bg-brand-200/10 font-bold uppercase text-xs transition-all"
           >
             Cancelar
           </button>
@@ -1112,7 +1052,7 @@ export default function CreateSolicitudModal({
             {!esPrimerStep && (
               <button
                 onClick={stepAtras}
-                className="flex-1 sm:flex-none px-5 py-3 sm:py-2.5 rounded-2xl bg-white/10 text-white font-bold uppercase text-xs transition-all flex items-center justify-center gap-2 active:scale-95"
+                className="flex-1 sm:flex-none px-5 py-3 sm:py-2.5 rounded-2xl bg-brand-200/10 text-brand-200 font-bold uppercase text-xs transition-all flex items-center justify-center gap-2 active:scale-95"
               >
                 <HiChevronLeft /> Atrás
               </button>
@@ -1120,7 +1060,7 @@ export default function CreateSolicitudModal({
             {!esUltimoStep ? (
               <button
                 onClick={stepSiguiente}
-                className="flex-1 sm:flex-none px-8 py-3 sm:py-2.5 rounded-2xl bg-sky-600 text-white font-bold uppercase text-xs shadow-lg shadow-sky-900/40 transition-all flex items-center justify-center gap-2 active:scale-95"
+                className="flex-1 sm:flex-none px-8 py-3 sm:py-2.5 rounded-2xl bg-brand-secondary text-white font-bold uppercase text-xs shadow-lg shadow-brand-secondary/40 transition-all flex items-center justify-center gap-2 active:scale-95"
               >
                 Siguiente <HiChevronRight />
               </button>
@@ -1128,7 +1068,7 @@ export default function CreateSolicitudModal({
               <button
                 onClick={onSubmit}
                 disabled={!canSubmit}
-                className="flex-1 sm:flex-none px-8 sm:px-10 py-3 sm:py-2.5 rounded-2xl bg-emerald-600 text-white font-black uppercase text-xs shadow-lg shadow-emerald-900/40 transition-all active:scale-95 disabled:opacity-50"
+                className="flex-1 sm:flex-none px-8 sm:px-10 py-3 sm:py-2.5 rounded-2xl bg-brand-primary text-white font-black uppercase text-xs shadow-lg shadow-brand-primary/40 transition-all active:scale-95 disabled:opacity-50"
               >
                 {saving ? "Procesando..." : "Finalizar"}
               </button>
@@ -1154,65 +1094,25 @@ export default function CreateSolicitudModal({
 }
 
 function AsignacionStep({
-  isWebAdmin, oficinasList, oficinaSel, onElegirOficina, userOficinaNombre,
   empleados, empleadosLoading, responsableId, onElegirResponsable,
 }) {
-  const [cambiarOfi, setCambiarOfi] = useState(false);
-  const ofiNombre = isWebAdmin
-    ? (oficinasList.find((o) => String(o.id) === String(oficinaSel))?.nombre || "Elegí una sucursal")
-    : userOficinaNombre;
-  const mostrarSelectorOfi = isWebAdmin && (cambiarOfi || !oficinaSel);
   return (
     <div className="space-y-5">
-      {/* Sucursal — auto-asignada; admin puede cambiarla */}
-      <fieldset className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 shadow-xl">
-        <legend className="px-2 text-white/50 text-[10px] uppercase font-bold tracking-widest">Sucursal</legend>
-        {mostrarSelectorOfi ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 mt-2">
-            {oficinasList.length === 0 ? (
-              <p className="text-white/40 text-xs italic">Cargando sucursales...</p>
-            ) : oficinasList.map((o) => {
-              const sel = String(oficinaSel) === String(o.id);
-              return (
-                <button key={o.id} type="button" onClick={() => { onElegirOficina(o.id); setCambiarOfi(false); }}
-                  className={`text-left px-4 py-3 rounded-xl border font-bold text-sm transition-all ${sel ? "bg-sky-500/20 border-sky-500/50 text-white" : "bg-white/5 border-white/10 text-white/70 hover:border-sky-500/30"}`}>
-                  {o.nombre || `Oficina ${o.id}`}
-                </button>
-              );
-            })}
-          </div>
-        ) : (
-          <div className="mt-2 flex items-center gap-2 flex-wrap">
-            <div className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-xs font-bold">
-              <HiShieldCheck /> {ofiNombre}
-            </div>
-            {isWebAdmin && (
-              <button type="button" onClick={() => setCambiarOfi(true)}
-                className="text-[11px] text-sky-300 hover:text-sky-200 underline underline-offset-2">
-                Cambiar
-              </button>
-            )}
-          </div>
-        )}
-      </fieldset>
-
       {/* Responsable */}
-      <fieldset className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 shadow-xl">
-        <legend className="px-2 text-white/50 text-[10px] uppercase font-bold tracking-widest">Responsable</legend>
-        {isWebAdmin && !oficinaSel ? (
-          <p className="text-white/40 text-xs italic mt-2">Elegí primero la sucursal para ver sus responsables.</p>
-        ) : empleadosLoading ? (
-          <p className="text-white/40 text-xs italic mt-2 animate-pulse">Cargando responsables...</p>
+      <fieldset className="rounded-2xl border border-brand-200/10 bg-brand-200/[0.03] p-4 sm:p-6 shadow-xl">
+        <legend className="px-2 text-brand-200/50 text-[10px] uppercase font-bold tracking-widest">Responsable</legend>
+        {empleadosLoading ? (
+          <p className="text-brand-200/40 text-xs italic mt-2 animate-pulse">Cargando responsables...</p>
         ) : empleados.length === 0 ? (
-          <p className="text-white/40 text-xs italic mt-2">No hay responsables activos en esta sucursal.</p>
+          <p className="text-brand-200/40 text-xs italic mt-2">No hay responsables activos.</p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 mt-2">
             {empleados.map((e) => {
               const sel = String(responsableId) === String(e.id);
               return (
                 <button key={e.id} type="button" onClick={() => onElegirResponsable(e.id)}
-                  className={`flex items-center gap-2 text-left px-4 py-3 rounded-xl border font-bold text-sm transition-all ${sel ? "bg-violet-500/25 border-violet-500/50 text-white" : "bg-white/5 border-white/10 text-white/80 hover:border-violet-500/40"}`}>
-                  {sel ? <HiCheckCircle className="text-violet-300 shrink-0" /> : <HiUser className="text-white/40 shrink-0" />}
+                  className={`flex items-center gap-2 text-left px-4 py-3 rounded-xl border font-bold text-sm transition-all ${sel ? "bg-brand-primary/25 border-brand-primary/50 text-brand-200" : "bg-brand-200/5 border-brand-200/10 text-brand-200/80 hover:border-brand-primary/40"}`}>
+                  {sel ? <HiCheckCircle className="text-brand-primary-tint shrink-0" /> : <HiUser className="text-brand-200/40 shrink-0" />}
                   <span className="truncate">{e.nombre}</span>
                 </button>
               );
@@ -1230,17 +1130,17 @@ function StepBadge({ active, done, icon, label, onClick, color }) {
       onClick={onClick}
       className={`flex items-center gap-2 rounded-2xl px-3 sm:px-4 py-2.5 border transition-all duration-300 ${
         active
-          ? `border-white/25 bg-gradient-to-br ${color} text-white shadow-lg`
-          : "border-white/5 bg-white/5 text-white/40 hover:bg-white/10"
+          ? `border-brand-200/25 bg-gradient-to-br ${color} text-brand-200 shadow-lg`
+          : "border-brand-200/5 bg-brand-200/5 text-brand-200/40 hover:bg-brand-200/10"
       }`}
       title={label}
     >
       <span
         className={`h-7 w-7 rounded-xl flex items-center justify-center shrink-0 ${
-          active ? "bg-white/20" : "bg-white/5"
+          active ? "bg-brand-200/20" : "bg-brand-200/5"
         }`}
       >
-        {done ? <HiCheckCircle className="text-emerald-400" /> : icon}
+        {done ? <HiCheckCircle className="text-brand-primary-tint" /> : icon}
       </span>
       {/* En celular solo se ve la etiqueta del paso activo; en desktop todas */}
       <span className={`text-[11px] font-bold uppercase tracking-tight whitespace-nowrap ${active ? "inline" : "hidden sm:inline"}`}>

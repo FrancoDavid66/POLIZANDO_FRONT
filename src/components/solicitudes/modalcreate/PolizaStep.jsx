@@ -93,19 +93,6 @@ export default function PolizaStep({
   // 🆕 NRE opera SOLO cobertura "A": lo usamos para autocompletarla.
   const esNRE = String(poliza?.compania || "").trim().toUpperCase().includes("NRE");
 
-  const opcionesOficina = useMemo(() => {
-    if (isWebAdmin && oficinas.length > 0) return oficinas;
-
-    const userOficinaId = user?.perfil?.oficina?.id || user?.perfil?.oficina;
-    if (userOficinaId) {
-      return [{
-        id: String(userOficinaId),
-        nombre: user?.perfil?.oficina_nombre || "Mi Sucursal"
-      }];
-    }
-    return oficinas;
-  }, [isWebAdmin, oficinas, user]);
-
   useEffect(() => {
     if (!isWebAdmin && user?.perfil?.oficina) {
       const userOficinaId = String(user.perfil.oficina.id || user.perfil.oficina);
@@ -226,8 +213,8 @@ export default function PolizaStep({
         ? "El sistema bloqueará la solicitud si no cargás esto en el próximo paso." 
         : "Podrás avanzar de forma rápida en el paso de imágenes.",
       color: hasRequisitos 
-        ? "from-sky-500/20 to-cyan-500/20 text-sky-400" 
-        : "from-emerald-500/20 to-teal-500/20 text-emerald-400",
+        ? "from-brand-secondary/20 to-brand-secondary-light/20 text-brand-secondary-tint" 
+        : "from-brand-primary/20 to-brand-primary-deep/20 text-brand-primary-tint",
     };
   }, [coberturaObj]);
 
@@ -245,10 +232,10 @@ export default function PolizaStep({
       className="space-y-3"
     >
       <motion.fieldset
-        className="rounded-3xl border border-white/10 bg-gradient-to-br from-white/[0.06] to-white/[0.02] p-4 sm:p-6 shadow-xl"
+        className="rounded-3xl border border-brand-200/10 bg-gradient-to-br from-brand-200/[0.06] to-brand-200/[0.02] p-4 sm:p-6 shadow-xl"
         variants={sectionVariants} initial="initial" animate="animate"
       >
-        <legend className="px-2 text-white/50 text-[10px] uppercase font-bold tracking-widest">
+        <legend className="px-2 text-brand-200/50 text-[10px] uppercase font-bold tracking-widest">
           {showCompania ? "Compañía y cobertura" : showAuto ? "Datos del vehículo" : "Fechas y vencimientos"}
         </legend>
 
@@ -269,10 +256,10 @@ export default function PolizaStep({
             <>
               {/* 🆕 NRE: cobertura FIJA "A" (no se elige a mano). */}
               <div className="flex flex-col gap-1.5 text-xs sm:text-sm">
-                <span className="text-white/55 font-bold uppercase text-[10px] tracking-[0.15em] ml-1">Cobertura</span>
-                <div className="w-full rounded-xl border border-emerald-500/25 bg-black/40 px-4 py-2.5 text-white font-medium flex items-center gap-2">
-                  <HiCheckCircle className="text-emerald-400 shrink-0" />
-                  <span>{poliza?.cobertura || "A"} <span className="text-white/40">· NRE (fija)</span></span>
+                <span className="text-brand-200/55 font-bold uppercase text-[10px] tracking-[0.15em] ml-1">Cobertura</span>
+                <div className="w-full rounded-xl border border-brand-primary/25 bg-brand-200/[0.03] px-4 py-2.5 text-brand-200 font-medium flex items-center gap-2">
+                  <HiCheckCircle className="text-brand-primary-tint shrink-0" />
+                  <span>{poliza?.cobertura || "A"} <span className="text-brand-200/40">· NRE (fija)</span></span>
                 </div>
               </div>
               {/* 🆕 En NRE, acá van tipo (define el precio) y carrocería. */}
@@ -300,29 +287,21 @@ export default function PolizaStep({
             />
           )}
 
-          <Select
-            label="Oficina"
-            value={poliza?.oficina || ""}
-            onChange={(v) => setPoliza((prev = {}) => ({ ...prev, oficina: v }))}
-            options={opcionesOficina}
-            disabled={true} 
-            helper="Sucursal fijada al inicio"
-          />
         </div>
 
         <motion.div
-          className="mt-4 rounded-xl border border-white/5 p-3 sm:p-4 bg-black/20"
+          className="mt-4 rounded-xl border border-brand-200/5 p-3 sm:p-4 bg-brand-200/[0.02]"
           variants={inputVariants}
         >
           <div className={`inline-flex items-center gap-2 rounded-lg px-2 py-1 text-[10px] font-black uppercase tracking-tighter bg-gradient-to-br ${requisitos.color} mb-2 shadow-sm`}>
             <HiShieldCheck className="text-sm" /> {requisitos.title}
           </div>
-          <ul className="list-disc pl-5 text-white/80 text-xs sm:text-sm space-y-1">
+          <ul className="list-disc pl-5 text-brand-200/80 text-xs sm:text-sm space-y-1">
             {requisitos.items.map((it) => (
               <li key={it}>{it}</li>
             ))}
           </ul>
-          {requisitos.note && <p className="mt-2 text-white/40 text-[11px] italic font-medium">{requisitos.note}</p>}
+          {requisitos.note && <p className="mt-2 text-brand-200/40 text-[11px] italic font-medium">{requisitos.note}</p>}
         </motion.div>
         </>
         )}
@@ -367,8 +346,8 @@ export default function PolizaStep({
         </div>
 
         {/* 🚀 Datos técnicos del vehículo */}
-        <div className="mt-4 pt-3 border-t border-white/10">
-          <span className="px-1 text-white/50 text-[10px] uppercase font-bold tracking-widest">
+        <div className="mt-4 pt-3 border-t border-brand-200/10">
+          <span className="px-1 text-brand-200/50 text-[10px] uppercase font-bold tracking-widest">
             Datos técnicos del vehículo
           </span>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
@@ -435,22 +414,22 @@ export default function PolizaStep({
           />
 
           {Array.isArray(cuotasPreview) && cuotasPreview.length > 0 && (
-            <div className="sm:col-span-2 mt-1 rounded-2xl border border-white/10 bg-black/20 p-3">
+            <div className="sm:col-span-2 mt-1 rounded-2xl border border-brand-200/10 bg-brand-200/[0.02] p-3">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-white/55 font-bold uppercase text-[10px] tracking-[0.15em]">
+                <span className="text-brand-200/55 font-bold uppercase text-[10px] tracking-[0.15em]">
                   Cuotas que se van a generar
                 </span>
-                <span className="text-[10px] text-white/40">{cuotasPreview.length} cuotas</span>
+                <span className="text-[10px] text-brand-200/40">{cuotasPreview.length} cuotas</span>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
                 {cuotasPreview.map((c) => (
-                  <div key={c.nro} className="flex items-center justify-between rounded-xl bg-black/30 border border-white/5 px-3 py-2">
-                    <span className="text-xs text-white/70">Cuota {c.nro}</span>
-                    <span className="text-xs font-semibold text-sky-300">{fmtFechaCorta(c.fecha)}</span>
+                  <div key={c.nro} className="flex items-center justify-between rounded-xl bg-brand-200/[0.03] border border-brand-200/5 px-3 py-2">
+                    <span className="text-xs text-brand-200/70">Cuota {c.nro}</span>
+                    <span className="text-xs font-semibold text-brand-primary-tint">{fmtFechaCorta(c.fecha)}</span>
                   </div>
                 ))}
               </div>
-              <p className="mt-2 text-[10px] italic text-white/40">
+              <p className="mt-2 text-[10px] italic text-brand-200/40">
                 Vencimientos calculados desde el primer vencimiento. Si cambiás la fecha de emisión o la cantidad de cuotas, se recalculan solas.
               </p>
             </div>
@@ -469,18 +448,18 @@ function Input({ label, value, onChange, type = "text", placeholder = "", helper
       className={`text-xs sm:text-sm ${className} flex flex-col gap-1.5`}
       variants={inputVariants} initial="initial" animate="animate" whileHover={!disabled ? "hover" : ""} whileTap={!disabled ? "tap" : ""}
     >
-      <span className="text-white/55 font-bold uppercase text-[10px] tracking-[0.15em] ml-1">{label}</span>
+      <span className="text-brand-200/55 font-bold uppercase text-[10px] tracking-[0.15em] ml-1">{label}</span>
       <input
         type={type} value={value} placeholder={placeholder} inputMode={inputMode} autoComplete={autoComplete} autoCapitalize={autoCapitalize} pattern={pattern}
         disabled={disabled}
         onChange={(e) => onChange(e.target.value)}
         className={`w-full rounded-2xl border px-4 py-3.5 text-base outline-none transition-all ${
           disabled
-            ? "bg-black/40 border-white/10 text-white/40 cursor-not-allowed opacity-70"
-            : "bg-black/30 border-white/10 text-white placeholder:text-white/20 focus:ring-2 ring-sky-500/40 focus:border-sky-500/30"
+            ? "bg-brand-200/[0.02] border-brand-200/10 text-brand-200/40 cursor-not-allowed opacity-70"
+            : "bg-brand-200/[0.04] border-brand-200/10 text-brand-200 placeholder:text-brand-200/20 focus:ring-2 ring-brand-primary/40 focus:border-brand-primary/30"
         }`}
       />
-      {helper && <span className={`mt-1 block text-[10px] font-medium italic ${disabled ? "text-emerald-400/60" : "text-white/40"}`}>{helper}</span>}
+      {helper && <span className={`mt-1 block text-[10px] font-medium italic ${disabled ? "text-brand-primary-tint/60" : "text-brand-200/40"}`}>{helper}</span>}
     </motion.label>
   );
 }
@@ -491,13 +470,13 @@ function Textarea({ label, value, onChange, placeholder = "", className = "" }) 
       className={`text-xs sm:text-sm ${className} flex flex-col gap-1.5`}
       variants={inputVariants} initial="initial" animate="animate"
     >
-      <span className="text-white/55 font-bold uppercase text-[10px] tracking-[0.15em] ml-1">{label}</span>
+      <span className="text-brand-200/55 font-bold uppercase text-[10px] tracking-[0.15em] ml-1">{label}</span>
       <textarea
         rows={2}
         value={value}
         placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-2xl bg-black/30 border border-white/10 px-4 py-3.5 text-base outline-none focus:ring-2 ring-sky-500/40 focus:border-sky-500/30 text-white placeholder:text-white/20 transition-all resize-none"
+        className="w-full rounded-2xl bg-brand-200/[0.04] border border-brand-200/10 px-4 py-3.5 text-base outline-none focus:ring-2 ring-brand-primary/40 focus:border-brand-primary/30 text-brand-200 placeholder:text-brand-200/20 transition-all resize-none"
       />
     </motion.label>
   );
@@ -510,25 +489,25 @@ function Select({ label, value, onChange, options = [], className = "", disabled
       className={`text-xs sm:text-sm ${className} flex flex-col gap-1.5`}
       variants={inputVariants} initial="initial" animate="animate" whileHover={!disabled ? "hover" : ""} whileTap={!disabled ? "tap" : ""}
     >
-      <span className="text-white/55 font-bold uppercase text-[10px] tracking-[0.15em] ml-1">{label}</span>
+      <span className="text-brand-200/55 font-bold uppercase text-[10px] tracking-[0.15em] ml-1">{label}</span>
       <div className="relative group">
         <select
           value={value || ""} disabled={disabled}
           onChange={(e) => onChange(e.target.value)}
-          className={`cursor-pointer w-full rounded-2xl border border-white/10 px-4 py-3.5 pr-10 text-base outline-none transition-all appearance-none ${
-            disabled ? 'bg-black/40 text-white/30 cursor-not-allowed opacity-70' : 'bg-black/30 text-white focus:ring-2 ring-violet-500/40 focus:border-violet-500/30'
+          className={`cursor-pointer w-full rounded-2xl border border-brand-200/10 px-4 py-3.5 pr-10 text-base outline-none transition-all appearance-none ${
+            disabled ? 'bg-brand-200/[0.02] text-brand-200/30 cursor-not-allowed opacity-70' : 'bg-brand-200/[0.04] text-brand-200 focus:ring-2 ring-brand-secondary/40 focus:border-brand-secondary/30'
           }`}
         >
           <option value="">— Seleccionar —</option>
           {normalized.map((op) => (
-            <option key={op?.id} value={op?.id} className="bg-[#0f1324] text-white">
+            <option key={op?.id} value={op?.id} className="bg-brand-card-dark text-brand-200">
               {op?.nombre || op?.id}
             </option>
           ))}
         </select>
-        {!disabled && <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-white/40 group-hover:text-white transition-colors">▾</span>}
+        {!disabled && <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-brand-200/40 group-hover:text-brand-200 transition-colors">▾</span>}
       </div>
-      {helper && <span className={`mt-1 block text-[10px] font-medium italic ${disabled ? 'text-emerald-400/60' : 'text-white/40'}`}>{helper}</span>}
+      {helper && <span className={`mt-1 block text-[10px] font-medium italic ${disabled ? 'text-brand-primary-tint/60' : 'text-brand-200/40'}`}>{helper}</span>}
     </motion.label>
   );
 }
@@ -585,12 +564,12 @@ function SelectCreatable({ label, value, onChange, options = [], isWebAdmin, end
   return (
     <motion.div className="flex flex-col gap-1.5 text-xs sm:text-sm" variants={inputVariants} initial="initial" animate="animate">
       <div className="flex items-center justify-between ml-1">
-        <span className="text-white/60 font-bold uppercase text-[10px] tracking-widest">{label}</span>
+        <span className="text-brand-200/60 font-bold uppercase text-[10px] tracking-widest">{label}</span>
         {isWebAdmin && !isCreating && (
           <button 
             type="button" 
             onClick={() => setIsCreating(true)}
-            className="cursor-pointer text-[9px] font-black uppercase text-sky-400 bg-sky-400/10 hover:bg-sky-400/20 px-1.5 py-0.5 rounded transition-colors flex items-center gap-1"
+            className="cursor-pointer text-[9px] font-black uppercase text-brand-secondary-tint bg-brand-secondary/10 hover:bg-brand-secondary/20 px-1.5 py-0.5 rounded transition-colors flex items-center gap-1"
           >
             <HiPlus /> Nuevo
           </button>
@@ -605,7 +584,7 @@ function SelectCreatable({ label, value, onChange, options = [], isWebAdmin, end
             onChange={(e) => setNewVal(e.target.value)}
             placeholder={`Ej: Nuevo ${label.toLowerCase()}`}
             autoFocus
-            className="flex-1 rounded-xl bg-white/5 border border-sky-500/50 px-3 py-2.5 outline-none focus:ring-2 ring-sky-500/40 text-white placeholder:text-white/20 transition-all font-medium"
+            className="flex-1 rounded-xl bg-brand-200/5 border border-brand-secondary/50 px-3 py-2.5 outline-none focus:ring-2 ring-brand-secondary/40 text-brand-200 placeholder:text-brand-200/20 transition-all font-medium"
             onKeyDown={(e) => {
               if (e.key === "Enter") {
                 e.preventDefault();
@@ -618,15 +597,15 @@ function SelectCreatable({ label, value, onChange, options = [], isWebAdmin, end
             type="button" 
             onClick={handleSaveNew} 
             disabled={saving}
-            className="cursor-pointer h-10 w-10 shrink-0 flex items-center justify-center bg-emerald-500 hover:bg-emerald-400 text-white rounded-xl transition-colors shadow-lg disabled:opacity-50"
+            className="cursor-pointer h-10 w-10 shrink-0 flex items-center justify-center bg-brand-primary hover:bg-brand-primary-deep text-white rounded-xl transition-colors shadow-lg disabled:opacity-50"
           >
-            {saving ? <span className="w-4 h-4 rounded-full border-2 border-white/60 border-t-transparent animate-spin" /> : <HiCheck className="text-lg" />}
+            {saving ? <span className="w-4 h-4 rounded-full border-2 border-white/50 border-t-transparent animate-spin" /> : <HiCheck className="text-lg" />}
           </button>
           <button 
             type="button" 
             onClick={() => setIsCreating(false)} 
             disabled={saving}
-            className="cursor-pointer h-10 w-10 shrink-0 flex items-center justify-center bg-white/5 hover:bg-white/10 border border-white/10 text-white/60 rounded-xl transition-colors"
+            className="cursor-pointer h-10 w-10 shrink-0 flex items-center justify-center bg-brand-200/5 hover:bg-brand-200/10 border border-brand-200/10 text-brand-200/60 rounded-xl transition-colors"
           >
             <HiX className="text-lg" />
           </button>
@@ -636,16 +615,16 @@ function SelectCreatable({ label, value, onChange, options = [], isWebAdmin, end
           <select
             value={value || ""}
             onChange={(e) => onChange(e.target.value)}
-            className="cursor-pointer w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 pr-9 outline-none focus:ring-2 ring-violet-500/40 text-white font-medium appearance-none transition-all"
+            className="cursor-pointer w-full rounded-xl border border-brand-200/10 bg-brand-200/5 px-4 py-2.5 pr-9 outline-none focus:ring-2 ring-brand-secondary/40 text-brand-200 font-medium appearance-none transition-all"
           >
             <option value="">— Seleccionar —</option>
             {mergedOptions.map((op) => (
-              <option key={op?.id} value={op?.nombre || op?.id} className="bg-[#0f1324] text-white">
+              <option key={op?.id} value={op?.nombre || op?.id} className="bg-brand-card-dark text-brand-200">
                 {op?.nombre || op?.id}
               </option>
             ))}
           </select>
-          <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-white/40 group-hover:text-white transition-colors">▾</span>
+          <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-brand-200/40 group-hover:text-brand-200 transition-colors">▾</span>
         </div>
       )}
     </motion.div>

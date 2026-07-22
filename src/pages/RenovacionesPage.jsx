@@ -10,17 +10,10 @@
 
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
 import "dayjs/locale/es";
 import toast from "react-hot-toast";
-import {
-  HiRefresh,
-  HiClipboardCheck,
-  HiExclamation,
-  HiCheckCircle,
-  HiXCircle,
-} from "react-icons/hi";
+import { HiRefresh, HiClipboardCheck, HiExclamation } from "react-icons/hi";
 
 import {
   fetchRenovaciones,
@@ -35,30 +28,25 @@ import {
   selectRenovacionesItems,
   selectRenovacionesStatus,
   selectRenovacionesError,
-  selectRenovacionesCount,
   selectRenovacionesOficinas,
-  selectRenovacionesResumen,
-  selectRenovacionesGlobalResumen,
 } from "../store/slices/renovacionesSlice";
 
-import RenovacionModal from "../components/renovaciones/RenovacionModal";
-import RenovacionesFiltersBar from "../components/renovaciones/RenovacionesFiltersBar";
-import RenovacionesTabs from "../components/renovaciones/RenovacionesTabs";
-import Renovacionestable from "../components/renovaciones/Renovacionestable";
-import DescartarRenovacionModal from "../components/renovaciones/DescartarRenovacionModal";
-import ProgresoDelDia from "../components/renovaciones/ProgresoDelDia";
-import PolizaYaRenovadaModal from "../components/renovaciones/PolizaYaRenovadaModal";
+// 🚀 3 componentes hijos (unificados):
+import RenovacionesToolbar from "../components/renovaciones/RenovacionesToolbar";
+import RenovacionesTable from "../components/renovaciones/RenovacionesTable";
+import {
+  RenovacionModal,
+  PolizaYaRenovadaModal,
+  DescartarRenovacionModal,
+  SubirPolizaSistemaModal,
+} from "../components/renovaciones/RenovacionModales";
 import { useRenovacionesProgreso } from "../hooks/useRenovacionesProgreso";
 import { useAuth } from "../context/AuthContext";
-
-const cx = (...a) => a.filter(Boolean).join(" ");
 
 /* =========================================================
  * Helpers de detección de estado en frontend
  * (mientras el backend no devuelva los flags)
  * ========================================================= */
-
-const DIAS_SIN_GESTION_LIMITE = 30;
 
 function getVencimiento(p) {
   return (
@@ -109,18 +97,6 @@ function isMarcadaNoRenueva(p) {
   );
 }
 
-function isVerificada(p) {
-  return !!p?.renovacion_verificada;
-}
-
-function isVencidaSinGestion(p) {
-  // Vencida hace 30+ días, no renovada, sin marca manual
-  if (isRenovada(p)) return false;
-  if (isMarcadaNoRenueva(p)) return false;
-  const dv = diasVencidaDe(p);
-  return dv >= DIAS_SIN_GESTION_LIMITE;
-}
-
 // Clasifica cada póliza en UNO de los 3 filtros, o null si no se muestra.
 // Orden de prioridad fijo.
 function clasificarTab(p) {
@@ -144,98 +120,8 @@ function clasificarTab(p) {
 }
 
 /* =========================================================
- * Badges chiquitos
+ * Resumen en una línea
  * ========================================================= */
-
-const Badge = ({ children, tone = "neutral" }) => {
-  const map = {
-    neutral: "bg-white/10 text-white border-white/15",
-    green: "bg-emerald-500/15 text-emerald-100 border-emerald-400/30",
-    yellow: "bg-amber-500/15 text-amber-100 border-amber-400/30",
-    red: "bg-rose-500/15 text-rose-100 border-rose-400/30",
-    blue: "bg-sky-500/15 text-sky-100 border-sky-400/30",
-    sky: "bg-sky-500/15 text-sky-100 border-sky-400/30",
-  };
-  return (
-    <span
-      className={cx(
-        "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider",
-        map[tone] || map.neutral
-      )}
-    >
-      {children}
-    </span>
-  );
-};
-
-/* =========================================================
- * KPIs en cards
- * ========================================================= */
-
-function KpiCard({ label, value, tone = "neutral", hint }) {
-  const toneMap = {
-    neutral: "border-white/10 bg-white/5",
-    green: "border-emerald-400/20 bg-emerald-500/5",
-    yellow: "border-amber-400/20 bg-amber-500/5",
-    red: "border-rose-400/20 bg-rose-500/5",
-    sky: "border-sky-400/20 bg-sky-500/5",
-  };
-  const valueColor = {
-    neutral: "text-white",
-    green: "text-emerald-200",
-    yellow: "text-amber-200",
-    red: "text-rose-200",
-    sky: "text-sky-200",
-  };
-  return (
-    <div
-      className={cx(
-        "rounded-xl border px-3 py-2.5",
-        toneMap[tone] || toneMap.neutral
-      )}
-    >
-      <div className="text-[10px] font-bold uppercase tracking-wider text-white/50">
-        {label}
-      </div>
-      <div className={cx("mt-0.5 text-xl font-extrabold tabular-nums", valueColor[tone] || valueColor.neutral)}>
-        {value ?? 0}
-      </div>
-      {hint && (
-        <div className="mt-0.5 text-[10px] text-white/40">{hint}</div>
-      )}
-    </div>
-  );
-}
-
-/* =========================================================
- * Resumen en una línea (reemplaza la card de KPIs)
- * ========================================================= */
-
-function ResumenInline({ tab, kpis }) {
-  const N = ({ children, tone = "white" }) => {
-    const map = {
-      white: "text-white",
-      amber: "text-amber-300",
-      rose: "text-rose-300",
-    };
-    return <span className={cx("font-bold tabular-nums", map[tone])}>{children}</span>;
-  };
-
-  if (tab === "vencidas") {
-    return (
-      <span className="text-xs text-white/55">
-        <N tone="rose">{kpis.total}</N> sin renovar · <N tone="amber">{kpis.masDe30}</N> hace 30+ días
-      </span>
-    );
-  }
-
-  const label = tab === "renovar_hoy" ? "para renovar hoy" : "para los próximos 3 días";
-  return (
-    <span className="text-xs text-white/55">
-      <N>{kpis.total}</N> {label}
-    </span>
-  );
-}
 
 function normalizeOficinaOption(x) {
   if (x == null) return null;
@@ -290,7 +176,6 @@ const TAB_LEGACY_MAP = {
 export default function RenovacionesPage() {
   dayjs.locale("es");
   const dispatch = useDispatch();
-  const navigate = useNavigate();
   const { user } = useAuth();
   const isWebAdmin =
     user?.perfil?.rol === "ADMIN" || user?.rol === "ADMIN";
@@ -298,11 +183,8 @@ export default function RenovacionesPage() {
   const items = useSelector(selectRenovacionesItems);
   const status = useSelector(selectRenovacionesStatus);
   const error = useSelector(selectRenovacionesError);
-  const count = useSelector(selectRenovacionesCount);
 
   const oficinas = useSelector(selectRenovacionesOficinas);
-  const resumen = useSelector(selectRenovacionesResumen);
-  const globalResumen = useSelector(selectRenovacionesGlobalResumen) || {};
 
   // 🆕 Tab activo (persistido en localStorage)
   const [tab, setTab] = useState(() => {
@@ -324,7 +206,6 @@ export default function RenovacionesPage() {
   });
 
   const [search, setSearch] = useState("");
-  const [bucket, setBucket] = useState("");
 
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
@@ -339,6 +220,10 @@ export default function RenovacionesPage() {
   // 🆕 Errores estructurados del backend
   const [renovarError, setRenovarError] = useState(null);    // banner dentro del modal de renovar
   const [polizaRenovadaModal, setPolizaRenovadaModal] = useState({ open: false, error: null });
+
+  // 🆕 Subir póliza/cuponera a sistema, justo después de renovar
+  //    (única tarea que sobrevivió de la ex-app "Tareas").
+  const [subirSistema, setSubirSistema] = useState({ open: false, item: null });
 
   // 🎮 Gamificación: tracking del progreso del día
   const {
@@ -628,8 +513,8 @@ export default function RenovacionesPage() {
         </button>
       </div>
 
-      {/* ============ Buscador + sucursal ============ */}
-      <RenovacionesFiltersBar
+      {/* ============ Toolbar: buscador + sucursal + tabs + resumen + progreso ============ */}
+      <RenovacionesToolbar
         loading={loading}
         search={search}
         setSearch={setSearch}
@@ -638,32 +523,20 @@ export default function RenovacionesPage() {
         oficinasOptions={oficinasOptions}
         isWebAdmin={isWebAdmin}
         totalCount={totalCount}
+        tab={tab}
+        onTabChange={setTab}
+        tabCounts={tabCounts}
+        kpis={kpis}
+        hechasHoy={hechasHoy}
+        pendientesTotales={tabCounts?.renovar_hoy || 0}
       />
 
-      {/* ============ Filtros (tabs) ============ */}
-      <div className="mt-3">
-        <RenovacionesTabs
-          activeTab={tab}
-          onChange={setTab}
-          counts={tabCounts}
-        />
-      </div>
-
       {!!error && (
-        <div className="mt-4 rounded-xl bg-rose-500/10 border border-rose-500/20 p-3 text-sm text-rose-200 flex items-center gap-2">
+        <div className="mt-4 mb-3 rounded-xl bg-rose-500/10 border border-rose-500/20 p-3 text-sm text-rose-200 flex items-center gap-2">
           <HiExclamation className="text-lg" />
           No se pudieron cargar las pólizas. Intenta actualizar.
         </div>
       )}
-
-      {/* ============ Resumen en línea + progreso del día ============ */}
-      <div className="mt-4 mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <ResumenInline tab={tab} kpis={kpis} />
-        <ProgresoDelDia
-          hechasHoy={hechasHoy}
-          pendientesTotales={tabCounts?.renovar_hoy || 0}
-        />
-      </div>
 
       {/* ============ Paginación ============ */}
       <div className="mb-3 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
@@ -720,7 +593,7 @@ export default function RenovacionesPage() {
       </div>
 
       {/* ============ TABLA ============ */}
-      <Renovacionestable
+      <RenovacionesTable
         items={itemsPaginados}
         oficinasOptions={oficinasOptions}
         loading={loading}
@@ -749,6 +622,7 @@ export default function RenovacionesPage() {
         }}
         onSubmit={async (payload) => {
           if (!selected?.id) return;
+          const origPoliza = selected; // lo capturamos: abajo se limpia `selected`
           setSubmitting(true);
           setRenovarError(null);
 
@@ -773,9 +647,19 @@ export default function RenovacionesPage() {
             setSelected(null);
             setRenovarError(null);
 
-            // Abrimos la póliza nueva en otra pestaña, sin salir de Renovaciones.
+            // 🆕 Al terminar de renovar, ofrecemos subir los papeles/cuponera de la
+            //    póliza NUEVA al sistema (el "Subir póliza a sistema" de la ex-app Tareas).
             if (nuevaId) {
-              window.open(`/polizas/${nuevaId}`, "_blank", "noopener,noreferrer");
+              setSubirSistema({
+                open: true,
+                item: {
+                  poliza_id: nuevaId,
+                  cliente: origPoliza?.cliente_nombre || origPoliza?.cliente || "",
+                  patente: origPoliza?.patente || "",
+                  patente_real: origPoliza?.patente || "",
+                  cliente_dni: origPoliza?.cliente_dni || origPoliza?.dni || "",
+                },
+              });
             }
 
             // Recargamos para que la póliza renovada desaparezca de la tabla.
@@ -844,6 +728,14 @@ export default function RenovacionesPage() {
         onClose={closeNoRenuevaModal}
         onSubmit={confirmarNoRenueva}
         submitting={submitting}
+      />
+
+      {/* ============ Modal "Subir póliza a sistema" (post-renovación) ============ */}
+      <SubirPolizaSistemaModal
+        isOpen={subirSistema.open}
+        item={subirSistema.item}
+        onClose={() => setSubirSistema({ open: false, item: null })}
+        onSaved={() => { setSubirSistema({ open: false, item: null }); load({ force: true }); }}
       />
     </div>
   );

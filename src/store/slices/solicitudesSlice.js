@@ -24,12 +24,23 @@ export const fetchSolicitudes = createAsyncThunk(
   }
 );
 
+// 📊 Resumen para el badge del Header.
+// 🔧 El endpoint '/resumen/' se sacó del backend (era del feature de constancia).
+//    Ahora usamos '/counters/' (lo vivo: pendiente_alta / pendiente_envio) y lo
+//    mapeamos a la MISMA forma que ya espera el Header, así no rompe nada.
 export const fetchResumen = createAsyncThunk(
   'solicitudes/fetchResumen',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await api.get('/solicitudes/resumen/');
-      return response.data;
+      const response = await api.get('/solicitudes/counters/');
+      const c = response.data || {};
+      const pendientes = (c.pendiente_alta || 0) + (c.pendiente_envio || 0);
+      return {
+        por_asegurar: pendientes,
+        pendiente_alta: c.pendiente_alta || 0,
+        pendiente_envio: c.pendiente_envio || 0,
+        total: pendientes,
+      };
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
     }
@@ -54,11 +65,11 @@ export const crearSolicitudCompleta = createAsyncThunk(
   async (body, { dispatch, rejectWithValue }) => {
     try {
       const response = await api.post('/solicitudes/crear-completo/', body);
-      
+
       // Magia: Apenas se crea, obligamos a Redux a recargar las listas para que aparezcan al instante
       dispatch(fetchSolicitudes());
-      dispatch(fetchClientes()); 
-      
+      dispatch(fetchClientes());
+
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
@@ -66,48 +77,11 @@ export const crearSolicitudCompleta = createAsyncThunk(
   }
 );
 
-export const emitirConstancia = createAsyncThunk(
-  'solicitudes/emitirConstancia',
-  async (id, { rejectWithValue }) => {
-    try {
-      const response = await api.post(`/solicitudes/${id}/emitir_constancia/`);
-      return response.data;
-    } catch (error) {
-      return rejectWithValue(error.response?.data || error.message);
-    }
-  }
-);
-
-export const convertirSolicitud = createAsyncThunk(
-  'solicitudes/convertir',
-  async ({ id, poliza_id }, { rejectWithValue }) => {
-    try {
-      const response = await api.post(`/solicitudes/${id}/convertir/`, { poliza_id });
-      return response.data;
-    } catch (error) {
-      return rejectWithValue(error.response?.data || error.message);
-    }
-  }
-);
-
-export const cancelarSolicitud = createAsyncThunk(
-  'solicitudes/cancelar',
-  async (id, { rejectWithValue }) => {
-    try {
-      const response = await api.post(`/solicitudes/${id}/cancelar/`);
-      return response.data;
-    } catch (error) {
-      return rejectWithValue(error.response?.data || error.message);
-    }
-  }
-);
-
-const initialResumen = { 
-  por_asegurar: 0, 
-  vigentes_24h: 0, 
-  vencidas: 0, 
-  convertidas: 0, 
-  total: 0 
+const initialResumen = {
+  por_asegurar: 0,
+  pendiente_alta: 0,
+  pendiente_envio: 0,
+  total: 0,
 };
 
 const solicitudesSlice = createSlice({
@@ -118,7 +92,6 @@ const solicitudesSlice = createSlice({
     status: 'idle',       // carga de lista
     resumenStatus: 'idle',
     creating: false,      // estado para el modal de creación
-    converting: false,    // estado para la acción de convertir
     error: null,
   },
   reducers: {
@@ -144,7 +117,7 @@ const solicitudesSlice = createSlice({
         state.error = payload;
       })
 
-      // 📊 resumen
+      // 📊 resumen (badge del Header)
       .addCase(fetchResumen.pending, (state) => {
         state.resumenStatus = 'loading';
       })
@@ -178,31 +151,6 @@ const solicitudesSlice = createSlice({
       })
       .addCase(crearSolicitudCompleta.rejected, (state) => {
         state.creating = false;
-      })
-
-      // 📄 emitir (reemplaza item en la lista para actualizar estado visual)
-      .addCase(emitirConstancia.fulfilled, (state, { payload }) => {
-        if (!payload) return;
-        state.items = state.items.map((x) => (x.id === payload.id ? payload : x));
-      })
-
-      // 🔄 convertir
-      .addCase(convertirSolicitud.pending, (state) => {
-        state.converting = true;
-      })
-      .addCase(convertirSolicitud.fulfilled, (state, { payload }) => {
-        state.converting = false;
-        if (!payload) return;
-        state.items = state.items.map((x) => (x.id === payload.id ? payload : x));
-      })
-      .addCase(convertirSolicitud.rejected, (state) => {
-        state.converting = false;
-      })
-
-      // 🚫 cancelar
-      .addCase(cancelarSolicitud.fulfilled, (state, { payload }) => {
-        if (!payload) return;
-        state.items = state.items.map((x) => (x.id === payload.id ? payload : x));
       });
   },
 });

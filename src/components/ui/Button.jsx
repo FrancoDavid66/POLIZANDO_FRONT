@@ -1,33 +1,52 @@
 // src/components/ui/Button.jsx
-export default function Button({
-  variant = "solid",       // "solid" | "outline" | "ghost"
-  tone = "neutral",        // "neutral" | "primary" | "danger" | "success"
+//
+// Botón base. "primary" = verde marca (acción principal), "secondary" =
+// naranja marca (acción alternativa / que llama la atención), "outline" y
+// "ghost" para acciones secundarias.
+//
+// Uso: <Button onClick={guardar} loading={guardando}>Guardar</Button>
+
+const VARIANTS = {
+  primary: "bg-brand-primary text-white hover:bg-brand-primary-deep shadow-sm",
+  secondary: "bg-brand-secondary text-white hover:brightness-95 shadow-sm",
+  outline:
+    "bg-transparent border border-brand-100/20 dark:border-brand-200/20 " +
+    "text-brand-100 dark:text-brand-200 hover:bg-brand-100/5 dark:hover:bg-brand-200/5",
+  ghost:
+    "bg-transparent text-brand-100 dark:text-brand-200 " +
+    "hover:bg-brand-100/8 dark:hover:bg-brand-200/10",
+};
+
+const SIZES = {
+  sm: "px-3 py-1.5 text-xs",
+  md: "px-4 py-2.5 text-sm",
+  lg: "px-5 py-3 text-base",
+};
+
+export function Button({
+  variant = "primary",
+  size = "md",
+  loading = false,
+  disabled = false,
   className = "",
-  as: Comp = "button",
+  children,
   ...props
 }) {
-  const tones = {
-    neutral: {
-      solid: "bg-gray-800 hover:bg-gray-700 text-white border border-gray-700",
-      outline: "border border-gray-700 hover:bg-gray-800 text-gray-100",
-      ghost: "hover:bg-gray-800 text-gray-100",
-    },
-    primary: {
-      solid: "bg-primary-400 hover:opacity-90 text-neutral-900",
-      outline: "border border-primary-400 text-primary-300 hover:bg-primary-400/10",
-      ghost: "text-primary-300 hover:bg-primary-400/10",
-    },
-    danger: {
-      solid: "bg-red-600 hover:bg-red-700 text-white",
-      outline: "border border-red-600 text-red-300 hover:bg-red-600/10",
-      ghost: "text-red-300 hover:bg-red-600/10",
-    },
-    success: {
-      solid: "bg-emerald-600 hover:bg-emerald-700 text-white",
-      outline: "border border-emerald-600 text-emerald-300 hover:bg-emerald-600/10",
-      ghost: "text-emerald-300 hover:bg-emerald-600/10",
-    },
-  };
-  const base = "inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-sm";
-  return <Comp className={`${base} ${tones[tone][variant]} ${className}`} {...props} />;
+  return (
+    <button
+      disabled={disabled || loading}
+      className={`inline-flex items-center justify-center gap-2 rounded-xl font-semibold
+        transition-all duration-150 active:scale-[0.97]
+        disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100
+        ${VARIANTS[variant]} ${SIZES[size]} ${className}`}
+      {...props}
+    >
+      {loading && (
+        <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-current border-t-transparent" />
+      )}
+      {children}
+    </button>
+  );
 }
+
+export default Button;

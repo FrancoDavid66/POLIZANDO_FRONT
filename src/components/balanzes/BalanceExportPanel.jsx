@@ -78,7 +78,7 @@ async function descargarExcelBackend({ mes, desde, hasta, oficina, fileName }) {
   }
   if (oficina && String(oficina).toUpperCase() !== "ALL") params.set("oficina", oficina);
 
-  const url = `${API_BASE}balance-mensual/exportar/?${params.toString()}`;
+  const url = `${API_BASE}reporte-completo/?${params.toString()}`;
   const res = await fetch(url, { headers: _authHeaders() });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
 

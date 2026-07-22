@@ -496,23 +496,6 @@ export const fetchRenovacionesOficinas = createAsyncThunk(
   }
 );
 
-export const refacturarPoliza = createAsyncThunk(
-  "renovaciones/refacturarPoliza",
-  async ({ id, payload = {} }, { rejectWithValue }) => {
-    try {
-      const { data } = await api.post(`polizas/${id}/refacturar/`, payload);
-      return { id, data };
-    } catch (err) {
-      const msg =
-        err?.response?.data?.detail ||
-        err?.response?.data?.error ||
-        err?.message ||
-        "Error al refacturar póliza";
-      return rejectWithValue({ id, message: msg, raw: err?.response?.data });
-    }
-  }
-);
-
 export const renovarPoliza = createAsyncThunk(
   "renovaciones/renovarPoliza",
   async ({ id, payload = {} }, { rejectWithValue }) => {
@@ -945,30 +928,6 @@ const renovacionesSlice = createSlice({
         state.oficinasStatus = "failed";
         state.oficinasError =
           action.payload?.message || "Error al cargar oficinas";
-      })
-
-      // ---------- REFACTURAR ----------
-      .addCase(refacturarPoliza.pending, (state, action) => {
-        const id = action.meta.arg?.id;
-        if (id != null) setActionLoading(state, id, "refacturar");
-        state.lastActionResult = null;
-      })
-      .addCase(refacturarPoliza.fulfilled, (state, action) => {
-        const id = action.payload?.id;
-        if (id != null) setActionSuccess(state, id, "refacturar");
-
-        state.lastActionResult = {
-          type: "refacturar",
-          id,
-          nuevaPoliza: action.payload?.data || null,
-        };
-
-        invalidateAllCache(state);
-      })
-      .addCase(refacturarPoliza.rejected, (state, action) => {
-        const id = action.payload?.id ?? action.meta.arg?.id;
-        const msg = action.payload?.message || "Error al refacturar póliza";
-        if (id != null) setActionError(state, id, "refacturar", msg);
       })
 
       // ---------- RENOVAR ----------

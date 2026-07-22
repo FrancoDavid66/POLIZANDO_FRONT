@@ -2,8 +2,8 @@
 //
 // Post-alta: pregunta si se cobra la 1ª cuota.
 //   1) "¿Cobrás la primera cuota ahora?"  (Sí / Ahora no)
-//   2) Si Sí → abre el modal de cobro (reutiliza ModalFormaPago).
-//   3) Al pagar → ofrece descargar el comprobante (reutiliza DescargarFactura).
+//   2) Si Sí → abre el modal de cobro (reutiliza PagoWizardModal).
+//   3) Al pagar → ofrece descargar el comprobante (reutiliza FacturaAcciones).
 //
 // Reutiliza TODO lo que ya existe: no crea endpoints ni lógica de pago nueva.
 
@@ -16,8 +16,8 @@ import toast from "react-hot-toast";
 import api from "../../services/api";
 import { fetchMediosCobro } from "../../store/slices/pagosSlice";
 import { registrarPagoYBalance } from "../../utils/pagos/registrarPagoYBalance";
-import ModalFormaPago from "../pagos/ModalFormaPago";
-import DescargarFactura from "../pagos/DescargarFactura";
+import PagoWizardModal from "../pagos/PagoWizardModal";
+import FacturaAcciones from "../pagos/FacturaAcciones";
 
 const pad = (n) => String(n).padStart(2, "0");
 const hhmm = () => {
@@ -100,6 +100,18 @@ export default function CobrarPrimeraCuotaModal({ open, polizaId, onClose }) {
     return `${c.nombre || ""} ${c.apellido || ""}`.trim();
   }, [poliza]);
 
+  // 🔧 PagoWizardModal (a diferencia del viejo ModalFormaPago) también necesita
+  // esto para su paso de confirmación con avisos — para una cuota 1 recién
+  // creada, prácticamente siempre da "sin atraso" y "no cancelada".
+  const diasAtraso = useMemo(() => {
+    if (!cuota?.fecha_vencimiento) return 0;
+    const fv = new Date(String(cuota.fecha_vencimiento).slice(0, 10) + "T00:00:00");
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    const diff = Math.round((hoy - fv) / 86400000);
+    return diff > 0 ? diff : 0;
+  }, [cuota]);
+
   if (!open) return null;
 
   const handleConfirmPago = async (payload) => {
@@ -154,20 +166,20 @@ export default function CobrarPrimeraCuotaModal({ open, polizaId, onClose }) {
             exit={{ opacity: 0 }}
           >
             <motion.div
-              className="w-full max-w-sm rounded-3xl bg-slate-900 border border-white/10 shadow-2xl p-6"
+              className="w-full max-w-sm rounded-3xl bg-brand-card-dark border border-brand-200/10 shadow-2xl p-6"
               initial={{ y: 30, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: 30, opacity: 0 }}
             >
               <div className="flex items-center gap-3 mb-3">
-                <span className="p-2.5 rounded-2xl bg-indigo-500/15 border border-indigo-500/20">
-                  <HiCash className="text-indigo-300 text-xl" />
+                <span className="p-2.5 rounded-2xl bg-brand-primary/15 border border-brand-primary/20">
+                  <HiCash className="text-brand-primary-tint text-xl" />
                 </span>
-                <h3 className="text-white font-black text-lg">Solicitud creada ✅</h3>
+                <h3 className="text-brand-200 font-black text-lg">Solicitud creada ✅</h3>
               </div>
-              <p className="text-sm text-slate-300 mb-1">¿Querés cobrar la primera cuota ahora?</p>
+              <p className="text-sm text-brand-200/70 mb-1">¿Querés cobrar la primera cuota ahora?</p>
               {cuota && (
-                <p className="text-[13px] text-slate-400 mb-5">
+                <p className="text-[13px] text-brand-200/50 mb-5">
                   Cuota 1 · {fmtMonto(cuota.monto) || "monto a definir"}
                 </p>
               )}
@@ -175,14 +187,14 @@ export default function CobrarPrimeraCuotaModal({ open, polizaId, onClose }) {
               <div className="flex gap-2.5">
                 <button
                   onClick={() => onClose?.()}
-                  className="flex-1 py-3 rounded-2xl bg-white/5 text-white/70 font-bold text-sm hover:bg-white/10 transition"
+                  className="flex-1 py-3 rounded-2xl bg-brand-200/5 text-brand-200/70 font-bold text-sm hover:bg-brand-200/10 transition"
                 >
                   Ahora no
                 </button>
                 <button
                   disabled={loading || !cuota}
                   onClick={() => setStep("cobrar")}
-                  className="flex-1 py-3 rounded-2xl bg-indigo-500 text-white font-black text-sm hover:bg-indigo-400 transition disabled:opacity-40"
+                  className="flex-1 py-3 rounded-2xl bg-brand-primary text-white font-black text-sm hover:bg-brand-primary-deep transition disabled:opacity-40"
                 >
                   {loading ? "Cargando…" : "Sí, cobrar"}
                 </button>
@@ -192,8 +204,8 @@ export default function CobrarPrimeraCuotaModal({ open, polizaId, onClose }) {
         )}
       </AnimatePresence>
 
-      {/* ── Paso 2: cobro (reutiliza ModalFormaPago) ── */}
-      <ModalFormaPago
+      {/* ── Paso 2: cobro (reutiliza PagoWizardModal) ── */}
+      <PagoWizardModal
         isOpen={step === "cobrar"}
         onClose={() => setStep("preguntar")}
         onConfirm={handleConfirmPago}
@@ -204,10 +216,14 @@ export default function CobrarPrimeraCuotaModal({ open, polizaId, onClose }) {
         clienteDni={poliza?.cliente?.dni || poliza?.cliente?.dni_cuit_cuil || ""}
         polizaCompania={poliza?.compania || ""}
         polizaCobertura={poliza?.cobertura || ""}
+        polizaEstado={poliza?.estado || ""}
+        numeroPoliza={poliza?.numero_poliza || ""}
+        cuotaNro={cuota?.cuota_nro}
+        diasAtraso={diasAtraso}
         pagoCuota="Cuota 1"
       />
 
-      {/* ── Paso 3: listo + comprobante (reutiliza DescargarFactura) ── */}
+      {/* ── Paso 3: listo + comprobante (reutiliza FacturaAcciones) ── */}
       <AnimatePresence>
         {step === "listo" && (
           <motion.div
@@ -217,30 +233,30 @@ export default function CobrarPrimeraCuotaModal({ open, polizaId, onClose }) {
             exit={{ opacity: 0 }}
           >
             <motion.div
-              className="w-full max-w-sm rounded-3xl bg-slate-900 border border-white/10 shadow-2xl p-6 text-center"
+              className="w-full max-w-sm rounded-3xl bg-brand-card-dark border border-brand-200/10 shadow-2xl p-6 text-center"
               initial={{ y: 30, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: 30, opacity: 0 }}
             >
-              <div className="mx-auto mb-3 h-14 w-14 rounded-full bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center">
-                <HiCheckCircle className="text-emerald-400 text-3xl" />
+              <div className="mx-auto mb-3 h-14 w-14 rounded-full bg-brand-primary/15 border border-brand-primary/30 flex items-center justify-center">
+                <HiCheckCircle className="text-brand-primary-tint text-3xl" />
               </div>
-              <h3 className="text-white font-black text-lg mb-1">¡Cuota cobrada!</h3>
-              <p className="text-[13px] text-slate-400 mb-5">
+              <h3 className="text-brand-200 font-black text-lg mb-1">¡Cuota cobrada!</h3>
+              <p className="text-[13px] text-brand-200/50 mb-5">
                 Descargá el comprobante para el cliente.
               </p>
               <div className="flex flex-col gap-2.5">
-                <DescargarFactura
-                  cliente={poliza?.cliente}
-                  poliza={poliza}
-                  cuota={cuotaPagada}
-                  label="Descargar comprobante"
-                  tone="primary"
-                  className="w-full justify-center"
-                />
+                <div className="flex gap-2">
+                  <FacturaAcciones
+                    cliente={poliza?.cliente}
+                    poliza={poliza}
+                    cuota={cuotaPagada}
+                    className="flex-1 justify-center"
+                  />
+                </div>
                 <button
                   onClick={() => onClose?.()}
-                  className="w-full py-3 rounded-2xl bg-white/5 text-white/70 font-bold text-sm hover:bg-white/10 transition"
+                  className="w-full py-3 rounded-2xl bg-brand-200/5 text-brand-200/70 font-bold text-sm hover:bg-brand-200/10 transition"
                 >
                   Cerrar
                 </button>

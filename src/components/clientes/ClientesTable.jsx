@@ -18,22 +18,22 @@ const estadoTone = (estado) => {
   if (v.includes("incompleto") || v.includes("borrador"))
     return {
       label: "INCOMPLETO",
-      cls: "bg-amber-500/10 text-amber-400 border border-amber-500/30",
+      cls: "bg-brand-secondary/10 text-brand-secondary dark:text-brand-secondary-tint border border-brand-secondary/30",
     };
   if (v.includes("completo") || v.includes("dia"))
     return {
       label: "COMPLETO",
-      cls: "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20",
+      cls: "bg-brand-primary/10 text-brand-primary dark:text-brand-primary-tint border border-brand-primary/20",
     };
   if (v.includes("inactiv") || v.includes("baja"))
     return {
       label: "INACTIVO",
-      cls: "bg-white/5 text-white/40 border border-white/10",
+      cls: "bg-brand-100/8 dark:bg-brand-200/8 text-brand-100/50 dark:text-brand-200/50 border border-brand-100/10 dark:border-brand-200/10",
     };
     
   return {
     label: estado ? String(estado).toUpperCase() : "—",
-    cls: "bg-sky-500/10 text-sky-400 border border-sky-500/20",
+    cls: "bg-brand-100/8 dark:bg-brand-200/8 text-brand-100/60 dark:text-brand-200/60 border border-brand-100/10 dark:border-brand-200/10",
   };
 };
 
@@ -46,8 +46,8 @@ const calcPolizasActivas = (cli) => {
 
 const HeaderCell = ({ children, sortable, active, dir, onClick, className = "" }) => (
   <th
-    className={`p-4 border-b border-white/5 text-[10px] font-black uppercase tracking-widest text-white/40 ${
-      sortable ? "cursor-pointer select-none hover:text-white/70 transition-colors" : ""
+    className={`p-4 border-b border-brand-100/8 dark:border-brand-200/8 text-[10px] font-black uppercase tracking-widest text-brand-100/40 dark:text-brand-200/40 ${
+      sortable ? "cursor-pointer select-none hover:text-brand-100/70 dark:hover:text-brand-200/70 transition-colors" : ""
     } ${className}`}
     onClick={sortable ? onClick : undefined}
     title={sortable ? "Ordenar" : undefined}
@@ -55,7 +55,7 @@ const HeaderCell = ({ children, sortable, active, dir, onClick, className = "" }
     <span className="inline-flex items-center gap-1.5">
       {children}
       {sortable && (
-        <span className={`text-xs ${active ? "text-sky-400" : "text-white/20"}`}>
+        <span className={`text-xs ${active ? "text-brand-primary dark:text-brand-primary-tint" : "text-brand-100/25 dark:text-brand-200/25"}`}>
           {active ? (dir === "asc" ? "▲" : "▼") : "↕"}
         </span>
       )}
@@ -161,49 +161,49 @@ const ClientesTable = ({
       {/* Tabla (Desktop) */}
       <div className="hidden md:block overflow-x-auto">
         <table className="min-w-full text-left border-collapse">
-          <thead className="bg-black/60 sticky top-0 z-10 backdrop-blur-md border-b border-white/10">
+          <thead className="bg-brand-card dark:bg-brand-card-dark sticky top-0 z-10 border-b border-brand-100/10 dark:border-brand-200/10">
             <tr>
               <HeaderCell sortable active={sortBy === "nombre"} dir={sortDir} onClick={() => requestSort("nombre")}>Nombre</HeaderCell>
               <HeaderCell sortable active={sortBy === "dni"} dir={sortDir} onClick={() => requestSort("dni")}>DNI / CUIT</HeaderCell>
-              <th className="p-4 border-b border-white/5 text-[10px] font-black uppercase tracking-widest text-white/40">Teléfono</th>
-              <th className="p-4 border-b border-white/5 text-[10px] font-black uppercase tracking-widest text-white/40">Email</th>
+              <th className="p-4 border-b border-brand-100/8 dark:border-brand-200/8 text-[10px] font-black uppercase tracking-widest text-brand-100/40 dark:text-brand-200/40">Teléfono</th>
+              <th className="p-4 border-b border-brand-100/8 dark:border-brand-200/8 text-[10px] font-black uppercase tracking-widest text-brand-100/40 dark:text-brand-200/40">Email</th>
               <HeaderCell sortable active={sortBy === "polizas"} dir={sortDir} onClick={() => requestSort("polizas")} className="text-center">Pólizas activas</HeaderCell>
               <HeaderCell sortable active={sortBy === "estado"} dir={sortDir} onClick={() => requestSort("estado")} className="text-center">Estado del Perfil</HeaderCell>
             </tr>
           </thead>
 
-          <tbody className="divide-y divide-white/5">
+          <tbody className="divide-y divide-brand-100/8 dark:divide-brand-200/8">
             {pageRows.map((cli) => {
               const polAct = calcPolizasActivas(cli);
               // Evaluamos 'estado' general o 'estado_pago' por seguridad
               const tone = estadoTone(cli?.estado || cli?.estado_pago);
               
               return (
-                <tr key={cli.id} className="hover:bg-white/[0.02] transition-colors group">
+                <tr key={cli.id} className="hover:bg-brand-primary/5 dark:hover:bg-brand-200/5 transition-colors group">
                   <td className="p-4 font-bold text-sm">
-                    <Link to={`/clientes/${cli.id}`} className="text-white group-hover:text-sky-400 transition-colors truncate block max-w-[200px]" title="Ver ficha">
+                    <Link to={`/clientes/${cli.id}`} className="text-brand-100 dark:text-brand-200 group-hover:text-brand-primary dark:group-hover:text-brand-primary-tint transition-colors truncate block max-w-[200px]" title="Ver ficha">
                       {(cli.nombre || "") + " " + (cli.apellido || "")}
                     </Link>
-                    {cli.alias && <div className="text-[10px] font-black uppercase tracking-widest text-white/30 truncate max-w-[200px] mt-0.5">{cli.alias}</div>}
+                    {cli.alias && <div className="text-[10px] font-black uppercase tracking-widest text-brand-100/35 dark:text-brand-200/35 truncate max-w-[200px] mt-0.5">{cli.alias}</div>}
                   </td>
-                  <td className="p-4 text-xs text-white/80 font-mono">
-                    {cli.dni_cuit_cuil || <span className="text-white/20">—</span>}
+                  <td className="p-4 text-xs text-brand-100/70 dark:text-brand-200/70 font-mono">
+                    {cli.dni_cuit_cuil || <span className="text-brand-100/25 dark:text-brand-200/25">—</span>}
                   </td>
                   <td className="p-4 text-xs">
                     {cli.telefono ? (
-                      <a href={`tel:${cli.telefono}`} className="text-white/70 hover:text-white transition-colors">{cli.telefono}</a>
-                    ) : <span className="text-white/20">—</span>}
+                      <a href={`tel:${cli.telefono}`} className="text-brand-100/70 dark:text-brand-200/70 hover:text-brand-100 dark:hover:text-brand-200 transition-colors">{cli.telefono}</a>
+                    ) : <span className="text-brand-100/25 dark:text-brand-200/25">—</span>}
                   </td>
                   <td className="p-4 text-xs">
                     {cli.email ? (
-                      <a href={`mailto:${cli.email}`} className="text-white/70 hover:text-white transition-colors truncate max-w-[150px] inline-block" title={cli.email}>{cli.email}</a>
-                    ) : <span className="text-white/20">—</span>}
+                      <a href={`mailto:${cli.email}`} className="text-brand-100/70 dark:text-brand-200/70 hover:text-brand-100 dark:hover:text-brand-200 transition-colors truncate max-w-[150px] inline-block" title={cli.email}>{cli.email}</a>
+                    ) : <span className="text-brand-100/25 dark:text-brand-200/25">—</span>}
                   </td>
                   <td className="p-4 text-center">
                     {polAct === null || polAct === 0 ? (
-                      <span className="text-white/20">—</span>
+                      <span className="text-brand-100/25 dark:text-brand-200/25">—</span>
                     ) : (
-                      <Link to={`/polizas?cliente=${cli.id}&modo=polizas`} className="inline-flex items-center justify-center min-w-[24px] h-6 px-2 rounded-lg text-[11px] font-black bg-sky-500/10 text-sky-400 border border-sky-500/20 hover:bg-sky-500/20 transition-colors">
+                      <Link to={`/polizas?cliente=${cli.id}&modo=polizas`} className="inline-flex items-center justify-center min-w-[24px] h-6 px-2 rounded-lg text-[11px] font-black bg-brand-primary/10 text-brand-primary dark:text-brand-primary-tint border border-brand-primary/20 hover:bg-brand-primary/15 transition-colors">
                         {polAct}
                       </Link>
                     )}
@@ -232,15 +232,15 @@ const ClientesTable = ({
               initial={{ opacity: 0, y: 10, scale: 0.98 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               transition={{ duration: 0.2 }}
-              className="rounded-2xl bg-black/40 border border-white/5 p-4 shadow-xl"
+              className="rounded-2xl bg-brand-100/[0.03] dark:bg-brand-200/[0.03] border border-brand-100/8 dark:border-brand-200/8 p-4 shadow-sm"
             >
-              <div className="flex items-start justify-between gap-3 mb-4 border-b border-white/5 pb-3">
+              <div className="flex items-start justify-between gap-3 mb-4 border-b border-brand-100/8 dark:border-brand-200/8 pb-3">
                 <div className="flex-1 min-w-0">
-                  <p className="text-[9px] font-black uppercase tracking-[0.2em] text-white/30 mb-0.5">Cliente #{cli.id}</p>
-                  <Link to={`/clientes/${cli.id}`} className="block text-sm font-bold text-white truncate hover:text-sky-400 transition-colors">
+                  <p className="text-[9px] font-black uppercase tracking-[0.2em] text-brand-100/35 dark:text-brand-200/35 mb-0.5">Cliente #{cli.id}</p>
+                  <Link to={`/clientes/${cli.id}`} className="block text-sm font-bold text-brand-100 dark:text-brand-200 truncate hover:text-brand-primary dark:hover:text-brand-primary-tint transition-colors">
                     {(cli.nombre || "") + " " + (cli.apellido || "")}
                   </Link>
-                  {cli.alias && <div className="text-[10px] font-black uppercase tracking-widest text-sky-400/80 truncate mt-0.5">{cli.alias}</div>}
+                  {cli.alias && <div className="text-[10px] font-black uppercase tracking-widest text-brand-primary/80 dark:text-brand-primary-tint/80 truncate mt-0.5">{cli.alias}</div>}
                 </div>
                 <span className={`inline-flex items-center px-2 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest ${tone.cls}`}>
                   {tone.label}
@@ -249,25 +249,25 @@ const ClientesTable = ({
 
               <div className="grid grid-cols-2 gap-4 text-xs mb-4">
                 <div className="flex flex-col gap-1">
-                  <span className="text-[9px] font-black uppercase tracking-widest text-white/30">DNI/CUIT</span>
-                  <span className="text-white/80 font-mono font-bold">{cli.dni_cuit_cuil || "—"}</span>
+                  <span className="text-[9px] font-black uppercase tracking-widest text-brand-100/35 dark:text-brand-200/35">DNI/CUIT</span>
+                  <span className="text-brand-100/70 dark:text-brand-200/70 font-mono font-bold">{cli.dni_cuit_cuil || "—"}</span>
                 </div>
                 <div className="flex flex-col gap-1">
-                  <span className="text-[9px] font-black uppercase tracking-widest text-white/30">Teléfono</span>
-                  {cli.telefono ? <a href={`tel:${cli.telefono}`} className="text-sky-400 font-bold">{cli.telefono}</a> : <span className="text-white/30">—</span>}
+                  <span className="text-[9px] font-black uppercase tracking-widest text-brand-100/35 dark:text-brand-200/35">Teléfono</span>
+                  {cli.telefono ? <a href={`tel:${cli.telefono}`} className="text-brand-primary dark:text-brand-primary-tint font-bold">{cli.telefono}</a> : <span className="text-brand-100/35 dark:text-brand-200/35">—</span>}
                 </div>
                 <div className="flex flex-col gap-1 col-span-2">
-                  <span className="text-[9px] font-black uppercase tracking-widest text-white/30">Pólizas Activas</span>
-                  {polAct === null || polAct === 0 ? <span className="text-white/30">—</span> : (
+                  <span className="text-[9px] font-black uppercase tracking-widest text-brand-100/35 dark:text-brand-200/35">Pólizas Activas</span>
+                  {polAct === null || polAct === 0 ? <span className="text-brand-100/35 dark:text-brand-200/35">—</span> : (
                      <Link to={`/polizas?cliente=${cli.id}&modo=polizas`} className="text-white font-bold inline-flex items-center gap-2">
-                       <span className="bg-sky-500/20 text-sky-400 px-2 py-0.5 rounded border border-sky-500/20">{polAct}</span> Pólizas en curso
+                       <span className="bg-brand-primary/15 text-brand-primary dark:text-brand-primary-tint px-2 py-0.5 rounded border border-brand-primary/20">{polAct}</span> Pólizas en curso
                      </Link>
                   )}
                 </div>
               </div>
 
-              <div className="pt-3 border-t border-white/5">
-                <Link to={`/clientes/${cli.id}`} className="w-full inline-flex items-center justify-center py-2.5 rounded-xl bg-white/5 text-white text-[10px] font-black uppercase tracking-widest border border-white/10 hover:bg-white/10 transition-colors">
+              <div className="pt-3 border-t border-brand-100/8 dark:border-brand-200/8">
+                <Link to={`/clientes/${cli.id}`} className="w-full inline-flex items-center justify-center py-2.5 rounded-xl bg-brand-100/5 dark:bg-brand-200/5 text-brand-100 dark:text-brand-200 text-[10px] font-black uppercase tracking-widest border border-brand-100/10 dark:border-brand-200/10 hover:bg-brand-100/10 dark:hover:bg-brand-200/10 transition-colors">
                   Abrir Ficha Completa
                 </Link>
               </div>
@@ -278,26 +278,26 @@ const ClientesTable = ({
 
       {/* Footer Paginación */}
       {showFooter && (
-        <div className="mt-auto flex flex-col md:flex-row items-center justify-between gap-4 p-4 border-t border-white/10 bg-black/60 backdrop-blur-md">
-          <div className="text-[11px] font-bold text-white/60 uppercase tracking-widest">
+        <div className="mt-auto flex flex-col md:flex-row items-center justify-between gap-4 p-4 border-t border-brand-100/10 dark:border-brand-200/10 bg-brand-100/[0.02] dark:bg-brand-200/[0.02]">
+          <div className="text-[11px] font-bold text-brand-100/60 dark:text-brand-200/60 uppercase tracking-widest">
             Página <span className="text-white">{currPage}</span> de <span className="text-white">{totalPages}</span> 
             <span className="mx-2 opacity-50">•</span> {totalItems} Registros
           </div>
           
           <div className="flex items-center gap-2">
-            <div className="flex bg-white/5 border border-white/10 rounded-xl overflow-hidden p-1">
-              <button className="px-3 py-1.5 rounded-lg hover:bg-white/10 disabled:opacity-30 transition-all text-white" onClick={() => gotoPage(1)} disabled={currPage <= 1} title="Inicio">«</button>
-              <button className="px-3 py-1.5 rounded-lg hover:bg-white/10 disabled:opacity-30 transition-all text-white" onClick={() => gotoPage(currPage - 1)} disabled={currPage <= 1} title="Anterior">‹</button>
-              <button className="px-3 py-1.5 rounded-lg hover:bg-white/10 disabled:opacity-30 transition-all text-white" onClick={() => gotoPage(currPage + 1)} disabled={currPage >= totalPages} title="Siguiente">›</button>
-              <button className="px-3 py-1.5 rounded-lg hover:bg-white/10 disabled:opacity-30 transition-all text-white" onClick={() => gotoPage(totalPages)} disabled={currPage >= totalPages} title="Fin">»</button>
+            <div className="flex bg-brand-100/5 dark:bg-brand-200/5 border border-brand-100/10 dark:border-brand-200/10 rounded-xl overflow-hidden p-1">
+              <button className="px-3 py-1.5 rounded-lg hover:bg-brand-100/10 dark:hover:bg-brand-200/10 disabled:opacity-30 transition-all text-brand-100 dark:text-brand-200" onClick={() => gotoPage(1)} disabled={currPage <= 1} title="Inicio">«</button>
+              <button className="px-3 py-1.5 rounded-lg hover:bg-brand-100/10 dark:hover:bg-brand-200/10 disabled:opacity-30 transition-all text-brand-100 dark:text-brand-200" onClick={() => gotoPage(currPage - 1)} disabled={currPage <= 1} title="Anterior">‹</button>
+              <button className="px-3 py-1.5 rounded-lg hover:bg-brand-100/10 dark:hover:bg-brand-200/10 disabled:opacity-30 transition-all text-brand-100 dark:text-brand-200" onClick={() => gotoPage(currPage + 1)} disabled={currPage >= totalPages} title="Siguiente">›</button>
+              <button className="px-3 py-1.5 rounded-lg hover:bg-brand-100/10 dark:hover:bg-brand-200/10 disabled:opacity-30 transition-all text-brand-100 dark:text-brand-200" onClick={() => gotoPage(totalPages)} disabled={currPage >= totalPages} title="Fin">»</button>
             </div>
             
             <select
               value={currSize} onChange={(e) => changeSize(Number(e.target.value))}
-              className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-white outline-none cursor-pointer"
+              className="rounded-xl border border-brand-100/10 dark:border-brand-200/10 bg-brand-100/5 dark:bg-brand-200/5 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-brand-100 dark:text-brand-200 outline-none cursor-pointer"
             >
               {[10, 25, 50, 100].map((n) => (
-                <option key={n} value={n} className="bg-[#0b0f1e]">{n} Filas</option>
+                <option key={n} value={n} className="bg-brand-card dark:bg-brand-card-dark">{n} Filas</option>
               ))}
             </select>
           </div>

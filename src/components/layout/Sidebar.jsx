@@ -5,13 +5,14 @@ import { useAuth } from "../../context/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   HiHome, HiUsers, HiDocumentText, HiCurrencyDollar, HiDatabase,
-  HiChartBar, HiMap, HiClipboardList, HiClipboardCheck, HiSpeakerphone,
+  HiChartBar, HiClipboardList, HiClipboardCheck,
   HiChevronDown, HiRefresh,
-  HiClock, HiBan, HiTruck, HiCash, HiReceiptTax,
+  HiBan, HiCash, HiReceiptTax,
   HiShieldCheck, HiX, HiCog,
-  HiViewGrid, HiStar
+  HiViewGrid
 } from "react-icons/hi";
 import ThemeToggle from "./ThemeToggle";
+import logoPolizando from "../../assets/logos/polizando_logo.webp";
 
 const ICON_MAP = {
   home:        HiHome,
@@ -20,21 +21,22 @@ const ICON_MAP = {
   money:       HiCurrencyDollar,
   db:          HiDatabase,
   chart:       HiChartBar,
-  map:         HiMap,
   clipboard:   HiClipboardList,
-  star:        HiStar,
   tasks:       HiClipboardCheck,
-  speaker:     HiSpeakerphone,
   refresh:     HiRefresh,
-  clock:       HiClock,
   ban:         HiBan,
-  truck:       HiTruck,
   cash:        HiCash,
   receipt:     HiReceiptTax,
   shield:      HiShieldCheck,
   cog:         HiCog,
   grid:        HiViewGrid,
 };
+
+// Rutas que pertenecen a cada grupo con acordeón — se usa para abrirlo solo
+// si ya estás parado en una página de adentro (mismo criterio en los 3).
+const CARTERA_PATHS  = ["/clientes", "/polizas", "/cuponeras", "/siniestros"];
+const FINANZAS_PATHS = ["/pagos", "/recaudacion", "/balanzes", "/servicios"];
+const ADMIN_PATHS    = ["/cotizaciones", "/estadisticas", "/admin"];
 
 export default function Sidebar({
   isOpen,
@@ -46,8 +48,7 @@ export default function Sidebar({
   bajasPendientes = 0,
   // 🚀 NUEVO: Badge de servicios fijos (vencidos + por vencer ≤3d)
   serviciosAlertas = 0,
-  // 🆕 Verificación y Siniestros: el dato ya se pedía en App.jsx, faltaba pasarlo
-  verificacionCount = 0,
+  // 🆕 Siniestros: el dato ya se pedía en App.jsx, faltaba pasarlo
   siniestrosAbiertos = 0,
 }) {
   const { user } = useAuth();
@@ -84,34 +85,33 @@ export default function Sidebar({
         label: "Servicios Fijos",
         icon: "receipt",
         badge: serviciosAlertas,
-        tone: "red",
+        tone: "amber",
       });
     }
 
     return [
-      // 🏠 Lo de todos los días: inicio + tareas operativas + bandeja de solicitudes
+      // 🏠 Lo de todos los días. "Tareas del día" se sacó de acá — vive como
+      // acceso destacado arriba, junto a "Registrar pago" (ver más abajo).
       {
         title: "Principal", flat: true,
         items: [
-          { to: "/",               label: "Inicio",         icon: "home" },
-          { to: "/tareas",         label: "Tareas del día", icon: "tasks", highlight: true },
-          { to: "/control-diario", label: "Control diario", icon: "clipboard" },
-          { to: "/ranking",        label: "Ranking",        icon: "star" },
-          { to: "/solicitudes",    label: "Solicitudes",    icon: "clipboard", badge: solTotal },
+          { to: "/",            label: "Inicio",      icon: "home" },
+          { to: "/solicitudes", label: "Solicitudes", icon: "clipboard", badge: solTotal, tone: "neutral" },
         ]
       },
-      // 📋 Cartera: clientes + pólizas + siniestros (todo el libro de negocio junto)
+      // 📋 Cartera: clientes + pólizas + siniestros (todo el libro de negocio junto).
+      // Tonos recalibrados: rojo solo para lo genuinamente urgente (cupón
+      // vencido, baja pendiente) — el resto es informativo o "a tener en cuenta",
+      // no todo tiene que gritar por igual.
       {
         title: "Cartera", id: "cartera", icon: "doc",
         items: [
           { to: "/clientes",             label: "Clientes",      icon: "users" },
           { to: "/polizas",              label: "Pólizas",       icon: "doc" },
-          { to: "/vencimientos",         label: "Vencimientos",  icon: "clock" },
           { to: "/polizas/renovaciones", label: "Renovaciones",  icon: "refresh", badge: renovacionesPendientes, tone: "amber" },
-          { to: "/cuponeras",            label: "Cuponeras",     icon: "receipt", badge: cuponVencidas },
-          { to: "/polizas/bajas",        label: "Bajas",         icon: "ban",     badge: bajasPendientes, tone: "red" },
-          { to: "/polizas/verificacion", label: "Verificación",  icon: "shield", badge: verificacionCount, tone: "amber" },
-          { to: "/siniestros",           label: "Siniestros",    icon: "doc",    badge: siniestrosAbiertos, tone: "red" },
+          { to: "/cuponeras",            label: "Cuponeras",     icon: "receipt", badge: cuponVencidas,          tone: "red" },
+          { to: "/polizas/bajas",        label: "Bajas",         icon: "ban",     badge: bajasPendientes,        tone: "red" },
+          { to: "/siniestros",           label: "Siniestros",    icon: "doc",     badge: siniestrosAbiertos,     tone: "neutral" },
         ]
       },
       // 💰 Finanzas: todo lo que es plata en un solo lugar
@@ -124,21 +124,21 @@ export default function Sidebar({
         title: "Gerencia", id: "admin", icon: "shield",
         items: [
           { to: "/cotizaciones", label: "Cotizador",     icon: "receipt" },
-          { to: "/gruas",        label: "Grúas",         icon: "truck" },
-          { to: "/marketing",    label: "Campañas",      icon: "speaker" },
           { to: "/estadisticas", label: "Estadísticas",  icon: "chart" },
-          { to: "/competencia",  label: "Competencia",   icon: "chart" },
-          { to: "/geo",          label: "Mapa Geo",      icon: "map" },
           { to: "/admin",        label: "Configuración", icon: "cog" },
         ]
       }] : [])
     ];
-  }, [isAdmin, isVendedor, solTotal, renovacionesPendientes, cuponVencidas, bajasPendientes, serviciosAlertas, verificacionCount, siniestrosAbiertos]);
+  }, [isAdmin, isVendedor, solTotal, renovacionesPendientes, cuponVencidas, bajasPendientes, serviciosAlertas, siniestrosAbiertos]);
 
+  // 🔽 Los 3 acordeones arrancan CERRADOS — se abren solos si ya estás en una
+  // ruta de adentro. Antes "Cartera" arrancaba siempre abierta (mostrando 8
+  // filas de una) mientras los otros dos sí chequeaban la ruta — inconsistente,
+  // y era buena parte de la sensación de "demasiada información" de entrada.
   const [open, setOpen] = useState({
-    cartera:  true, // 📋 el libro de negocio abierto por defecto
-    finanzas: ["/pagos", "/recaudacion", "/balanzes", "/servicios"].some(p => location.pathname.startsWith(p)),
-    admin:    ["/gruas", "/cotizaciones", "/marketing", "/estadisticas", "/competencia", "/geo", "/admin"].some(p => location.pathname.startsWith(p)),
+    cartera:  CARTERA_PATHS.some(p => location.pathname.startsWith(p)),
+    finanzas: FINANZAS_PATHS.some(p => location.pathname.startsWith(p)),
+    admin:    ADMIN_PATHS.some(p => location.pathname.startsWith(p)),
   });
 
   // 🆕 El cierre automático al cambiar de ruta ya lo maneja App.jsx
@@ -166,59 +166,64 @@ export default function Sidebar({
       <aside className={`
         fixed top-0 left-0 z-50 h-[100dvh] w-72
         flex flex-col
-        bg-slate-950 border-r border-slate-800/60
-        shadow-2xl shadow-black/50
+        bg-brand-card dark:bg-brand-card-dark border-r border-brand-100/10 dark:border-brand-200/10
+        shadow-2xl shadow-black/10 dark:shadow-black/40
         transform transition-transform duration-300 ease-in-out
         ${isOpen ? "translate-x-0" : "-translate-x-full"}
       `}>
 
         {/* Header */}
-        <div className="px-4 py-4 border-b border-slate-800/60 flex items-center justify-between gap-3 shrink-0">
+        <div className="px-4 py-4 border-b border-brand-100/10 dark:border-brand-200/10 flex items-center justify-between gap-3 shrink-0">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center shrink-0 shadow-lg shadow-primary-900/40">
-              <span className="text-white font-black text-sm">T</span>
+            <div className="h-9 w-9 rounded-xl bg-brand-primary/10 flex items-center justify-center shrink-0">
+              <img src={logoPolizando} alt="Polizando" className="h-6 w-6 object-contain" />
             </div>
             <div className="min-w-0">
-              <h1 className="text-sm font-bold text-slate-100 truncate leading-tight">Thames Seguros</h1>
-              <p className="text-[10px] text-primary-400 font-bold uppercase tracking-widest truncate leading-tight">
+              <h1 className="font-heading text-sm font-bold text-brand-100 dark:text-brand-200 truncate leading-tight">
+                Polizando
+              </h1>
+              <p className="text-[10px] text-brand-primary dark:text-brand-primary-tint font-bold uppercase tracking-widest truncate leading-tight">
                 {isVendedor ? "Recomendador" : oficinaNombre}
               </p>
             </div>
           </div>
           <button onClick={onClose}
-            className="h-8 w-8 rounded-xl flex items-center justify-center text-slate-500 hover:text-slate-300 hover:bg-slate-800 transition-colors shrink-0">
+            className="h-8 w-8 rounded-xl flex items-center justify-center text-brand-100/50 dark:text-brand-200/50 hover:text-brand-100 dark:hover:text-brand-200 hover:bg-brand-100/8 dark:hover:bg-brand-200/10 transition-colors shrink-0">
             <HiX className="w-4 h-4" />
           </button>
         </div>
 
         {/* Usuario */}
-        <div className="px-4 py-3 border-b border-slate-800/40 shrink-0">
-          <div className="flex items-center gap-3 bg-slate-900/60 rounded-xl px-3 py-2.5">
-            <div className="h-8 w-8 rounded-full bg-gradient-to-br from-slate-600 to-slate-800 border border-slate-700 flex items-center justify-center text-sm font-bold text-slate-300 shrink-0">
+        <div className="px-4 py-3 border-b border-brand-100/10 dark:border-brand-200/10 shrink-0">
+          <div className="flex items-center gap-3 bg-brand-100/5 dark:bg-brand-200/5 rounded-xl px-3 py-2.5">
+            <div className="h-8 w-8 rounded-full bg-brand-primary/15 flex items-center justify-center text-sm font-bold text-brand-primary-deep dark:text-brand-primary-tint shrink-0">
               {userInicial}
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-semibold text-slate-200 truncate leading-tight">{userName}</p>
-              <p className="text-[10px] text-slate-500 truncate leading-tight">
+              <p className="text-sm font-semibold text-brand-100 dark:text-brand-200 truncate leading-tight">{userName}</p>
+              <p className="text-[10px] text-brand-100/50 dark:text-brand-200/50 truncate leading-tight">
                 {isAdmin ? "Administrador" : isVendedor ? "Vendedor" : "Operador"}
               </p>
             </div>
           </div>
         </div>
 
-        {/* 💸 Acceso rápido DESTACADO a Pagos — para cobrar al toque, sin abrir Finanzas */}
+        {/* 💸🗓️ Accesos rápidos destacados — solo estos dos van con este peso
+            visual a propósito. Si todo el menú se viera así, sería más largo
+            y más difícil de escanear, no menos — la idea es que estos dos
+            salten a la vista y el resto quede como lista simple y calma. */}
         {!isVendedor && (
-          <div className="px-3 pt-3 shrink-0">
+          <div className="px-3 pt-3 shrink-0 space-y-2">
             <NavLink
               to="/pagos"
-              className="group flex items-center gap-3 px-4 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-900/40 hover:from-emerald-400 hover:to-emerald-500 hover:shadow-emerald-500/40 transition-all active:scale-[0.98]"
+              className="group flex items-center gap-3 px-4 py-3.5 rounded-2xl bg-gradient-to-r from-brand-primary to-brand-primary-deep text-white shadow-lg shadow-brand-primary/30 hover:brightness-105 transition-all active:scale-[0.98]"
             >
               <span className="flex items-center justify-center h-10 w-10 rounded-xl bg-white/20 shrink-0">
                 <HiCurrencyDollar className="w-6 h-6" />
               </span>
               <div className="flex-1 min-w-0">
                 <div className="text-[15px] font-black leading-tight">Registrar pago</div>
-                <div className="text-[10px] font-bold text-emerald-50/80 uppercase tracking-widest leading-tight">Cobrar una cuota</div>
+                <div className="text-[10px] font-bold text-white/80 uppercase tracking-widest leading-tight">Cobrar una cuota</div>
               </div>
               <HiChevronDown className="w-5 h-5 -rotate-90 opacity-80 group-hover:opacity-100 transition" />
             </NavLink>
@@ -233,7 +238,7 @@ export default function Sidebar({
               {/* Grupo plano (sin acordeón) */}
               {group.flat ? (
                 <>
-                  <p className="px-2 pb-1.5 text-[11px] font-black uppercase tracking-widest text-slate-600">
+                  <p className="px-2 pb-1.5 text-[11px] font-black uppercase tracking-widest text-brand-100/40 dark:text-brand-200/40">
                     {group.title}
                   </p>
                   {group.items.map(item => {
@@ -244,17 +249,15 @@ export default function Sidebar({
                           group flex items-center gap-3 px-3 py-2.5 rounded-xl text-[15px] font-medium
                           transition-all duration-150 mb-0.5
                           ${isActive
-                            ? "bg-primary-600/20 text-primary-400 border border-primary-600/30 shadow-sm"
-                            : item.highlight
-                              ? "text-amber-300 bg-amber-500/10 border border-amber-500/30 hover:bg-amber-500/20 font-bold"
-                              : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
+                            ? "bg-brand-primary/15 text-brand-primary-deep dark:text-brand-primary-tint border border-brand-primary/25 shadow-sm"
+                            : "text-brand-100/70 dark:text-brand-200/70 hover:text-brand-100 dark:hover:text-brand-200 hover:bg-brand-100/8 dark:hover:bg-brand-200/8"
                           }
                         `}>
                         {({ isActive }) => (
                           <>
-                            <Icon className={`w-5 h-5 shrink-0 ${isActive ? "text-primary-400" : item.highlight ? "text-amber-400" : "text-slate-500 group-hover:text-slate-300"}`} />
+                            <Icon className={`w-5 h-5 shrink-0 ${isActive ? "text-brand-primary dark:text-brand-primary-tint" : "text-brand-100/40 dark:text-brand-200/40 group-hover:text-brand-100/70 dark:group-hover:text-brand-200/70"}`} />
                             <span className="flex-1 truncate">{item.label}</span>
-                            <Badge value={item.badge} tone={item.tone} />
+                            <NavBadge value={item.badge} tone={item.tone} />
                           </>
                         )}
                       </NavLink>
@@ -269,8 +272,8 @@ export default function Sidebar({
                       w-full flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl
                       text-[15px] font-semibold transition-all duration-150
                       ${open[group.id]
-                        ? "bg-slate-800/80 text-slate-100"
-                        : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/40"
+                        ? "bg-brand-100/8 dark:bg-brand-200/10 text-brand-100 dark:text-brand-200"
+                        : "text-brand-100/60 dark:text-brand-200/60 hover:text-brand-100 dark:hover:text-brand-200 hover:bg-brand-100/5 dark:hover:bg-brand-200/5"
                       }
                     `}>
                     <div className="flex items-center gap-2.5">
@@ -283,7 +286,7 @@ export default function Sidebar({
                       animate={{ rotate: open[group.id] ? 180 : 0 }}
                       transition={{ duration: 0.2 }}
                       className={`flex items-center justify-center h-6 w-6 rounded-lg transition-colors ${
-                        open[group.id] ? "text-slate-300" : "text-slate-500 group-hover:text-slate-400"
+                        open[group.id] ? "text-brand-100/70 dark:text-brand-200/70" : "text-brand-100/40 dark:text-brand-200/40"
                       }`}>
                       <HiChevronDown className="w-4 h-4" />
                     </motion.div>
@@ -307,15 +310,15 @@ export default function Sidebar({
                                   group flex items-center gap-3 px-3 py-2 rounded-lg text-sm
                                   transition-all duration-150
                                   ${isActive
-                                    ? "bg-primary-600/20 text-primary-400 font-semibold"
-                                    : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 font-medium"
+                                    ? "bg-brand-primary/15 text-brand-primary-deep dark:text-brand-primary-tint font-semibold"
+                                    : "text-brand-100/60 dark:text-brand-200/60 hover:text-brand-100 dark:hover:text-brand-200 hover:bg-brand-100/8 dark:hover:bg-brand-200/8 font-medium"
                                   }
                                 `}>
                                 {({ isActive }) => (
                                   <>
-                                    <Icon className={`w-4 h-4 shrink-0 ${isActive ? "text-primary-400" : "text-slate-500 group-hover:text-slate-400"}`} />
+                                    <Icon className={`w-4 h-4 shrink-0 ${isActive ? "text-brand-primary dark:text-brand-primary-tint" : "text-brand-100/40 dark:text-brand-200/40 group-hover:text-brand-100/60 dark:group-hover:text-brand-200/60"}`} />
                                     <span className="flex-1 truncate">{item.label}</span>
-                                    <Badge value={item.badge} tone={item.tone} />
+                                    <NavBadge value={item.badge} tone={item.tone} />
                                   </>
                                 )}
                               </NavLink>
@@ -332,21 +335,29 @@ export default function Sidebar({
         </nav>
 
         {/* Footer */}
-        <div className="px-4 py-3 border-t border-slate-800/60 shrink-0 space-y-2">
+        <div className="px-4 py-3 border-t border-brand-100/10 dark:border-brand-200/10 shrink-0 space-y-2">
           <ThemeToggle />
-          <p className="text-center text-[10px] text-slate-700">Thames Seguros © 2026</p>
+          <p className="text-center text-[10px] text-brand-100/30 dark:text-brand-200/30">Polizando © 2026</p>
         </div>
       </aside>
     </>
   );
 }
 
-function Badge({ value = 0, tone = "red" }) {
+// Badge chico para los items de navegación — envuelve el Badge compartido de
+// ui/ con los tonos de severidad del menú:
+//   red    = urgente / algo vencido, hay que actuar ya
+//   amber  = a tener en cuenta, se viene
+//   neutral (default) = informativo — un conteo, no una alarma
+function NavBadge({ value = 0, tone = "neutral" }) {
   const v = Number(value) || 0;
   if (v <= 0) return null;
-  const cls = tone === "amber"
-    ? "bg-amber-500/20 text-amber-400 border border-amber-500/40"
-    : "bg-red-500/20 text-red-400 border border-red-500/40";
+  const cls =
+    tone === "red"
+      ? "bg-red-500/15 text-red-600 dark:text-red-400"
+      : tone === "amber"
+        ? "bg-brand-secondary/15 text-brand-secondary dark:text-brand-secondary-tint"
+        : "bg-brand-100/10 text-brand-100/60 dark:bg-brand-200/10 dark:text-brand-200/60";
   return (
     <span className={`shrink-0 inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full text-[10px] font-bold ${cls}`}>
       {v}
@@ -354,12 +365,14 @@ function Badge({ value = 0, tone = "red" }) {
   );
 }
 
-// 🚀 Mini-badge en el header del grupo (suma de badges de sus items)
+// 🚀 Mini-badge en el header del grupo (suma de badges de sus items).
+// Tono neutral a propósito: es "acá hay N cosas", no una alarma en sí mismo
+// — las alarmas reales ya se ven al abrir el grupo, ítem por ítem.
 function GroupBadge({ items }) {
   const total = (items || []).reduce((acc, it) => acc + (Number(it.badge) || 0), 0);
   if (total <= 0) return null;
   return (
-    <span className="ml-1 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-[9px] font-bold bg-red-500/20 text-red-400 border border-red-500/40">
+    <span className="ml-1 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-[9px] font-bold bg-brand-100/10 text-brand-100/60 dark:bg-brand-200/10 dark:text-brand-200/60">
       {total}
     </span>
   );

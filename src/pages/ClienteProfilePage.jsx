@@ -9,14 +9,14 @@ import { HiUser, HiShieldCheck, HiExclamationCircle, HiExternalLink } from 'reac
 import { useAuth } from '../context/AuthContext';
 import { fetchClienteById, fetchClientes, updateCliente, deleteCliente } from '../store/slices/clientesSlice';
 
-import ClienteEditModal from '../components/clientes/ClienteEditModal';
+import ClienteFormModal from '../components/clientes/ClienteFormModal';
 import ClienteDatosPersonalesCard from '../components/clientes/ClienteDatosPersonalesCard';
 import ClienteDocumentacionCard from '../components/clientes/ClienteDocumentacionCard';
 import ClientePolizasCard from '../components/clientes/ClientePolizasCard';
 import PolizaCreateModal from '../components/polizas/PolizaCreateModal';
 import BotonEditarCliente from '../components/comunes/BotonEditarCliente';
 import BotonBorrarCliente from '../components/comunes/BotonBorrarCliente';
-import ConfirmModal from '../components/comunes/ConfirmModal';
+import { ConfirmDialog } from '../components/ui';
 
 const ClienteProfilePage = () => {
   const { id } = useParams();
@@ -154,8 +154,8 @@ const ClienteProfilePage = () => {
   if (detailStatus === 'loading' || (status === 'loading' && !clienteParaMostrar)) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center text-center">
-        <div className="h-10 w-10 border-4 border-sky-500/30 border-t-sky-500 rounded-full animate-spin mb-4" />
-        <p className="text-[10px] font-black uppercase tracking-widest text-sky-400/80">Cargando Ficha...</p>
+        <div className="h-10 w-10 border-4 border-brand-primary/30 border-t-brand-primary rounded-full animate-spin mb-4" />
+        <p className="text-[10px] font-black uppercase tracking-widest text-brand-primary/80 dark:text-brand-primary-tint/80">Cargando Ficha...</p>
       </div>
     );
   }
@@ -184,13 +184,13 @@ const ClienteProfilePage = () => {
 
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center text-center p-6">
-        <HiExclamationCircle className="text-rose-500/50 text-6xl mb-4" />
-        <p className="text-sm font-bold text-rose-400 uppercase tracking-widest">{titulo}</p>
-        <p className="text-sm text-slate-400 mt-2 max-w-md">{mensaje}</p>
+        <HiExclamationCircle className="text-red-500/60 text-6xl mb-4" />
+        <p className="text-sm font-bold text-red-600 dark:text-red-400 uppercase tracking-widest">{titulo}</p>
+        <p className="text-sm text-brand-100/60 dark:text-brand-200/60 mt-2 max-w-md">{mensaje}</p>
         {httpStatus && (
-          <p className="text-[10px] text-slate-600 mt-2 font-mono">HTTP {httpStatus}</p>
+          <p className="text-[10px] text-brand-100/40 dark:text-brand-200/40 mt-2 font-mono">HTTP {httpStatus}</p>
         )}
-        <button onClick={() => navigate('/clientes')} className="mt-6 px-6 py-3 rounded-xl bg-white/5 text-white/60 font-bold uppercase text-[10px] hover:bg-white/10 transition-colors">
+        <button onClick={() => navigate('/clientes')} className="mt-6 px-6 py-3 rounded-xl bg-brand-100/5 dark:bg-brand-200/5 text-brand-100/60 dark:text-brand-200/60 font-bold uppercase text-[10px] hover:bg-brand-100/10 dark:hover:bg-brand-200/10 transition-colors">
           Volver al Directorio
         </button>
       </div>
@@ -201,7 +201,7 @@ const ClienteProfilePage = () => {
 
   return (
     <motion.div
-      className="min-h-[100dvh] bg-[#0b0f19] text-white p-4 sm:p-6 lg:p-8 pb-24"
+      className="min-h-[100dvh] bg-brand-200 dark:bg-brand-100 text-brand-100 dark:text-brand-200 p-4 sm:p-6 lg:p-8 pb-24"
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, ease: "easeOut" }}
@@ -209,21 +209,21 @@ const ClienteProfilePage = () => {
       <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8">
         
         {/* Header Mobile-Friendly */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-5 pb-6 border-b border-white/10">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-5 pb-6 border-b border-brand-100/10 dark:border-brand-200/10">
           <div className="flex items-center gap-4 min-w-0">
-             <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-sky-500/20 to-indigo-500/20 border border-sky-500/30 flex items-center justify-center text-sky-400 shrink-0 shadow-lg">
+             <div className="h-16 w-16 rounded-2xl bg-brand-primary/10 flex items-center justify-center text-brand-primary dark:text-brand-primary-tint shrink-0">
                <HiUser className="text-4xl" />
              </div>
              <div className="min-w-0">
-               <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-1">
+               <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-100/40 dark:text-brand-200/40 mb-1">
                  Ficha #{clienteParaMostrar.id}
                </h2>
-               <h1 className="text-2xl sm:text-3xl font-black uppercase tracking-tighter truncate text-white">
+               <h1 className="font-heading text-2xl sm:text-3xl font-bold uppercase tracking-tight truncate">
                  {`${clienteParaMostrar?.nombre ?? ''} ${clienteParaMostrar?.apellido ?? ''}`.trim()}
                </h1>
                <div className="flex items-center gap-2 mt-1">
-                 <HiShieldCheck className="text-emerald-400 text-sm shrink-0" />
-                 <span className="text-[9px] sm:text-[10px] text-emerald-400/80 font-black uppercase tracking-widest truncate">
+                 <HiShieldCheck className="text-brand-primary dark:text-brand-primary-tint text-sm shrink-0" />
+                 <span className="text-[9px] sm:text-[10px] text-brand-primary dark:text-brand-primary-tint font-black uppercase tracking-widest truncate">
                     Sucursal: {user?.perfil?.oficina_nombre || 'Local'}
                  </span>
                </div>
@@ -236,7 +236,7 @@ const ClienteProfilePage = () => {
               onClick={handleVerPortal}
               disabled={cargandoPortal}
               title="Abrir el portal que ve el cliente (otra pestaña)"
-              className="w-full sm:w-auto h-12 sm:h-10 inline-flex justify-center items-center gap-2 px-4 rounded-xl bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 font-black uppercase text-[10px] tracking-widest hover:bg-indigo-500/20 transition-colors disabled:opacity-50 cursor-pointer"
+              className="w-full sm:w-auto h-12 sm:h-10 inline-flex justify-center items-center gap-2 px-4 rounded-xl bg-brand-secondary/10 border border-brand-secondary/30 text-brand-secondary dark:text-brand-secondary-tint font-black uppercase text-[10px] tracking-widest hover:bg-brand-secondary/15 transition-colors disabled:opacity-50 cursor-pointer"
             >
               <HiExternalLink className="text-base" />
               {cargandoPortal ? "Abriendo..." : "Ver portal"}
@@ -253,8 +253,8 @@ const ClienteProfilePage = () => {
         </div>
 
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-          <div className="xl:col-span-1"><ClienteDatosPersonalesCard cliente={clienteParaMostrar} /></div>
-          <div className="xl:col-span-2"><ClienteDocumentacionCard cliente={clienteParaMostrar} /></div>
+          <div className="xl:col-span-2"><ClienteDatosPersonalesCard cliente={clienteParaMostrar} /></div>
+          <div className="xl:col-span-1"><ClienteDocumentacionCard cliente={clienteParaMostrar} /></div>
         </div>
 
         <div className="pt-2">
@@ -262,9 +262,9 @@ const ClienteProfilePage = () => {
           <ClientePolizasCard cliente={clienteParaMostrar} onCrearPoliza={abrirCrearPoliza} />
         </div>
 
-        <ClienteEditModal isOpen={modalEditarAbierto} onClose={() => setModalEditarAbierto(false)} onSave={handleSaveCliente} cliente={clienteParaMostrar} />
+        <ClienteFormModal isOpen={modalEditarAbierto} onClose={() => setModalEditarAbierto(false)} onSave={handleSaveCliente} cliente={clienteParaMostrar} />
         <PolizaCreateModal isOpen={modalCrearPolizaAbierto} onClose={() => setModalCrearPolizaAbierto(false)} onSuccess={handlePolizaCreada} clienteId={clienteParaMostrar?.id} />
-        <ConfirmModal isOpen={modalEliminarAbierto} onClose={() => setModalEliminarAbierto(false)} nombre={`${clienteParaMostrar?.nombre ?? ''} ${clienteParaMostrar?.apellido ?? ''}`.trim()} onConfirm={handleBorrarCliente} confirmDisabled={eliminando} />
+        <ConfirmDialog isOpen={modalEliminarAbierto} onClose={() => setModalEliminarAbierto(false)} nombre={`${clienteParaMostrar?.nombre ?? ''} ${clienteParaMostrar?.apellido ?? ''}`.trim()} onConfirm={handleBorrarCliente} confirmDisabled={eliminando} />
       </div>
     </motion.div>
   );

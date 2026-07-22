@@ -18,14 +18,14 @@ const TIPOS_VEHICULO = ["Auto", "Camioneta", "Camion", "Moto", "Trailer"];
 function Campo({ label, value, onChange, type = "text", placeholder = "" }) {
   return (
     <label className="flex flex-col gap-2">
-      <span className="text-[11px] font-black uppercase tracking-widest text-white/50 ml-1">{label}</span>
+      <span className="text-[11px] font-black uppercase tracking-widest text-brand-200/50 ml-1">{label}</span>
       <input
         type={type}
         value={value || ""}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         autoFocus
-        className="w-full rounded-2xl bg-black/40 border border-white/15 px-4 py-3.5 text-white placeholder:text-white/25 outline-none focus:ring-2 ring-sky-500/50 focus:border-sky-500/40 transition-all text-base"
+        className="w-full rounded-2xl bg-brand-200/[0.05] border border-brand-200/15 px-4 py-3.5 text-brand-200 placeholder:text-brand-200/25 outline-none focus:ring-2 ring-brand-primary/50 focus:border-brand-primary/40 transition-all text-base"
       />
     </label>
   );
@@ -34,14 +34,14 @@ function Campo({ label, value, onChange, type = "text", placeholder = "" }) {
 function CampoSelect({ label, value, onChange, options }) {
   return (
     <label className="flex flex-col gap-2">
-      <span className="text-[11px] font-black uppercase tracking-widest text-white/50 ml-1">{label}</span>
+      <span className="text-[11px] font-black uppercase tracking-widest text-brand-200/50 ml-1">{label}</span>
       <select
         value={value || ""}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-2xl bg-black/40 border border-white/15 px-4 py-3.5 text-white outline-none focus:ring-2 ring-sky-500/50 transition-all text-base appearance-none cursor-pointer"
+        className="w-full rounded-2xl bg-brand-200/[0.05] border border-brand-200/15 px-4 py-3.5 text-brand-200 outline-none focus:ring-2 ring-brand-primary/50 transition-all text-base appearance-none cursor-pointer"
       >
-        <option value="" className="bg-[#0b0f1e]">— Elegir —</option>
-        {options.map((o) => <option key={o} value={o} className="bg-[#0b0f1e]">{o}</option>)}
+        <option value="" className="bg-brand-card-dark">— Elegir —</option>
+        {options.map((o) => <option key={o} value={o} className="bg-brand-card-dark">{o}</option>)}
       </select>
     </label>
   );
@@ -104,14 +104,6 @@ export default function RevisionRapidaStep({
     return arr;
   });
 
-  useEffect(() => {
-    console.log("%c[REVISION] qué muestra el wizard ▶", "color:#f59e0b;font-weight:bold", {
-      pantallas, faltan,
-      cliente_recibido: cliente, poliza_recibida: poliza,
-      responsables: (empleados || []).length,
-    });
-  }, []); // eslint-disable-line
-
   // 🆕 NRE: autocompletar cobertura y carrocería para que el operador NO las
   //    elija a mano. La cobertura es SIEMPRE "A": la matcheamos contra la opción
   //    REAL del catálogo (aunque se llame "A - Resp. Civil"). La carrocería la
@@ -157,10 +149,10 @@ export default function RevisionRapidaStep({
   const total = pantallas.length;
 
   const TITULOS = {
-    compania:    { icon: HiOfficeBuilding, color: "bg-rose-500/15 text-rose-300 border-rose-500/20", t: "Compañía", s: "No la detectamos — elegila" },
-    asegurado:   { icon: HiUser, color: "bg-sky-500/15 text-sky-300 border-sky-500/20", t: "Datos del asegurado", s: "Completá lo que falta" },
-    vehiculo:    { icon: HiTruck, color: "bg-violet-500/15 text-violet-300 border-violet-500/20", t: "Vehículo y cobertura", s: "Completá lo que falta" },
-    responsable: { icon: HiIdentification, color: "bg-amber-500/15 text-amber-300 border-amber-500/20", t: "Responsable", s: "Elegí quién carga la solicitud" },
+    compania:    { icon: HiOfficeBuilding, color: "bg-red-500/15 text-red-300 border-red-500/20", t: "Compañía", s: "No la detectamos — elegila" },
+    asegurado:   { icon: HiUser, color: "bg-brand-primary/15 text-brand-primary-tint border-brand-primary/20", t: "Datos del asegurado", s: "Completá lo que falta" },
+    vehiculo:    { icon: HiTruck, color: "bg-brand-secondary/15 text-brand-secondary-tint border-brand-secondary/20", t: "Vehículo y cobertura", s: "Completá lo que falta" },
+    responsable: { icon: HiIdentification, color: "bg-brand-secondary/15 text-brand-secondary-tint border-brand-secondary/20", t: "Responsable", s: "Elegí quién carga la solicitud" },
   };
   const meta = TITULOS[actual];
 
@@ -189,7 +181,7 @@ export default function RevisionRapidaStep({
       {/* Progreso */}
       <div className="flex items-center gap-2 mb-5">
         {pantallas.map((_, i) => (
-          <div key={i} className={`h-1.5 flex-1 rounded-full transition-all ${i <= idx ? "bg-sky-500" : "bg-white/10"}`} />
+          <div key={i} className={`h-1.5 flex-1 rounded-full transition-all ${i <= idx ? "bg-brand-primary" : "bg-brand-200/10"}`} />
         ))}
       </div>
 
@@ -206,15 +198,15 @@ export default function RevisionRapidaStep({
         ].filter(([, v]) => v);
         if (!filas.length) return null;
         return (
-          <div className="mb-5 rounded-2xl border border-emerald-500/20 bg-emerald-500/[0.06] p-3">
-            <p className="text-[10px] font-black uppercase tracking-widest text-emerald-300/80 mb-2 flex items-center gap-1.5">
-              <HiCheckCircle className="text-emerald-400" /> Datos detectados del PDF
+          <div className="mb-5 rounded-2xl border border-brand-primary/20 bg-brand-primary/[0.06] p-3">
+            <p className="text-[10px] font-black uppercase tracking-widest text-brand-primary-tint/80 mb-2 flex items-center gap-1.5">
+              <HiCheckCircle className="text-brand-primary-tint" /> Datos detectados del PDF
             </p>
             <div className="grid grid-cols-2 gap-x-3 gap-y-2">
               {filas.map(([k, v]) => (
                 <div key={k} className="min-w-0">
-                  <span className="block text-[10px] uppercase tracking-wide text-white/35">{k}</span>
-                  <span className="block text-sm text-white/90 truncate">{v}</span>
+                  <span className="block text-[10px] uppercase tracking-wide text-brand-200/35">{k}</span>
+                  <span className="block text-sm text-brand-200/90 truncate">{v}</span>
                 </div>
               ))}
             </div>
@@ -234,8 +226,8 @@ export default function RevisionRapidaStep({
           <div className="flex items-center gap-3 mb-5">
             <div className={`p-2.5 rounded-2xl border ${meta.color}`}><meta.icon className="text-xl" /></div>
             <div>
-              <h3 className="text-white font-black text-lg leading-tight">{meta.t}</h3>
-              <p className="text-[11px] text-white/40 uppercase tracking-widest font-bold">
+              <h3 className="text-brand-200 font-black text-lg leading-tight">{meta.t}</h3>
+              <p className="text-[11px] text-brand-200/40 uppercase tracking-widest font-bold">
                 Paso {idx + 1} de {total} · {meta.s}
               </p>
             </div>
@@ -244,7 +236,7 @@ export default function RevisionRapidaStep({
           {/* COMPAÑÍA (solo si no se detectó) */}
           {actual === "compania" && (
             <div className="space-y-4">
-              <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-3 text-amber-200 text-sm flex items-start gap-2">
+              <div className="rounded-2xl border border-brand-secondary/20 bg-brand-secondary/5 p-3 text-brand-secondary-tint text-sm flex items-start gap-2">
                 <HiExclamationCircle className="shrink-0 mt-0.5 text-base" />
                 <span>No pudimos detectar la compañía de este PDF. Elegila de la lista.</span>
               </div>
@@ -264,7 +256,7 @@ export default function RevisionRapidaStep({
             <div className="space-y-4">
               {esNRE && (
                 <>
-                  <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-3 text-amber-200 text-xs flex items-start gap-2">
+                  <div className="rounded-2xl border border-brand-secondary/20 bg-brand-secondary/5 p-3 text-brand-secondary-tint text-xs flex items-start gap-2">
                     <HiExclamationCircle className="shrink-0 mt-0.5 text-base" />
                     <span>El <b>tipo</b> define el precio. Ojo: furgones y pick-ups que el Mercosur llama "Automóvil" se cobran como <b>Camioneta</b>.</span>
                   </div>
@@ -278,10 +270,10 @@ export default function RevisionRapidaStep({
               )}
               {faltan.cobertura && (esNRE ? (
                 <label className="flex flex-col gap-2">
-                  <span className="text-[11px] font-black uppercase tracking-widest text-white/50 ml-1">Cobertura *</span>
-                  <div className="w-full rounded-2xl bg-black/40 border border-emerald-500/25 px-4 py-3.5 text-white text-base flex items-center gap-2">
-                    <HiCheckCircle className="text-emerald-400 shrink-0" />
-                    <span>{poliza.cobertura || "A"} <span className="text-white/40 text-sm">· NRE (fija)</span></span>
+                  <span className="text-[11px] font-black uppercase tracking-widest text-brand-200/50 ml-1">Cobertura *</span>
+                  <div className="w-full rounded-2xl bg-brand-200/[0.05] border border-brand-primary/25 px-4 py-3.5 text-brand-200 text-base flex items-center gap-2">
+                    <HiCheckCircle className="text-brand-primary-tint shrink-0" />
+                    <span>{poliza.cobertura || "A"} <span className="text-brand-200/40 text-sm">· NRE (fija)</span></span>
                   </div>
                 </label>
               ) : (
@@ -299,17 +291,17 @@ export default function RevisionRapidaStep({
           {/* RESPONSABLE */}
           {actual === "responsable" && (
             empleadosLoading ? (
-              <p className="text-white/40 text-sm italic animate-pulse">Cargando responsables...</p>
+              <p className="text-brand-200/40 text-sm italic animate-pulse">Cargando responsables...</p>
             ) : empleados.length === 0 ? (
-              <p className="text-white/40 text-sm italic">No hay responsables activos en esta sucursal.</p>
+              <p className="text-brand-200/40 text-sm italic">No hay responsables activos en esta sucursal.</p>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 {empleados.map((e) => {
                   const sel = String(responsableId) === String(e.id);
                   return (
                     <button key={e.id} type="button" onClick={() => onElegirResponsable(e.id)}
-                      className={`flex items-center gap-2 text-left px-4 py-3.5 rounded-2xl border font-bold text-sm transition-all active:scale-95 ${sel ? "bg-amber-500/25 border-amber-500/50 text-white" : "bg-white/5 border-white/10 text-white/80 hover:border-amber-500/40"}`}>
-                      {sel ? <HiCheckCircle className="text-amber-300 shrink-0" /> : <HiUser className="text-white/40 shrink-0" />}
+                      className={`flex items-center gap-2 text-left px-4 py-3.5 rounded-2xl border font-bold text-sm transition-all active:scale-95 ${sel ? "bg-brand-secondary/25 border-brand-secondary/50 text-brand-200" : "bg-brand-200/5 border-brand-200/10 text-brand-200/80 hover:border-brand-secondary/40"}`}>
+                      {sel ? <HiCheckCircle className="text-brand-secondary-tint shrink-0" /> : <HiUser className="text-brand-200/40 shrink-0" />}
                       <span className="truncate">{e.nombre}</span>
                     </button>
                   );
@@ -324,12 +316,12 @@ export default function RevisionRapidaStep({
       <div className="flex items-center gap-3 mt-7">
         {idx > 0 && (
           <button type="button" onClick={atras}
-            className="px-5 py-3 rounded-2xl bg-white/10 text-white font-bold uppercase text-xs flex items-center gap-1.5 active:scale-95 transition-all">
+            className="px-5 py-3 rounded-2xl bg-brand-200/10 text-brand-200 font-bold uppercase text-xs flex items-center gap-1.5 active:scale-95 transition-all">
             <HiChevronLeft /> Atrás
           </button>
         )}
         <button type="button" onClick={siguiente} disabled={!puedeSeguir}
-          className="flex-1 px-6 py-3.5 rounded-2xl bg-sky-600 hover:bg-sky-500 text-white font-black uppercase text-xs tracking-wider shadow-lg shadow-sky-900/40 flex items-center justify-center gap-2 active:scale-95 transition-all disabled:opacity-40">
+          className="flex-1 px-6 py-3.5 rounded-2xl bg-brand-primary hover:bg-brand-primary-deep text-white font-black uppercase text-xs tracking-wider shadow-lg shadow-brand-primary/40 flex items-center justify-center gap-2 active:scale-95 transition-all disabled:opacity-40">
           {esUltima ? (<><HiSparkles /> Crear solicitud</>) : (<>Siguiente <HiChevronRight /></>)}
         </button>
       </div>

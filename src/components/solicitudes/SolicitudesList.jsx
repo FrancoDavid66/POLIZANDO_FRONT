@@ -11,27 +11,16 @@ const pressable = { initial: { scale: 1 }, hover: { scale: 1.03 }, tap: { scale:
 const listItem = { hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0, transition: { duration: 0.3 } } };
 
 /* Oficinas */
-const OFICINAS = [
-  { id: "1", nombre: "5 esquinas (1)" },
-  { id: "2", nombre: "axion (2)" },
-  { id: "3", nombre: "kilometro 39 (3)" },
-];
-const OFI_BY_ID = new Map(OFICINAS.map((o) => [String(o.id), o.nombre]));
-const OFI_BY_NAME = new Map(OFICINAS.map((o) => [String(o.nombre).toLowerCase(), o.nombre]));
+// 🔧 Antes había acá una tabla hardcodeada con las 3 sucursales de Thames
+// ("5 esquinas", "axion", "kilometro 39") como respaldo si el dato no venía
+// del backend. Polizando no tiene sucursales, así que se saca: ahora se
+// muestra tal cual lo que mande el backend (objeto con .nombre, o texto/id
+// plano), sin inventar un nombre de oficina que no corresponde.
 function getOficinaNombre(valor) {
   if (!valor) return null;
-  if (typeof valor === "object") return valor.nombre || valor.id;
+  if (typeof valor === "object") return valor.nombre || valor.id || null;
   const raw = String(valor).trim();
-  if (!raw) return null;
-  const byId = OFI_BY_ID.get(raw);
-  if (byId) return byId;
-  const byExact = OFI_BY_NAME.get(raw.toLowerCase());
-  if (byExact) return byExact;
-  for (const o of OFICINAS) {
-    const name = o.nombre.toLowerCase();
-    if (name.includes(raw.toLowerCase()) || raw.toLowerCase().includes(o.id)) return o.nombre;
-  }
-  return raw;
+  return raw || null;
 }
 
 /* Fecha */
@@ -44,20 +33,20 @@ function fmtDate(iso) {
 
 /* Estado */
 const ESTILO_ESTADO = {
-  BORRADOR: "bg-white/10 text-white/80",
-  EN_REVISION: "bg-amber-500/20 text-amber-200 border border-amber-400/30",
-  VIGENTE_24H: "bg-emerald-500/20 text-emerald-200 border border-emerald-400/30",
-  VENCIDA: "bg-rose-500/20 text-rose-200 border border-rose-400/30",
-  CONVERTIDA: "bg-cyan-500/20 text-cyan-200 border border-cyan-400/30",
-  CANCELADA: "bg-white/10 text-white/40",
-  TERMINADA: "bg-emerald-500/15 text-emerald-200 border border-emerald-500/20",
+  BORRADOR: "bg-brand-200/10 text-brand-200/80",
+  EN_REVISION: "bg-brand-secondary/20 text-brand-secondary-tint border border-brand-secondary/30",
+  VIGENTE_24H: "bg-brand-primary/20 text-brand-primary-tint border border-brand-primary/30",
+  VENCIDA: "bg-red-500/20 text-red-300 border border-red-400/30",
+  CONVERTIDA: "bg-brand-primary/20 text-brand-primary-tint border border-brand-primary/30",
+  CANCELADA: "bg-brand-200/10 text-brand-200/40",
+  TERMINADA: "bg-brand-200/10 text-brand-200/50 border border-brand-200/15",
 };
 const ESTADO_LABEL = {
   BORRADOR: "Borrador", EN_REVISION: "En revisión", VIGENTE_24H: "Constancia vigente",
   CONVERTIDA: "Convertida", VENCIDA: "Vencida", CANCELADA: "Cancelada", TERMINADA: "Terminada",
 };
 function EstadoBadge({ estado }) {
-  const cls = ESTILO_ESTADO[estado] || "bg-white/10 text-white/80";
+  const cls = ESTILO_ESTADO[estado] || "bg-brand-200/10 text-brand-200/80";
   const label = ESTADO_LABEL[estado] || estado || "-";
   return (
     <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] rounded-lg font-bold shrink-0 ${cls}`}>
@@ -107,9 +96,9 @@ export default function SolicitudesList({
   if (!rows.length) {
     return (
       <div className="grid place-items-center text-center py-16">
-        <HiShieldCheck className="w-12 h-12 text-white/15 mb-3" />
-        <p className="text-white/50 font-bold">No hay solicitudes acá</p>
-        <p className="text-white/25 text-xs mt-1">Probá con otro filtro o creá una nueva.</p>
+        <HiShieldCheck className="w-12 h-12 text-brand-200/15 mb-3" />
+        <p className="text-brand-200/50 font-bold">No hay solicitudes acá</p>
+        <p className="text-brand-200/25 text-xs mt-1">Probá con otro filtro o creá una nueva.</p>
       </div>
     );
   }
@@ -145,13 +134,13 @@ const SolicitudCard = memo(function SolicitudCard({ row, onEliminar, onTerminar 
 
   const iniciales =
     (s?.cliente_nombre || "?").split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join("").toUpperCase() || "?";
-  const avatarColor = terminada ? "bg-emerald-500/20 text-emerald-300" : "bg-sky-500/20 text-sky-300";
+  const avatarColor = terminada ? "bg-brand-200/15 text-brand-200/70" : "bg-brand-primary/20 text-brand-primary-tint";
 
   return (
     <div
       id={String(s?.id ?? "")}
-      className={`rounded-2xl border p-4 text-white transition-all ${
-        isHighlighted ? "border-amber-300 ring-2 ring-amber-300/40" : "bg-white/[0.04] border-white/10 hover:border-white/20"
+      className={`rounded-2xl border p-4 text-brand-200 transition-all ${
+        isHighlighted ? "border-brand-secondary ring-2 ring-brand-secondary/30" : "bg-brand-200/[0.04] border-brand-200/10 hover:border-brand-200/20"
       }`}
     >
       {/* Fila principal */}
@@ -163,47 +152,47 @@ const SolicitudCard = memo(function SolicitudCard({ row, onEliminar, onTerminar 
           {idDelCliente ? (
             <Link
               to={rutaCliente}
-              className="font-bold text-[15px] text-white hover:text-sky-300 transition-colors truncate block"
+              className="font-bold text-[15px] text-brand-200 hover:text-brand-primary-tint transition-colors truncate block"
             >
               {s?.cliente_nombre || "Cliente sin nombre"}
             </Link>
           ) : (
-            <span className="font-bold text-[15px] text-white truncate block">
+            <span className="font-bold text-[15px] text-brand-200 truncate block">
               {s?.cliente_nombre || "Cliente sin nombre"}
             </span>
           )}
-          <p className="text-xs text-white/50 truncate">
+          <p className="text-xs text-brand-200/50 truncate">
             {[s?.vehiculo_marca, s?.vehiculo_modelo].filter(Boolean).join(" ") || "Vehículo"}
-            {s?.vehiculo_patente && <> · <span className="uppercase font-mono font-bold text-white/80">{s.vehiculo_patente}</span></>}
+            {s?.vehiculo_patente && <> · <span className="uppercase font-mono font-bold text-brand-200/80">{s.vehiculo_patente}</span></>}
           </p>
         </div>
         <EstadoBadge estado={s?.estado || "BORRADOR"} />
       </div>
 
       {/* Footer */}
-      <div className="mt-3 pt-3 border-t border-white/10 flex items-center justify-between gap-2">
-        <span className="text-[11px] text-white/35 truncate flex items-center gap-1.5">
+      <div className="mt-3 pt-3 border-t border-brand-200/10 flex items-center justify-between gap-2">
+        <span className="text-[11px] text-brand-200/35 truncate flex items-center gap-1.5">
           {isWebAdmin && oficinaLabel && <><HiOfficeBuilding className="shrink-0" /> {oficinaLabel} ·</>} {creado}
         </span>
         <div className="flex items-center gap-1.5 shrink-0">
           {idDePoliza ? (
-            <Link to={`/polizas/${idDePoliza}`} className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-amber-400/10 border border-amber-400/30 text-amber-300 text-[11px] font-bold hover:bg-amber-400/20 transition">
+            <Link to={`/polizas/${idDePoliza}`} className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-brand-secondary/10 border border-brand-secondary/30 text-brand-secondary-tint text-[11px] font-bold hover:bg-brand-secondary/20 transition">
               Póliza <HiExternalLink />
             </Link>
           ) : idDelCliente ? (
-            <Link to={rutaCliente} className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-white/5 border border-white/10 text-white/70 text-[11px] font-bold hover:bg-white/10 transition">
+            <Link to={rutaCliente} className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-brand-200/5 border border-brand-200/10 text-brand-200/70 text-[11px] font-bold hover:bg-brand-200/10 transition">
               Ver <HiExternalLink />
             </Link>
           ) : null}
           {puedeTerminar && (
             <motion.button onClick={() => onTerminar?.(s)} variants={pressable} initial="initial" whileHover="hover" whileTap="tap"
-              className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-600/40 transition" title="Finalizar">
+              className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-brand-primary/20 text-brand-primary-tint border border-brand-primary/30 hover:bg-brand-primary/35 transition" title="Finalizar">
               <HiCheck />
             </motion.button>
           )}
           {isWebAdmin && (
             <motion.button onClick={() => onEliminar?.(s)} disabled={!puedeEliminar} variants={pressable} initial="initial" whileHover="hover" whileTap="tap"
-              className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-rose-600/20 text-rose-400 border border-rose-500/30 hover:bg-rose-600/40 transition disabled:opacity-25" title="Eliminar">
+              className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-red-600/20 text-red-400 border border-red-500/30 hover:bg-red-600/40 transition disabled:opacity-25" title="Eliminar">
               <HiTrash />
             </motion.button>
           )}
@@ -217,7 +206,7 @@ function SkeletonList() {
   return (
     <div className="flex flex-col gap-3">
       {Array.from({ length: 4 }).map((_, i) => (
-        <div key={i} className="rounded-2xl border border-white/10 bg-white/5 p-4 animate-pulse h-24" />
+        <div key={i} className="rounded-2xl border border-brand-200/10 bg-brand-200/5 p-4 animate-pulse h-24" />
       ))}
     </div>
   );

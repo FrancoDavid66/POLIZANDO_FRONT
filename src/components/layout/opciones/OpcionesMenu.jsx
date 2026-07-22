@@ -103,7 +103,7 @@ export default function OpcionesMenu({ onClose }) {
     <div className="space-y-6">
       {/* Preferencias de tema */}
       <section>
-        <h3 className="text-base font-semibold text-neutral-900 dark:text-neutral-100 mb-3">
+        <h3 className="text-base font-semibold text-brand-100 dark:text-brand-200 mb-3">
           Apariencia
         </h3>
         <div className="grid grid-cols-3 gap-3">
@@ -118,8 +118,8 @@ export default function OpcionesMenu({ onClose }) {
                   "flex flex-col items-center justify-center rounded-xl border p-3 text-sm",
                   "transition focus:outline-none focus:ring-2",
                   active
-                    ? "border-primary-400 ring-primary-300 dark:border-primary-300"
-                    : "border-neutral-200 dark:border-neutral-700",
+                    ? "border-brand-primary ring-brand-primary/30 dark:border-brand-primary-tint"
+                    : "border-brand-100/15 dark:border-brand-200/15",
                 ].join(" ")}
               >
                 <Icon className="text-xl mb-1" />
@@ -132,10 +132,10 @@ export default function OpcionesMenu({ onClose }) {
 
       {/* Densidad */}
       <section>
-        <h3 className="text-base font-semibold text-neutral-900 dark:text-neutral-100 mb-3">
+        <h3 className="text-base font-semibold text-brand-100 dark:text-brand-200 mb-3">
           Densidad
         </h3>
-        <div className="inline-flex rounded-xl border border-neutral-200 dark:border-neutral-700 overflow-hidden">
+        <div className="inline-flex rounded-xl border border-brand-100/15 dark:border-brand-200/15 overflow-hidden">
           {[
             { key: "comfortable", label: "Cómoda" },
             { key: "compact", label: "Compacta" },
@@ -147,10 +147,10 @@ export default function OpcionesMenu({ onClose }) {
                 onClick={() => setDensity(key)}
                 className={[
                   "px-4 py-2 text-sm",
-                  idx === 0 ? "" : "border-l border-neutral-200 dark:border-neutral-700",
+                  idx === 0 ? "" : "border-l border-brand-100/15 dark:border-brand-200/15",
                   active
-                    ? "bg-primary-50 dark:bg-neutral-800 text-primary-700 dark:text-neutral-100"
-                    : "text-neutral-700 dark:text-neutral-200",
+                    ? "bg-brand-primary/10 dark:bg-brand-200/10 text-brand-primary-deep dark:text-brand-primary-tint"
+                    : "text-brand-100/70 dark:text-brand-200/70",
                 ].join(" ")}
               >
                 {label}
@@ -162,7 +162,7 @@ export default function OpcionesMenu({ onClose }) {
 
       {/* Tamaño de fuente */}
       <section>
-        <h3 className="text-base font-semibold text-neutral-900 dark:text-neutral-100 mb-3">
+        <h3 className="text-base font-semibold text-brand-100 dark:text-brand-200 mb-3">
           Tamaño de fuente
         </h3>
         <div className="grid grid-cols-3 gap-3">
@@ -179,8 +179,8 @@ export default function OpcionesMenu({ onClose }) {
                 className={[
                   "rounded-xl border p-2 text-sm",
                   active
-                    ? "border-primary-400 ring-2 ring-primary-200"
-                    : "border-neutral-200 dark:border-neutral-700",
+                    ? "border-brand-primary ring-2 ring-brand-primary/25"
+                    : "border-brand-100/15 dark:border-brand-200/15",
                 ].join(" ")}
               >
                 {label}
@@ -194,7 +194,7 @@ export default function OpcionesMenu({ onClose }) {
       <section className="pt-2">
         <button
           onClick={resetAll}
-          className="inline-flex items-center gap-2 text-sm px-3 py-2 rounded-lg border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition"
+          className="inline-flex items-center gap-2 text-sm px-3 py-2 rounded-lg border border-brand-100/15 dark:border-brand-200/15 hover:bg-brand-100/8 dark:hover:bg-brand-200/8 transition"
         >
           <HiRefresh className="text-lg" />
           Restaurar valores por defecto

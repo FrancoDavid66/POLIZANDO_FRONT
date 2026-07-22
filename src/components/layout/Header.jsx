@@ -14,13 +14,8 @@ import { fetchRenovacionesGlobalResumen, selectRenovacionesGlobalResumen } from 
 import { fetchBajasGlobalCounters, selectBajasGlobalCounters }      from "../../store/slices/bajasSlice";
 
 // 🚀 Caja rápida: refresco de datos + modales ya existentes
-import { fetchIngresos } from "../../store/slices/ingresosSlice";
-import { fetchEgresos } from "../../store/slices/egresosSlice";
-import IngresoCreateModal from "../balanzes/IngresoCreateModal";
-import EgresoCreateModal from "../balanzes/EgresoCreateModal";
-
-// 🚀 Banner de atención (pagos pendientes de Micaela)
-import AtencionBanner from "./AtencionBanner";
+import { fetchIngresos, fetchEgresos } from "../../store/slices/cajaSlices";
+import MovimientoModal from "../balanzes/MovimientoModal";
 
 const POLL_MS = 2 * 60 * 1000; // 2 minutos
 
@@ -83,7 +78,7 @@ function NotificationsDropdown({ items, total, onClose }) {
               <div className="flex items-center gap-3 min-w-0">
                 <div className={`w-2 h-2 rounded-full shrink-0 ${item.dotColor}`} />
                 <div className="min-w-0">
-                  <p className="text-sm font-medium text-slate-700 dark:text-slate-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors truncate">
+                  <p className="text-sm font-medium text-slate-700 dark:text-slate-200 group-hover:text-brand-primary dark:group-hover:text-brand-primary-tint transition-colors truncate">
                     {item.label}
                   </p>
                   <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5 truncate">
@@ -144,7 +139,7 @@ function PreciosModal({ onClose }) {
         className="w-full max-w-lg rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-2xl overflow-hidden"
       >
         {/* Encabezado */}
-        <div className="flex items-center justify-between px-5 py-4 bg-gradient-to-r from-blue-600 to-emerald-500">
+        <div className="flex items-center justify-between px-5 py-4 bg-gradient-to-r from-brand-primary to-brand-primary-deep">
           <div className="flex items-center gap-2">
             <HiCurrencyDollar className="w-5 h-5 text-white" />
             <span className="text-base font-bold text-white">Lista de precios NRE</span>
@@ -160,15 +155,15 @@ function PreciosModal({ onClose }) {
         {/* Tabla */}
         <div className="p-5">
           <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">
-            Precios de NRE. Si el cliente <span className="font-semibold text-slate-700 dark:text-slate-200">ya tiene vehículos asegurados</span>, el 2do y el 3ro o más llevan <span className="font-semibold text-emerald-600 dark:text-emerald-400">oferta</span>:
+            Precios de NRE. Si el cliente <span className="font-semibold text-slate-700 dark:text-slate-200">ya tiene vehículos asegurados</span>, el 2do y el 3ro o más llevan <span className="font-semibold text-brand-primary dark:text-brand-primary-tint">oferta</span>:
           </p>
           <table className="w-full text-sm">
             <thead>
               <tr className="text-left text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-700">
                 <th className="py-2 font-semibold">Vehículo</th>
                 <th className="py-2 font-semibold text-right">1er</th>
-                <th className="py-2 font-semibold text-right text-emerald-600 dark:text-emerald-400">2do 🏷️</th>
-                <th className="py-2 font-semibold text-right text-emerald-600 dark:text-emerald-400">3ro+ 🏷️</th>
+                <th className="py-2 font-semibold text-right text-brand-primary dark:text-brand-primary-tint">2do 🏷️</th>
+                <th className="py-2 font-semibold text-right text-brand-primary dark:text-brand-primary-tint">3ro+ 🏷️</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -176,20 +171,12 @@ function PreciosModal({ onClose }) {
                 <tr key={p.tipo}>
                   <td className="py-2.5 font-medium text-slate-700 dark:text-slate-200">{p.tipo}</td>
                   <td className="py-2.5 text-right font-bold text-slate-900 dark:text-white">${p.base}</td>
-                  <td className="py-2.5 text-right font-semibold text-emerald-600 dark:text-emerald-400">${p.seg}</td>
-                  <td className="py-2.5 text-right font-semibold text-emerald-600 dark:text-emerald-400">${p.ter}</td>
+                  <td className="py-2.5 text-right font-semibold text-brand-primary dark:text-brand-primary-tint">${p.seg}</td>
+                  <td className="py-2.5 text-right font-semibold text-brand-primary dark:text-brand-primary-tint">${p.ter}</td>
                 </tr>
               ))}
             </tbody>
           </table>
-
-          {/* El Talita */}
-          <div className="mt-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 px-4 py-3">
-            <p className="text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 mb-1">El Talita</p>
-            <p className="text-sm text-slate-600 dark:text-slate-300">
-              Auto: <span className="font-bold text-slate-900 dark:text-white">$25.000</span> (alta) / <span className="font-bold text-slate-900 dark:text-white">$30.000</span> (renovación). El resto, igual que arriba.
-            </p>
-          </div>
 
           <p className="mt-3 text-xs text-slate-400 dark:text-slate-500">
             🏷️ La oferta del 2do/3ro se aplica sola al cargar la póliza, según los vehículos que ya tenga el cliente. Sin promo: todas las cuotas al mismo precio.
@@ -222,8 +209,10 @@ export default function Header({ sidebarOpen, toggleSidebar, verificacionCount =
 
   // Solicitudes
   const resumen  = useSelector(selectSolicitudesResumen);
-  const solAlta  = Number(resumen?.por_asegurar || 0);
-  const solEnvio = Number(resumen?.vigentes_24h || 0);
+  // 🔧 Ahora vienen de /solicitudes/counters/ (pendiente_alta / pendiente_envio).
+  //    Antes eran por_asegurar / vigentes_24h del viejo endpoint de constancia (borrado).
+  const solAlta  = Number(resumen?.pendiente_alta || 0);
+  const solEnvio = Number(resumen?.pendiente_envio || 0);
 
   // Cuponeras — stats puede ser null antes del primer fetch
   const cuponStats   = useSelector((s) => s?.cuponesRobo?.stats || null);
@@ -381,11 +370,6 @@ export default function Header({ sidebarOpen, toggleSidebar, verificacionCount =
         )}
       </AnimatePresence>
 
-      {/* 🚀 Banner pulsante de pagos en atención — encima del header */}
-      <div className={`fixed inset-x-0 z-[45] ${sidebarOpen ? "lg:pl-64" : ""}`} style={{ top: 0 }}>
-        <AtencionBanner />
-      </div>
-
       {/* Header normal */}
       <header
         role="banner"
@@ -410,16 +394,16 @@ export default function Header({ sidebarOpen, toggleSidebar, verificacionCount =
               {sidebarOpen ? <HiX className="text-2xl" /> : <HiMenu className="text-2xl" />}
             </button>
             <div className="hidden sm:flex items-center">
-              <span className="text-xl font-black tracking-tight bg-gradient-to-r from-blue-600 to-emerald-500 bg-clip-text text-transparent">
-                THAMES APP 3.0
+              <span className="font-heading text-xl font-black tracking-tight text-brand-primary dark:text-brand-primary-tint">
+                Polizando
               </span>
             </div>
           </div>
 
           {/* Centro: logo mobile */}
           <div className="sm:hidden absolute left-1/2 -translate-x-1/2">
-            <span className="text-lg font-black tracking-tight bg-gradient-to-r from-blue-600 to-emerald-500 bg-clip-text text-transparent">
-              THAMES
+            <span className="font-heading text-lg font-black tracking-tight text-brand-primary dark:text-brand-primary-tint">
+              Polizando
             </span>
           </div>
 
@@ -431,7 +415,7 @@ export default function Header({ sidebarOpen, toggleSidebar, verificacionCount =
               <button
                 onClick={() => setModalIngresoAbierto(true)}
                 title="Cargar Ingreso"
-                className="cursor-pointer inline-flex items-center gap-1.5 px-2.5 py-2 rounded-xl text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition-colors focus:outline-none"
+                className="cursor-pointer inline-flex items-center gap-1.5 px-2.5 py-2 rounded-xl text-brand-primary dark:text-brand-primary-tint hover:bg-brand-primary/10 dark:hover:bg-brand-primary/15 transition-colors focus:outline-none"
               >
                 <HiArrowCircleDown className="text-xl" />
                 <span className="hidden sm:inline text-sm font-semibold">Ingreso</span>
@@ -447,12 +431,12 @@ export default function Header({ sidebarOpen, toggleSidebar, verificacionCount =
               <motion.button
                 onClick={() => setModalPreciosAbierto(true)}
                 title="Ver lista de precios"
-                className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-white font-semibold bg-gradient-to-r from-blue-600 to-emerald-500 focus:outline-none"
+                className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-white font-semibold bg-gradient-to-r from-brand-primary to-brand-primary-deep focus:outline-none"
                 animate={{
                   boxShadow: [
-                    "0 0 0 0 rgba(16,185,129,0.0)",
-                    "0 0 18px 3px rgba(16,185,129,0.6)",
-                    "0 0 0 0 rgba(16,185,129,0.0)",
+                    "0 0 0 0 rgba(31,122,76,0.0)",
+                    "0 0 18px 3px rgba(31,122,76,0.6)",
+                    "0 0 0 0 rgba(31,122,76,0.0)",
                   ],
                   scale: [1, 1.05, 1],
                 }}
@@ -472,7 +456,7 @@ export default function Header({ sidebarOpen, toggleSidebar, verificacionCount =
                   onClick={() => setShowNotifications((v) => !v)}
                   className={`relative p-2.5 rounded-xl transition-colors focus:outline-none ${
                     showNotifications
-                      ? "bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400"
+                      ? "bg-brand-primary/15 text-brand-primary-deep dark:text-brand-primary-tint"
                       : "text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
                   }`}
                   title="Notificaciones"
@@ -500,14 +484,14 @@ export default function Header({ sidebarOpen, toggleSidebar, verificacionCount =
             {/* Píldora usuario */}
             <div className="flex items-center bg-slate-50 dark:bg-slate-800 rounded-full pr-1.5 pl-4 py-1.5 border border-slate-200 dark:border-slate-700 shadow-sm">
               <div className="hidden sm:flex flex-col items-end mr-3">
-                <span className="text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
+                <span className="text-xs font-bold uppercase tracking-wider text-brand-primary dark:text-brand-primary-tint">
                   {nombreOficina}
                 </span>
                 <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate max-w-[120px]">
                   {user?.username}
                 </span>
               </div>
-              <div className="h-9 w-9 rounded-full bg-gradient-to-br from-blue-500 to-emerald-400 flex items-center justify-center text-white font-extrabold text-base shadow-inner">
+              <div className="h-9 w-9 rounded-full bg-gradient-to-br from-brand-primary to-brand-primary-deep flex items-center justify-center text-white font-extrabold text-base shadow-inner">
                 {avatarLetter}
               </div>
             </div>
@@ -526,8 +510,8 @@ export default function Header({ sidebarOpen, toggleSidebar, verificacionCount =
       </header>
 
       {/* 🚀 Modales de Caja Rápida (los mismos que en Balances) */}
-      <IngresoCreateModal isOpen={modalIngresoAbierto} onClose={cerrarIngreso} />
-      <EgresoCreateModal isOpen={modalEgresoAbierto} onClose={cerrarEgreso} />
+      <MovimientoModal tipo="ingreso" modo="crear" isOpen={modalIngresoAbierto} onClose={cerrarIngreso} />
+      <MovimientoModal tipo="egreso" modo="crear" isOpen={modalEgresoAbierto} onClose={cerrarEgreso} />
 
       {/* 💰 Modal de lista de precios */}
       <AnimatePresence>

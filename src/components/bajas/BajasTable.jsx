@@ -64,7 +64,7 @@ function getClienteObject(p) {
   return c && typeof c === "object" ? c : null;
 }
 
-export function resolveAsegurado(p) {
+function resolveAsegurado(p) {
   const c = getClienteObject(p);
   const nombreCompleto = pickFirst(
     c?.nombre_completo,
@@ -81,17 +81,28 @@ export function resolveAsegurado(p) {
   return { nombre: nombreCompleto || "Asegurado desconocido", dni, tel };
 }
 
-const BajaStatusBadge = memo(({ status }) => {
+// Badge de estado unificado (lo usan la tabla y el historial de BajasPage).
+//   modo="tabla"   → estado operativo: "Pendiente" / "Dada de baja"
+//   modo="detalle" → movimiento exacto: "Pendiente" / "Enviada" / "Realizada"
+export const BajaBadge = memo(({ status, modo = "tabla" }) => {
   const s = String(status || "PENDIENTE_ENVIO");
-  const config = {
-    PENDIENTE_ENVIO: { label: "Pendiente", clase: "border-rose-500/40 text-rose-300 bg-rose-500/10" },
-    ENVIADA: { label: "Dada de baja", clase: "border-emerald-500/40 text-emerald-300 bg-emerald-500/10" },
-    REALIZADA: { label: "Dada de baja", clase: "border-emerald-500/40 text-emerald-300 bg-emerald-500/10" },
+  const CLASE = {
+    PENDIENTE_ENVIO: "border-rose-500/40 text-rose-300 bg-rose-500/10",
+    ENVIADA:         "border-emerald-500/40 text-emerald-300 bg-emerald-500/10",
+    REALIZADA:       "border-emerald-500/40 text-emerald-300 bg-emerald-500/10",
   };
-  const current = config[s] || { label: s, clase: "border-white/20 text-white/60 bg-white/5" };
+  const LABEL = modo === "detalle"
+    ? { PENDIENTE_ENVIO: "Pendiente", ENVIADA: "Enviada", REALIZADA: "Realizada" }
+    : { PENDIENTE_ENVIO: "Pendiente", ENVIADA: "Dada de baja", REALIZADA: "Dada de baja" };
+
+  // El historial usa un chip un poco más grande; la tabla uno compacto.
+  const shape = modo === "detalle" ? "px-2.5 py-1 rounded-lg" : "px-2.5 py-0.5 rounded-full";
+  const clase = CLASE[s] || "border-white/20 text-white/60 bg-white/5";
+  const label = LABEL[s] || s || "—";
+
   return (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wide border ${current.clase}`}>
-      {current.label}
+    <span className={`inline-flex items-center ${shape} text-[10px] font-bold tracking-wide border ${clase}`}>
+      {label}
     </span>
   );
 });
@@ -221,7 +232,7 @@ export default function BajasTable({
 
                 {/* Estado / Baja */}
                 <div className="col-span-2">
-                  <BajaStatusBadge status={estado} />
+                  <BajaBadge status={estado} />
                   {fechaBaja && (
                     <div className="text-[10px] text-slate-400 mt-1">
                       {labelFecha}: <span className="font-bold text-slate-300">{fechaBaja}</span>

@@ -5,7 +5,7 @@ import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 
 // 🚀 IMPORTAMOS EL LOGO OFICIAL
-import logoThames from "./assets/logos/logo_thames.svg";
+import logoPolizando from "./assets/logos/polizando_logo.webp";
 
 // 🚀 IMPORTACIONES DE SEGURIDAD
 import { useAuth } from "./context/AuthContext";
@@ -22,22 +22,13 @@ import PagosPage from "./pages/PagosPage";
 import SiniestrosPage from "./pages/SiniestrosPage";
 import ClienteProfilePage from "./pages/ClienteProfilePage";
 import PolizaDetails from "./components/polizas/PolizaDetails";
-import GeoPage from "./pages/GeoPage";
-import PropiedadesPage from "./pages/PropiedadesPage";
-import AlquileresPage from "./pages/AlquileresPage";
-import AlquilerDetails from "./components/alquileres/AlquilerDetails";
 import BalanzesPage from "./pages/BalanzesPage";
 import SolicitudesPage from "./pages/SolicitudesPage";
-import GruasPage from "./pages/GruasPage";
 import CuponerasPage from "./pages/CuponerasPage";
-import CompetenciaPage from "./pages/CompetenciaPage";
 import EstadisticasPage from "./pages/EstadisticasPage";
-import MarketingPage from "./pages/MarketingPage";
 import RenovacionesPage from "./pages/RenovacionesPage";
-import VencimientosPage from "./pages/VencimientosPage";
 import BajasPage from "./pages/BajasPage";
 import RecaudacionPage from "./pages/RecaudacionPage";
-import VerificacionCompaniaPage from "./pages/VerificacionCompaniaPage";
 
 // 🚀 NUEVA APP: SERVICIOS Y GASTOS FIJOS
 import ServiciosPage from "./pages/ServiciosPage";
@@ -50,11 +41,6 @@ import CotizacionesPage from "./pages/CotizacionesPage";
 // 🚀 NUEVA APP: PANEL DE ADMINISTRADOR
 import AdminPage from "./pages/AdminPage";
 
-// 🆕 NUEVA APP: TAREAS DEL DÍA
-import TareasPage from "./pages/TareasPage";
-// 🆕 NUEVA APP: CONTROL DIARIO (tareas fijas con foto)
-import ControlDiarioPage from "./pages/ControlDiarioPage";
-import RankingPage from "./pages/RankingPage";
 import CierreCajaReminder from "./components/recaudacion/CierreCajaReminder";
 
 // 🆕 PÁGINA PÚBLICA: cupones de robo (el cliente confirma su pago, sin login)
@@ -107,9 +93,6 @@ function App() {
 
   // --- Contador Bajas ---
   const [bajasPendientes, setBajasPendientes] = useState(0);
-
-  // --- Contador Pólizas en verificación ---
-  const [verificacionCount, setVerificacionCount] = useState(0);
 
   // --- Contador Siniestros abiertos (no cerrados) ---
   const [siniestrosAbiertos, setSiniestrosAbiertos] = useState(0);
@@ -250,16 +233,6 @@ function App() {
     } catch {}
   };
 
-  // ====== Pólizas en verificación: fetch ======
-  const fetchVerificacionCount = async () => {
-    if (!user) return;
-    try {
-      const apiRoot = getApiRoot();
-      const data = await fetchJSON(`${apiRoot}polizas/?estado=en_verificacion&page_size=1`);
-      if (data) setVerificacionCount(Number(data.count) || 0);
-    } catch {}
-  };
-
   // ====== Siniestros abiertos: fetch ======
   const fetchSiniestrosCount = async () => {
     if (!user) return;
@@ -316,7 +289,6 @@ function App() {
     fetchCuponerasCounters();
     fetchRenovacionesCounters();
     fetchBajasCountersApp();
-    fetchVerificacionCount();
     fetchSiniestrosCount();
     fetchServiciosCounters();
 
@@ -338,7 +310,6 @@ function App() {
     fetchCuponerasCounters();
     fetchRenovacionesCounters();
     fetchBajasCountersApp();
-    fetchVerificacionCount();
     fetchSiniestrosCount();
     fetchServiciosCounters();
   }, [location.pathname, location.search, user]);
@@ -350,7 +321,6 @@ function App() {
       fetchCuponerasCounters();
       fetchRenovacionesCounters();
       fetchBajasCountersApp();
-      fetchVerificacionCount();
       fetchSiniestrosCount();
       fetchServiciosCounters();
     }, 60_000);
@@ -408,7 +378,7 @@ function App() {
         {showWelcome && (
           <motion.div
             key="welcome-overlay"
-            className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[#030712] text-white"
+            className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-brand-200 dark:bg-brand-100"
             initial={{ opacity: 1 }}
             exit={{ opacity: 0, scale: 1.05, filter: "blur(10px)" }}
             transition={{ duration: 0.6, ease: "easeInOut" }}
@@ -419,28 +389,24 @@ function App() {
               transition={{ delay: 0.2, duration: 0.5, ease: "easeOut" }}
               className="flex flex-col items-center text-center px-4"
             >
-              <motion.div 
-                animate={{ y: [-5, 5, -5] }}
-                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                className="mb-8"
-              >
-                <img 
-                  src={logoThames} 
-                  alt="Logo Thames" 
-                  className="h-28 w-auto drop-shadow-[0_0_25px_rgba(59,130,246,0.6)]" 
+              <div className="mb-8 flex h-20 w-20 items-center justify-center rounded-2xl bg-brand-primary/10">
+                <img
+                  src={logoPolizando}
+                  alt="Polizando"
+                  className="h-12 w-12 object-contain"
                 />
-              </motion.div>
+              </div>
 
-              <h1 className="text-4xl sm:text-5xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white to-zinc-400">
+              <h1 className="font-heading text-4xl sm:text-5xl font-bold tracking-tight text-brand-100 dark:text-brand-200">
                 Bienvenido, {user?.username}
               </h1>
-              <p className="mt-4 text-xs sm:text-sm font-medium tracking-widest text-zinc-500 uppercase">
+              <p className="mt-4 text-xs sm:text-sm font-medium tracking-widest text-brand-100/50 dark:text-brand-200/50 uppercase">
                 Preparando tu entorno de trabajo...
               </p>
-              
-              <div className="mt-8 h-1 w-64 overflow-hidden rounded-full bg-white/10 relative">
-                <motion.div 
-                  className="absolute left-0 top-0 h-full bg-gradient-to-r from-blue-500 to-emerald-400"
+
+              <div className="mt-8 h-1 w-64 overflow-hidden rounded-full bg-brand-100/10 dark:bg-brand-200/10 relative">
+                <motion.div
+                  className="absolute left-0 top-0 h-full bg-gradient-to-r from-brand-primary to-brand-secondary"
                   initial={{ width: "0%" }}
                   animate={{ width: "100%" }}
                   transition={{ duration: 1.8, ease: "easeInOut" }}
@@ -463,7 +429,6 @@ function App() {
           renovacionesPendientes={renovacionesPendientes}
           bajasPendientes={bajasPendientes}
           siniestrosAbiertos={siniestrosAbiertos}
-          verificacionCount={verificacionCount}
           serviciosAlertas={serviciosAlertas}
           user={user} 
         />
@@ -476,12 +441,10 @@ function App() {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
         >
-          <Header sidebarOpen={sidebarOpen} toggleSidebar={toggleSidebar} verificacionCount={verificacionCount} siniestrosAbiertos={siniestrosAbiertos} />
+          <Header sidebarOpen={sidebarOpen} toggleSidebar={toggleSidebar} siniestrosAbiertos={siniestrosAbiertos} />
 
           <motion.main
-            className={`flex-1 min-h-0 min-w-0 px-0 sm:px-4 md:px-6 lg:px-8 pb-20 lg:pb-8 overflow-y-auto transition-all duration-200 ${
-              verificacionCount > 0 ? "pt-24" : "pt-16"
-            }`}
+            className="flex-1 min-h-0 min-w-0 px-0 sm:px-4 md:px-6 lg:px-8 pb-20 lg:pb-8 overflow-y-auto transition-all duration-200 pt-16"
             initial={{ y: 30, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: -30, opacity: 0 }}
@@ -491,21 +454,12 @@ function App() {
               <Routes>
                 <Route path="/" element={<HomePage />} />
 
-                {/* 🆕 PANEL DE TAREAS DEL DÍA */}
-                <Route path="/tareas" element={<TareasPage />} />
-
-                {/* 🆕 CONTROL DIARIO (tareas fijas con foto) */}
-                <Route path="/control-diario" element={<ControlDiarioPage />} />
-                <Route path="/ranking" element={<RankingPage />} />
-
                 <Route path="/clientes" element={<ClientesPage />} />
                 <Route path="/clientes/:id" element={<ClienteProfilePage />} />
                 <Route path="/polizas" element={<PolizasPage />} />
                 <Route path="/polizas/renovaciones" element={<RenovacionesPage />} />
                 <Route path="/polizas/bajas" element={<BajasPage />} />
-                <Route path="/polizas/verificacion" element={<VerificacionCompaniaPage />} />
                 <Route path="/polizas/:id" element={<PolizaDetails />} />
-                <Route path="/vencimientos" element={<VencimientosPage />} />
                 <Route path="/pagos" element={<PagosPage />} />
                 <Route path="/balanzes" element={<BalanzesPage />} />
                 
@@ -517,8 +471,6 @@ function App() {
                 
                 <Route path="/siniestros" element={<SiniestrosPage />} />
                 <Route path="/cuponeras" element={<CuponerasPage />} />
-                <Route path="/geo" element={<GeoPage />} />
-                <Route path="/competencia" element={<CompetenciaPage />} />
                 <Route path="/estadisticas" element={<EstadisticasPage />} />
                 <Route path="/recaudacion" element={<RecaudacionPage />} />
                 
@@ -531,13 +483,7 @@ function App() {
                   element={user.perfil?.rol === 'ADMIN' ? <AdminPage /> : <Navigate to="/" replace />} 
                 />
 
-                <Route 
-                  path="/marketing" 
-                  element={user.perfil?.rol === 'ADMIN' ? <MarketingPage /> : <Navigate to="/" replace />} 
-                />
-                
                 <Route path="/solicitudes" element={<SolicitudesPage />} />
-                <Route path="/gruas" element={<GruasPage />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </AnimatePresence>

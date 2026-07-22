@@ -37,16 +37,16 @@ const ESTADOS_FINANCIEROS = [
 ];
 
 const DOT_CUOTAS = {
-  todos: "bg-slate-400", al_dia: "bg-emerald-500", por_vencer: "bg-amber-400",
-  vence_hoy: "bg-orange-500", vencida_7: "bg-rose-400", vencida_30: "bg-rose-500", vencidas: "bg-red-600",
+  todos: "bg-brand-100/30 dark:bg-brand-200/30", al_dia: "bg-brand-primary", por_vencer: "bg-brand-secondary",
+  vence_hoy: "bg-red-500", vencida_7: "bg-red-500", vencida_30: "bg-red-600", vencidas: "bg-red-600",
 };
 const DOT_POLIZAS = {
-  todos: "bg-slate-400", activa: "bg-emerald-500", vencida: "bg-red-600",
-  cancelada: "bg-slate-500", finalizada: "bg-sky-500", en_verificacion: "bg-orange-400",
+  todos: "bg-brand-100/30 dark:bg-brand-200/30", activa: "bg-brand-primary", vencida: "bg-red-600",
+  cancelada: "bg-brand-100/30 dark:bg-brand-200/30", finalizada: "bg-brand-100/30 dark:bg-brand-200/30", en_verificacion: "bg-brand-secondary",
 };
 const DOT_FINANCIERO = {
-  todos: "bg-slate-400", al_dia: "bg-emerald-500", mora_1_30: "bg-amber-400",
-  mora_31_60: "bg-orange-500", mora_61_90: "bg-rose-500", mora_90_mas: "bg-red-600",
+  todos: "bg-brand-100/30 dark:bg-brand-200/30", al_dia: "bg-brand-primary", mora_1_30: "bg-brand-secondary",
+  mora_31_60: "bg-red-500", mora_61_90: "bg-red-500", mora_90_mas: "bg-red-600",
 };
 
 const LEGACY_COMPANIAS = [
@@ -54,10 +54,10 @@ const LEGACY_COMPANIAS = [
 ];
 
 const chipBase = "inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs md:text-sm transition";
-const chipActive = "border-indigo-500/80 bg-indigo-500 text-white shadow-lg shadow-indigo-900/30";
-const chipIdle = "border-slate-700 bg-slate-800/70 text-slate-200 hover:bg-slate-700";
+const chipActive = "border-brand-primary/80 bg-brand-primary text-white shadow-lg shadow-brand-primary/30";
+const chipIdle = "border-brand-100/10 dark:border-brand-200/10 bg-brand-100/5 dark:bg-brand-200/5 text-brand-100/70 dark:text-brand-200/70 hover:bg-brand-100/10 dark:hover:bg-brand-200/10";
 const countBadge = (active) =>
-  `ml-1 inline-flex h-5 min-w-[1.5rem] items-center justify-center rounded-full border px-1 text-[10px] ${active ? "border-white/25 bg-white/20 text-white" : "border-white/10 bg-white/10 text-slate-200"}`;
+  `ml-1 inline-flex h-5 min-w-[1.5rem] items-center justify-center rounded-full border px-1 text-[10px] ${active ? "border-white/25 bg-white/20 text-white" : "border-brand-100/10 dark:border-brand-200/10 bg-brand-100/8 dark:bg-brand-200/8 text-brand-100/60 dark:text-brand-200/60"}`;
 
 export default function PolizaFilter({
   searchValue = "",
@@ -153,28 +153,28 @@ export default function PolizaFilter({
   }, [estadoFinancieroActual, anyRange, anyPreset]);
 
   const isLoading = status === "loading";
-  const selectCls = "h-10 rounded-xl border border-slate-700 bg-slate-800 px-3 text-xs md:text-sm font-bold outline-none focus:border-indigo-500/50 cursor-pointer";
+  const selectCls = "h-10 rounded-xl border border-brand-100/10 dark:border-brand-200/10 bg-brand-100/5 dark:bg-brand-200/5 px-3 text-xs md:text-sm font-bold outline-none focus:border-brand-primary/50 cursor-pointer";
 
   return (
-    <div className="space-y-3 rounded-2xl border border-slate-800 bg-slate-900/60 p-3 text-slate-100 shadow-xl md:p-4">
+    <div className="space-y-3 rounded-2xl border border-brand-100/10 dark:border-brand-200/10 bg-brand-card dark:bg-brand-card-dark p-3 text-brand-100 dark:text-brand-200 shadow-sm md:p-4">
       {/* ===== Buscador grande (fila propia) ===== */}
       <div className="flex flex-col gap-2 sm:flex-row sm:items-stretch">
         <div className="relative flex-1">
-          <HiSearch className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-500" />
+          <HiSearch className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-brand-100/40 dark:text-brand-200/40" />
           <input
             type="search"
             value={localValue}
             onChange={(e) => setLocalValue(e.target.value)}
             onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); onSearchSubmit?.(); } }}
             placeholder="Buscar póliza por patente, nombre o DNI..."
-            className="w-full rounded-2xl border border-slate-700 bg-slate-800 py-3.5 pl-12 pr-4 text-base text-slate-100 outline-none placeholder:text-slate-500 focus:border-indigo-500/70 focus:ring-2 focus:ring-indigo-500/30"
+            className="w-full rounded-2xl border border-brand-100/10 dark:border-brand-200/10 bg-brand-100/[0.03] dark:bg-brand-200/[0.03] py-3.5 pl-12 pr-4 text-base text-brand-100 dark:text-brand-200 outline-none placeholder:text-brand-100/30 dark:placeholder:text-brand-200/30 focus:border-brand-primary/50 focus:ring-2 focus:ring-brand-primary/30"
           />
         </div>
         <button
           type="button"
           onClick={() => onSearchSubmit?.()}
           disabled={isLoading}
-          className="inline-flex items-center justify-center gap-2 rounded-2xl bg-indigo-500 px-6 py-3.5 text-sm font-bold text-white transition hover:bg-indigo-400 disabled:opacity-60 sm:text-base"
+          className="inline-flex items-center justify-center gap-2 rounded-2xl bg-brand-primary px-6 py-3.5 text-sm font-bold text-white transition hover:bg-brand-primary-deep disabled:opacity-60 sm:text-base"
         >
           <HiSearch className="h-5 w-5" /> {isLoading ? "Buscando…" : "Buscar"}
         </button>
@@ -184,55 +184,55 @@ export default function PolizaFilter({
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div className="flex w-full flex-wrap items-center gap-2">
           {isWebAdmin && onOficinaChange && (
-            <select value={oficinaActual} onChange={(e) => onOficinaChange(e.target.value)} className={`${selectCls} text-amber-400`}>
-              <option value="ALL" className="bg-slate-900 text-white">Todas las sucursales</option>
-              {oficinasList.map((o) => <option key={o.id} value={o.id} className="bg-slate-900 text-white">{o.nombre}</option>)}
+            <select value={oficinaActual} onChange={(e) => onOficinaChange(e.target.value)} className={`${selectCls} text-brand-secondary dark:text-brand-secondary-tint`}>
+              <option value="ALL" className="bg-brand-card-dark text-brand-200">Todas las sucursales</option>
+              {oficinasList.map((o) => <option key={o.id} value={o.id} className="bg-brand-card-dark text-brand-200">{o.nombre}</option>)}
             </select>
           )}
 
           {onCompaniaChange !== undefined && (
-            <select value={companiaActual} onChange={(e) => onCompaniaChange(e.target.value)} className={`${selectCls} text-sky-400`}>
-              <option value="" className="bg-slate-900 text-white">Todas las aseguradoras</option>
-              {companiasList.map((c) => <option key={c} value={c} className="bg-slate-900 text-white">{c}</option>)}
+            <select value={companiaActual} onChange={(e) => onCompaniaChange(e.target.value)} className={`${selectCls} text-brand-primary dark:text-brand-primary-tint`}>
+              <option value="" className="bg-brand-card-dark text-brand-200">Todas las aseguradoras</option>
+              {companiasList.map((c) => <option key={c} value={c} className="bg-brand-card-dark text-brand-200">{c}</option>)}
             </select>
           )}
 
           {localValue && (
-            <button type="button" onClick={clearSearch} disabled={isLoading} className="rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-xs hover:bg-slate-700 md:text-sm">Limpiar</button>
+            <button type="button" onClick={clearSearch} disabled={isLoading} className="rounded-xl border border-brand-100/10 dark:border-brand-200/10 bg-brand-100/5 dark:bg-brand-200/5 px-3 py-2 text-xs hover:bg-brand-100/10 dark:hover:bg-brand-200/10 md:text-sm">Limpiar</button>
           )}
           {!!searchApplied && (
-            <button type="button" onClick={() => onClearSearchApplied?.()} disabled={isLoading} className="rounded-xl border border-sky-700/60 bg-sky-900/30 px-3 py-2 text-xs hover:bg-sky-900/45 md:text-sm">Quitar búsqueda</button>
+            <button type="button" onClick={() => onClearSearchApplied?.()} disabled={isLoading} className="rounded-xl border border-brand-primary/30 bg-brand-primary/10 px-3 py-2 text-xs text-brand-primary dark:text-brand-primary-tint hover:bg-brand-primary/15 md:text-sm">Quitar búsqueda</button>
           )}
           {typeof onVerUltimas === "function" && (
-            <button type="button" onClick={() => onVerUltimas?.()} disabled={isLoading} className="rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-xs hover:bg-slate-700 md:text-sm">Ver últimas</button>
+            <button type="button" onClick={() => onVerUltimas?.()} disabled={isLoading} className="rounded-xl border border-brand-100/10 dark:border-brand-200/10 bg-brand-100/5 dark:bg-brand-200/5 px-3 py-2 text-xs hover:bg-brand-100/10 dark:hover:bg-brand-200/10 md:text-sm">Ver últimas</button>
           )}
           {typeof totalFiltradas === "number" && (
-            <span className="ml-1 text-xs text-slate-400 md:text-sm">{totalFiltradas} resultados</span>
+            <span className="ml-1 text-xs text-brand-100/50 dark:text-brand-200/50 md:text-sm">{totalFiltradas} resultados</span>
           )}
         </div>
 
         <div className="flex flex-wrap items-center justify-end gap-2">
           {onModoChange && (
-            <div className="inline-flex overflow-hidden rounded-full border border-slate-700 bg-slate-800 text-xs md:text-sm">
-              <button type="button" onClick={() => onModoChange?.("polizas")} className={`px-3 py-1.5 transition ${modoActual === "polizas" ? "bg-indigo-500 text-white" : "text-slate-200 hover:bg-slate-700"}`}>Pólizas</button>
-              <button type="button" onClick={() => onModoChange?.("cuotas")} className={`border-l border-slate-700 px-3 py-1.5 transition ${modoActual === "cuotas" ? "bg-indigo-500 text-white" : "text-slate-200 hover:bg-slate-700"}`}>Cuotas</button>
+            <div className="inline-flex overflow-hidden rounded-full border border-brand-100/10 dark:border-brand-200/10 bg-brand-100/5 dark:bg-brand-200/5 text-xs md:text-sm">
+              <button type="button" onClick={() => onModoChange?.("polizas")} className={`px-3 py-1.5 transition ${modoActual === "polizas" ? "bg-brand-primary text-white" : "text-brand-100/70 dark:text-brand-200/70 hover:bg-brand-100/10 dark:hover:bg-brand-200/10"}`}>Pólizas</button>
+              <button type="button" onClick={() => onModoChange?.("cuotas")} className={`border-l border-brand-100/10 dark:border-brand-200/10 px-3 py-1.5 transition ${modoActual === "cuotas" ? "bg-brand-primary text-white" : "text-brand-100/70 dark:text-brand-200/70 hover:bg-brand-100/10 dark:hover:bg-brand-200/10"}`}>Cuotas</button>
             </div>
           )}
           {onPageSizeChange && (
-            <select value={pageSize} onChange={(e) => onPageSizeChange?.(Number(e.target.value))} disabled={isLoading} className="cursor-pointer rounded-full border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs outline-none md:text-sm">
-              {[10, 25, 50, 100].map((n) => <option key={n} value={n} className="bg-slate-900 text-white">{n} / pág.</option>)}
+            <select value={pageSize} onChange={(e) => onPageSizeChange?.(Number(e.target.value))} disabled={isLoading} className="cursor-pointer rounded-full border border-brand-100/10 dark:border-brand-200/10 bg-brand-100/5 dark:bg-brand-200/5 px-3 py-1.5 text-xs outline-none md:text-sm">
+              {[10, 25, 50, 100].map((n) => <option key={n} value={n} className="bg-brand-card-dark text-brand-200">{n} / pág.</option>)}
             </select>
           )}
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-400 md:text-xs">
+      <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] text-brand-100/50 dark:text-brand-200/50 md:text-xs">
         <span className="flex items-center gap-2">
-          <span>Modo: <strong className="uppercase text-slate-200">{modoActual}</strong></span>
+          <span>Modo: <strong className="uppercase text-brand-100 dark:text-brand-200">{modoActual}</strong></span>
           <span className="opacity-40">|</span>
-          <span>Sucursal: <strong className="uppercase text-emerald-400">{user?.perfil?.oficina_nombre || "Local"}</strong></span>
+          <span>Sucursal: <strong className="uppercase text-brand-primary dark:text-brand-primary-tint">{user?.perfil?.oficina_nombre || "Local"}</strong></span>
         </span>
-        {!!searchApplied && <span className="opacity-80">Búsqueda aplicada: <b className="text-slate-200">{searchApplied}</b></span>}
+        {!!searchApplied && <span className="opacity-80">Búsqueda aplicada: <b className="text-brand-100 dark:text-brand-200">{searchApplied}</b></span>}
       </div>
 
       {/* Chips estado */}
@@ -242,7 +242,7 @@ export default function PolizaFilter({
           const count = modoActual === "cuotas" && key === "todos" ? (typeof totalFiltradas === "number" ? totalFiltradas : resumen?.todos) : resumen?.[key] ?? undefined;
           return (
             <button key={key} type="button" onClick={() => onEstadoChange?.(key)} disabled={isLoading} className={`${chipBase} ${active ? chipActive : chipIdle}`}>
-              <span className={`h-2.5 w-2.5 rounded-full ${dotClass[key] || "bg-slate-500"}`} />
+              <span className={`h-2.5 w-2.5 rounded-full ${dotClass[key] || "bg-brand-100/30 dark:bg-brand-200/30"}`} />
               <span className="whitespace-nowrap">{label}</span>
               {typeof count === "number" && <span className={countBadge(active)}>{count}</span>}
             </button>
@@ -252,23 +252,23 @@ export default function PolizaFilter({
 
       {/* Avanzados solo modo pólizas */}
       {modoActual === "polizas" && (
-        <div className="mt-2 overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/80">
-          <button type="button" onClick={() => setShowAdvanced((v) => !v)} className="flex w-full items-center justify-between px-3 py-2.5 text-xs transition-colors hover:bg-slate-800/50 md:text-sm">
-            <span className="flex items-center gap-2 text-slate-200"><span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-indigo-500/15 text-[10px] text-indigo-300">⚙</span>Filtros avanzados (mora y vencimiento)</span>
+        <div className="mt-2 overflow-hidden rounded-2xl border border-brand-100/10 dark:border-brand-200/10 bg-brand-100/[0.02] dark:bg-brand-200/[0.02]">
+          <button type="button" onClick={() => setShowAdvanced((v) => !v)} className="flex w-full items-center justify-between px-3 py-2.5 text-xs transition-colors hover:bg-brand-100/5 dark:hover:bg-brand-200/5 md:text-sm">
+            <span className="flex items-center gap-2 text-brand-100 dark:text-brand-200"><span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-brand-primary/15 text-[10px] text-brand-primary dark:text-brand-primary-tint">⚙</span>Filtros avanzados (mora y vencimiento)</span>
             <span className={`transition-transform duration-200 ${showAdvanced ? "rotate-90" : "rotate-0"}`}>▶</span>
           </button>
 
           {showAdvanced && (
-            <div className="space-y-4 border-t border-slate-800 px-3 py-3">
+            <div className="space-y-4 border-t border-brand-100/10 dark:border-brand-200/10 px-3 py-3">
               <div className="space-y-1.5">
-                <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500 md:text-xs">Estado financiero (mora)</div>
+                <div className="text-[11px] font-bold uppercase tracking-wider text-brand-100/40 dark:text-brand-200/40 md:text-xs">Estado financiero (mora)</div>
                 <div className="flex flex-wrap gap-2">
                   {ESTADOS_FINANCIEROS.map(({ key, label }) => {
                     const active = estadoFinancieroActual === key;
                     const count = kpisCount[key];
                     return (
                       <button key={key} type="button" onClick={() => onEstadoFinancieroChange?.(key)} disabled={isLoading} className={`${chipBase} ${active ? chipActive : chipIdle}`}>
-                        <span className={`h-2.5 w-2.5 rounded-full ${DOT_FINANCIERO[key] || "bg-slate-500"}`} />
+                        <span className={`h-2.5 w-2.5 rounded-full ${DOT_FINANCIERO[key] || "bg-brand-100/30 dark:bg-brand-200/30"}`} />
                         <span>{label}</span>
                         {typeof count === "number" && <span className={countBadge(active)}>{count}</span>}
                       </button>
@@ -281,21 +281,21 @@ export default function PolizaFilter({
                 <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
                   <div className="grid w-full grid-cols-1 gap-3 md:max-w-[520px] md:grid-cols-2">
                     <label className="flex flex-col text-xs md:text-sm">
-                      <span className="mb-1.5 font-medium text-slate-400">Vencimiento desde</span>
-                      <input type="date" value={fechaVencimientoDesde || ""} onChange={(e) => onFechaVencimientoDesdeChange?.(e.target.value)} disabled={isLoading} className="cursor-pointer rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-xs text-slate-100 outline-none transition-all focus:border-indigo-500/70 focus:ring-2 focus:ring-indigo-500/30 md:text-sm" />
+                      <span className="mb-1.5 font-medium text-brand-100/50 dark:text-brand-200/50">Vencimiento desde</span>
+                      <input type="date" value={fechaVencimientoDesde || ""} onChange={(e) => onFechaVencimientoDesdeChange?.(e.target.value)} disabled={isLoading} className="cursor-pointer rounded-xl border border-brand-100/10 dark:border-brand-200/10 bg-brand-100/[0.03] dark:bg-brand-200/[0.03] px-3 py-2 text-xs text-brand-100 dark:text-brand-200 outline-none transition-all focus:border-brand-primary/50 focus:ring-2 focus:ring-brand-primary/30 md:text-sm" />
                     </label>
                     <label className="flex flex-col text-xs md:text-sm">
-                      <span className="mb-1.5 font-medium text-slate-400">Vencimiento hasta</span>
-                      <input type="date" value={fechaVencimientoHasta || ""} onChange={(e) => onFechaVencimientoHastaChange?.(e.target.value)} disabled={isLoading} className="cursor-pointer rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-xs text-slate-100 outline-none transition-all focus:border-indigo-500/70 focus:ring-2 focus:ring-indigo-500/30 md:text-sm" />
+                      <span className="mb-1.5 font-medium text-brand-100/50 dark:text-brand-200/50">Vencimiento hasta</span>
+                      <input type="date" value={fechaVencimientoHasta || ""} onChange={(e) => onFechaVencimientoHastaChange?.(e.target.value)} disabled={isLoading} className="cursor-pointer rounded-xl border border-brand-100/10 dark:border-brand-200/10 bg-brand-100/[0.03] dark:bg-brand-200/[0.03] px-3 py-2 text-xs text-brand-100 dark:text-brand-200 outline-none transition-all focus:border-brand-primary/50 focus:ring-2 focus:ring-brand-primary/30 md:text-sm" />
                     </label>
                   </div>
                   <div className="flex flex-wrap items-center gap-2 md:justify-end">
-                    <span className="text-[11px] font-bold uppercase tracking-tighter text-slate-500 md:text-xs">Atajos:</span>
-                    <button type="button" onClick={() => onVencidasUltimosDiasChange?.(3)} disabled={isLoading} className={`rounded-full border px-3 py-1.5 text-xs transition ${isPreset3 ? "border-indigo-500 bg-indigo-500 text-white" : "border-slate-700 bg-slate-800 text-slate-100 hover:bg-slate-700"}`}>3d</button>
-                    <button type="button" onClick={() => onVencidasUltimosDiasChange?.(7)} disabled={isLoading} className={`rounded-full border px-3 py-1.5 text-xs transition ${isPreset7 ? "border-indigo-500 bg-indigo-500 text-white" : "border-slate-700 bg-slate-800 text-slate-100 hover:bg-slate-700"}`}>7d</button>
-                    <button type="button" onClick={() => onVencidasUltimosDiasChange?.(30)} disabled={isLoading} className={`rounded-full border px-3 py-1.5 text-xs transition ${isPreset30 ? "border-indigo-500 bg-indigo-500 text-white" : "border-slate-700 bg-slate-800 text-slate-100 hover:bg-slate-700"}`}>30d</button>
-                    <button type="button" onClick={() => onVencidasMasDeDiasChange?.(30)} disabled={isLoading} className={`rounded-full border px-3 py-1.5 text-xs transition ${isPresetMas30 ? "border-rose-500 bg-rose-600 text-white" : "border-slate-700 bg-slate-800 text-slate-100 hover:bg-slate-700"}`}>&gt;30d</button>
-                    <button type="button" onClick={clearVencimiento} disabled={(!anyRange && !anyPreset) || isLoading} className={`ml-1 rounded-full border px-3 py-1.5 text-xs transition ${anyRange || anyPreset ? "border-sky-500 bg-sky-600 text-white" : "border-slate-700 bg-slate-800 text-slate-400"}`}>Limpiar</button>
+                    <span className="text-[11px] font-bold uppercase tracking-tighter text-brand-100/40 dark:text-brand-200/40 md:text-xs">Atajos:</span>
+                    <button type="button" onClick={() => onVencidasUltimosDiasChange?.(3)} disabled={isLoading} className={`rounded-full border px-3 py-1.5 text-xs transition ${isPreset3 ? "border-brand-primary bg-brand-primary text-white" : "border-brand-100/10 dark:border-brand-200/10 bg-brand-100/5 dark:bg-brand-200/5 text-brand-100 dark:text-brand-200 hover:bg-brand-100/10 dark:hover:bg-brand-200/10"}`}>3d</button>
+                    <button type="button" onClick={() => onVencidasUltimosDiasChange?.(7)} disabled={isLoading} className={`rounded-full border px-3 py-1.5 text-xs transition ${isPreset7 ? "border-brand-primary bg-brand-primary text-white" : "border-brand-100/10 dark:border-brand-200/10 bg-brand-100/5 dark:bg-brand-200/5 text-brand-100 dark:text-brand-200 hover:bg-brand-100/10 dark:hover:bg-brand-200/10"}`}>7d</button>
+                    <button type="button" onClick={() => onVencidasUltimosDiasChange?.(30)} disabled={isLoading} className={`rounded-full border px-3 py-1.5 text-xs transition ${isPreset30 ? "border-brand-primary bg-brand-primary text-white" : "border-brand-100/10 dark:border-brand-200/10 bg-brand-100/5 dark:bg-brand-200/5 text-brand-100 dark:text-brand-200 hover:bg-brand-100/10 dark:hover:bg-brand-200/10"}`}>30d</button>
+                    <button type="button" onClick={() => onVencidasMasDeDiasChange?.(30)} disabled={isLoading} className={`rounded-full border px-3 py-1.5 text-xs transition ${isPresetMas30 ? "border-red-500 bg-red-600 text-white" : "border-brand-100/10 dark:border-brand-200/10 bg-brand-100/5 dark:bg-brand-200/5 text-brand-100 dark:text-brand-200 hover:bg-brand-100/10 dark:hover:bg-brand-200/10"}`}>&gt;30d</button>
+                    <button type="button" onClick={clearVencimiento} disabled={(!anyRange && !anyPreset) || isLoading} className={`ml-1 rounded-full border px-3 py-1.5 text-xs transition ${anyRange || anyPreset ? "border-brand-primary bg-brand-primary text-white" : "border-brand-100/10 dark:border-brand-200/10 bg-brand-100/5 dark:bg-brand-200/5 text-brand-100/40 dark:text-brand-200/40"}`}>Limpiar</button>
                   </div>
                 </div>
               </div>

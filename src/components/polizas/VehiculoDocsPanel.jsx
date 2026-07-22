@@ -152,8 +152,8 @@ function PdfThumb({ url, alt }) {
   const src = thumbPdf(url);
   if (err || !src) {
     return (
-      <span className="grid h-14 w-11 shrink-0 place-items-center rounded bg-rose-500/10">
-        <HiDocumentText className="text-lg text-rose-300" />
+      <span className="grid h-14 w-11 shrink-0 place-items-center rounded bg-red-500/10">
+        <HiDocumentText className="text-lg text-red-600 dark:text-red-400" />
       </span>
     );
   }
@@ -163,7 +163,7 @@ function PdfThumb({ url, alt }) {
       alt={alt || "PDF"}
       loading="lazy"
       onError={() => setErr(true)}
-      className="h-14 w-11 shrink-0 rounded border border-slate-700 bg-white object-cover"
+      className="h-14 w-11 shrink-0 rounded border border-brand-100/10 dark:border-brand-200/10 bg-white object-cover"
     />
   );
 }
@@ -321,7 +321,7 @@ export default function VehiculoDocsPanel({ polizaId }) {
 
   /* ===================== Render ===================== */
   return (
-    <div className="text-slate-100">
+    <div className="text-brand-100 dark:text-brand-200">
       {/* Input oculto para reemplazar un archivo (solo admin) */}
       <input
         ref={replaceFileRef}
@@ -333,11 +333,11 @@ export default function VehiculoDocsPanel({ polizaId }) {
       {/* Header */}
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
-          <div className="text-[10px] font-semibold uppercase tracking-widest text-slate-500">Vehículo & documentos</div>
-          <div className="truncate text-base font-semibold text-white">{title}</div>
+          <div className="text-[10px] font-semibold uppercase tracking-widest text-brand-100/40 dark:text-brand-200/40">Vehículo & documentos</div>
+          <div className="truncate text-base font-semibold text-brand-100 dark:text-brand-200">{title}</div>
           {poliza?.cobertura ? (
-            <div className="mt-0.5 text-xs text-slate-400">
-              Cobertura: <b className="text-slate-200">{String(poliza.cobertura).replace(/_/g, " ")}</b>
+            <div className="mt-0.5 text-xs text-brand-100/50 dark:text-brand-200/50">
+              Cobertura: <b className="text-brand-100 dark:text-brand-200">{String(poliza.cobertura).replace(/_/g, " ")}</b>
             </div>
           ) : null}
         </div>
@@ -345,14 +345,14 @@ export default function VehiculoDocsPanel({ polizaId }) {
           <button
             onClick={() => openUploader("FOTO")}
             disabled={uploading}
-            className="inline-flex items-center gap-2 rounded-xl bg-indigo-500 px-3 py-2 text-sm font-semibold text-white transition hover:bg-indigo-400 disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-xl bg-brand-primary px-3 py-2 text-sm font-semibold text-white transition hover:bg-brand-primary-deep disabled:opacity-50"
           >
             <HiUpload /> Agregar foto
           </button>
           <button
             onClick={() => fetchVehiculoDocs()}
             disabled={loading}
-            className="inline-flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-800/60 px-3 py-2 text-sm font-semibold text-slate-200 transition hover:bg-slate-700 disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-xl border border-brand-100/10 dark:border-brand-200/10 bg-brand-100/5 dark:bg-brand-200/5 px-3 py-2 text-sm font-semibold text-brand-100/80 dark:text-brand-200/80 transition hover:bg-brand-100/10 dark:hover:bg-brand-200/10 disabled:opacity-50"
           >
             <HiRefresh className={loading ? "animate-spin" : ""} /> Actualizar
           </button>
@@ -361,9 +361,9 @@ export default function VehiculoDocsPanel({ polizaId }) {
 
       <div className="grid gap-4 lg:grid-cols-2">
         {/* ===== Galería ===== */}
-        <section className="rounded-2xl border border-white/[0.06] bg-[#121829] p-3">
-          <header className="mb-3 flex items-center gap-2 text-slate-200">
-            <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-500/10 text-indigo-300">
+        <section className="rounded-2xl border border-brand-100/10 dark:border-brand-200/10 bg-brand-card dark:bg-brand-card-dark p-3">
+          <header className="mb-3 flex items-center gap-2 text-brand-100/80 dark:text-brand-200/80">
+            <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-brand-primary/10 text-brand-primary dark:text-brand-primary-tint">
               <HiPhotograph className="text-lg" />
             </span>
             <h3 className="text-sm font-semibold">Fotos</h3>
@@ -373,13 +373,13 @@ export default function VehiculoDocsPanel({ polizaId }) {
             {loading ? (
               <motion.div className="grid grid-cols-2 gap-2 md:grid-cols-3">
                 {Array.from({ length: 3 }).map((_, i) => (
-                  <div key={i} className="aspect-video animate-pulse rounded-lg bg-slate-800" />
+                  <div key={i} className="aspect-video animate-pulse rounded-lg bg-brand-100/5 dark:bg-brand-200/5" />
                 ))}
               </motion.div>
             ) : (
               <motion.div className="grid grid-cols-2 gap-2 md:grid-cols-3">
                 {fotos.map((item) => (
-                  <figure key={item.url} className="group relative overflow-hidden rounded-lg border border-white/[0.06] bg-slate-900">
+                  <figure key={item.url} className="group relative overflow-hidden rounded-lg border border-brand-100/8 dark:border-brand-200/8 bg-brand-100/[0.03] dark:bg-brand-200/[0.03]">
                     <a href={item.url} target="_blank" rel="noopener noreferrer" className="block">
                       <img src={item.url} alt={item.label} className="aspect-video w-full object-cover" loading="lazy" />
                     </a>
@@ -390,7 +390,7 @@ export default function VehiculoDocsPanel({ polizaId }) {
                       <div className="flex items-center gap-1 p-1">
                         <a href={item.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center rounded bg-white/10 px-1.5 py-0.5 text-[11px] hover:bg-white/20"><HiExternalLink /></a>
                         {isWebAdmin ? (
-                          <button onClick={() => removePhoto(item)} className="inline-flex items-center rounded bg-rose-500/20 px-1.5 py-0.5 text-[11px] text-rose-300 hover:bg-rose-500/30"><HiTrash /></button>
+                          <button onClick={() => removePhoto(item)} className="inline-flex items-center rounded bg-red-500/20 px-1.5 py-0.5 text-[11px] text-red-600 dark:text-red-300 hover:bg-red-500/30"><HiTrash /></button>
                         ) : null}
                       </div>
                     </div>
@@ -399,7 +399,7 @@ export default function VehiculoDocsPanel({ polizaId }) {
 
                 <button
                   onClick={() => openUploader("FOTO")}
-                  className="flex aspect-video flex-col items-center justify-center rounded-lg border border-dashed border-slate-700 bg-slate-900/40 text-xs text-slate-500 transition hover:border-indigo-500/50 hover:text-indigo-300"
+                  className="flex aspect-video flex-col items-center justify-center rounded-lg border border-dashed border-brand-100/15 dark:border-brand-200/15 bg-brand-100/[0.02] dark:bg-brand-200/[0.02] text-xs text-brand-100/40 dark:text-brand-200/40 transition hover:border-brand-primary/40 hover:text-brand-primary dark:hover:text-brand-primary-tint"
                 >
                   <HiPlus className="mb-1 text-lg" /> Agregar foto
                 </button>
@@ -409,15 +409,15 @@ export default function VehiculoDocsPanel({ polizaId }) {
         </section>
 
         {/* ===== Documentos ===== */}
-        <section className="rounded-2xl border border-white/[0.06] bg-[#121829] p-3">
-          <header className="mb-3 flex items-center justify-between text-slate-200">
+        <section className="rounded-2xl border border-brand-100/10 dark:border-brand-200/10 bg-brand-card dark:bg-brand-card-dark p-3">
+          <header className="mb-3 flex items-center justify-between text-brand-100/80 dark:text-brand-200/80">
             <div className="flex items-center gap-2">
-              <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/10 text-amber-300">
+              <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-brand-secondary/10 text-brand-secondary dark:text-brand-secondary-tint">
                 <HiDocumentText className="text-lg" />
               </span>
-              <h3 className="text-sm font-semibold">Documentos</h3>
+              <h3 className="text-sm font-semibold text-brand-100/80 dark:text-brand-200/80">Documentos</h3>
             </div>
-            <button onClick={() => openUploader("DOC")} className="inline-flex items-center gap-1 rounded-lg bg-slate-800 px-2.5 py-1.5 text-xs font-semibold text-slate-200 hover:bg-slate-700">
+            <button onClick={() => openUploader("DOC")} className="inline-flex items-center gap-1 rounded-lg bg-brand-100/8 dark:bg-brand-200/8 px-2.5 py-1.5 text-xs font-semibold text-brand-100/80 dark:text-brand-200/80 hover:bg-brand-100/15 dark:hover:bg-brand-200/15">
               <HiPlus /> Agregar
             </button>
           </header>
@@ -425,24 +425,24 @@ export default function VehiculoDocsPanel({ polizaId }) {
           <AnimatePresence initial={false}>
             {loading ? (
               <motion.ul className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                {Array.from({ length: 2 }).map((_, i) => <li key={i} className="h-16 animate-pulse rounded-lg bg-slate-800" />)}
+                {Array.from({ length: 2 }).map((_, i) => <li key={i} className="h-16 animate-pulse rounded-lg bg-brand-100/5 dark:bg-brand-200/5" />)}
               </motion.ul>
             ) : documentos.length ? (
               <motion.div className="space-y-3">
                 {docsAgrupados.imgDocs.length > 0 && (
                   <div>
-                    <div className="mb-1 text-[10px] font-semibold uppercase tracking-widest text-slate-500">Imágenes</div>
+                    <div className="mb-1 text-[10px] font-semibold uppercase tracking-widest text-brand-100/40 dark:text-brand-200/40">Imágenes</div>
                     <div className="grid grid-cols-2 gap-2 md:grid-cols-3">
                       {docsAgrupados.imgDocs.map((d) => (
-                        <figure key={d.url} className="overflow-hidden rounded-lg border border-white/[0.06] bg-slate-900">
+                        <figure key={d.url} className="overflow-hidden rounded-lg border border-brand-100/8 dark:border-brand-200/8 bg-brand-100/[0.03] dark:bg-brand-200/[0.03]">
                           <a href={d.url} target="_blank" rel="noopener noreferrer" className="block">
                             <img src={d.url} alt={d.label} className="aspect-video w-full object-cover transition hover:opacity-90" loading="lazy" />
                           </a>
-                          <figcaption className="flex items-center justify-between px-2 py-1 text-xs text-slate-300">
+                          <figcaption className="flex items-center justify-between px-2 py-1 text-xs text-brand-100/70 dark:text-brand-200/70">
                             <span className="truncate" title={d.label}>{d.label}</span>
                             <div className="flex gap-1">
                               <a href={d.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center rounded bg-white/10 px-1.5 py-0.5 text-[11px] hover:bg-white/20"><HiExternalLink /></a>
-                              {isWebAdmin ? <button onClick={() => removePhoto(d)} className="inline-flex items-center rounded bg-rose-500/20 px-1.5 py-0.5 text-[11px] text-rose-300 hover:bg-rose-500/30"><HiTrash /></button> : null}
+                              {isWebAdmin ? <button onClick={() => removePhoto(d)} className="inline-flex items-center rounded bg-red-500/20 px-1.5 py-0.5 text-[11px] text-red-600 dark:text-red-300 hover:bg-red-500/30"><HiTrash /></button> : null}
                             </div>
                           </figcaption>
                         </figure>
@@ -452,21 +452,21 @@ export default function VehiculoDocsPanel({ polizaId }) {
                 )}
                 {docsAgrupados.pdfDocs.length > 0 && (
                   <div>
-                    <div className="mb-1 text-[10px] font-semibold uppercase tracking-widest text-slate-500">PDFs</div>
+                    <div className="mb-1 text-[10px] font-semibold uppercase tracking-widest text-brand-100/40 dark:text-brand-200/40">PDFs</div>
                     <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                       {docsAgrupados.pdfDocs.map((d) => (
-                        <li key={d.url} className="flex items-center justify-between gap-2 rounded-lg border border-white/[0.06] bg-[#121829] px-3 py-2">
+                        <li key={d.url} className="flex items-center justify-between gap-2 rounded-lg border border-brand-100/8 dark:border-brand-200/8 bg-brand-100/[0.02] dark:bg-brand-200/[0.02] px-3 py-2">
                           <button type="button" onClick={() => setPreviewDoc(d)} className="flex min-w-0 flex-1 items-center gap-2.5 text-left" title="Previsualizar">
                             <PdfThumb url={d.url} alt={d.label} />
                             <span className="min-w-0">
-                              <span className="block truncate text-xs font-semibold text-slate-100" title={d.label}>{d.label}</span>
-                              <span className="block truncate text-[11px] text-slate-400" title={nombreArchivo(d)}>{nombreArchivo(d)}</span>
+                              <span className="block truncate text-xs font-semibold text-brand-100 dark:text-brand-200" title={d.label}>{d.label}</span>
+                              <span className="block truncate text-[11px] text-brand-100/50 dark:text-brand-200/50" title={nombreArchivo(d)}>{nombreArchivo(d)}</span>
                             </span>
                           </button>
                           <div className="flex shrink-0 gap-1">
                             <a href={d.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 rounded bg-white/10 px-2 py-1 text-[11px] hover:bg-white/20" title="Abrir en pestaña nueva"><HiExternalLink /></a>
-                            {isWebAdmin ? <button onClick={() => pickReplace(d)} disabled={replacing} className="inline-flex items-center gap-1 rounded bg-sky-500/20 px-2 py-1 text-[11px] text-sky-300 hover:bg-sky-500/30 disabled:opacity-50" title="Reemplazar archivo"><HiRefresh className={replacing && replaceTarget?.id === d.id ? "animate-spin" : ""} /></button> : null}
-                            {isWebAdmin ? <button onClick={() => removePhoto(d)} className="inline-flex items-center gap-1 rounded bg-rose-500/20 px-2 py-1 text-[11px] text-rose-300 hover:bg-rose-500/30" title="Eliminar"><HiTrash /></button> : null}
+                            {isWebAdmin ? <button onClick={() => pickReplace(d)} disabled={replacing} className="inline-flex items-center gap-1 rounded bg-brand-secondary/20 px-2 py-1 text-[11px] text-brand-secondary dark:text-brand-secondary-tint hover:bg-brand-secondary/30 disabled:opacity-50" title="Reemplazar archivo"><HiRefresh className={replacing && replaceTarget?.id === d.id ? "animate-spin" : ""} /></button> : null}
+                            {isWebAdmin ? <button onClick={() => removePhoto(d)} className="inline-flex items-center gap-1 rounded bg-red-500/20 px-2 py-1 text-[11px] text-red-600 dark:text-red-300 hover:bg-red-500/30" title="Eliminar"><HiTrash /></button> : null}
                           </div>
                         </li>
                       ))}
@@ -475,7 +475,7 @@ export default function VehiculoDocsPanel({ polizaId }) {
                 )}
               </motion.div>
             ) : (
-              <motion.div className="rounded-lg border border-dashed border-white/[0.06] py-8 text-center text-sm text-slate-500">
+              <motion.div className="rounded-lg border border-dashed border-brand-100/15 dark:border-brand-200/15 py-8 text-center text-sm text-brand-100/40 dark:text-brand-200/40">
                 No hay documentos cargados.
               </motion.div>
             )}
@@ -512,22 +512,22 @@ export default function VehiculoDocsPanel({ polizaId }) {
       <AnimatePresence>
         {uploaderOpen && (
           <motion.div className="fixed inset-0 z-[120] grid place-items-center bg-black/70 p-4 backdrop-blur-sm" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <motion.div className="w-full max-w-md rounded-2xl border border-white/[0.06] bg-[#121829] p-6 shadow-2xl" initial={{ scale: 0.95 }} animate={{ scale: 1 }} exit={{ scale: 0.95 }}>
+            <motion.div className="w-full max-w-md rounded-2xl border border-brand-100/10 dark:border-brand-200/10 bg-brand-card dark:bg-brand-card-dark p-6 shadow-2xl" initial={{ scale: 0.95 }} animate={{ scale: 1 }} exit={{ scale: 0.95 }}>
               <div className="mb-5 flex justify-between">
-                <h4 className="font-bold uppercase tracking-tight text-white">
+                <h4 className="font-bold uppercase tracking-tight text-brand-100 dark:text-brand-200">
                   Subir {uploaderMode === "FOTO" ? "foto" : "documento"}
                 </h4>
-                <button onClick={() => setUploaderOpen(false)}><HiX className="text-xl text-slate-500 hover:text-white" /></button>
+                <button onClick={() => setUploaderOpen(false)}><HiX className="text-xl text-brand-100/40 dark:text-brand-200/40 hover:text-brand-100 dark:hover:text-brand-200" /></button>
               </div>
               <div className="grid gap-4">
                 <label className="block">
-                  <span className="mb-1.5 ml-1 block text-[10px] font-bold uppercase text-slate-500">Etiqueta / Tipo</span>
+                  <span className="mb-1.5 ml-1 block text-[10px] font-bold uppercase text-brand-100/40 dark:text-brand-200/40">Etiqueta / Tipo</span>
                   <input
                     list="tags-sug"
                     value={uploaderTag}
                     onChange={(e) => setUploaderTag(e.target.value)}
                     placeholder={uploaderMode === "FOTO" ? "Ej: FRENTE, MOTOR..." : "Ej: CONTRATO, VTV..."}
-                    className="w-full rounded-xl border border-slate-700 bg-slate-950/60 px-4 py-3 text-sm font-bold uppercase text-white outline-none focus:ring-2 focus:ring-indigo-500/50"
+                    className="w-full rounded-xl border border-brand-100/10 dark:border-brand-200/10 bg-brand-100/[0.03] dark:bg-brand-200/[0.03] px-4 py-3 text-sm font-bold uppercase text-brand-100 dark:text-brand-200 outline-none focus:ring-2 focus:ring-brand-primary/40"
                   />
                   <datalist id="tags-sug">
                     {uploaderMode === "FOTO" ? (
@@ -538,19 +538,19 @@ export default function VehiculoDocsPanel({ polizaId }) {
                   </datalist>
                 </label>
                 <label className="group block">
-                  <span className="mb-1.5 ml-1 block text-[10px] font-bold uppercase text-slate-500 transition-colors group-hover:text-slate-300">Seleccionar archivo</span>
+                  <span className="mb-1.5 ml-1 block text-[10px] font-bold uppercase text-brand-100/40 dark:text-brand-200/40 transition-colors group-hover:text-brand-100/70 dark:group-hover:text-brand-200/70">Seleccionar archivo</span>
                   <input
                     ref={uploaderFileRef}
                     type="file"
                     accept={uploaderMode === "FOTO" ? "image/*" : "image/*,.pdf"}
                     onChange={(e) => setUploaderFile(e.target.files?.[0] || null)}
-                    className="w-full cursor-pointer text-xs text-slate-400 file:mr-4 file:rounded-xl file:border-0 file:bg-slate-800 file:px-4 file:py-2.5 file:text-[10px] file:font-black file:uppercase file:text-white hover:file:bg-slate-700"
+                    className="w-full cursor-pointer text-xs text-brand-100/50 dark:text-brand-200/50 file:mr-4 file:rounded-xl file:border-0 file:bg-brand-100/10 dark:file:bg-brand-200/10 file:px-4 file:py-2.5 file:text-[10px] file:font-black file:uppercase file:text-brand-100 dark:file:text-brand-200 hover:file:bg-brand-100/15 dark:hover:file:bg-brand-200/15"
                   />
                 </label>
               </div>
               <div className="mt-8 flex gap-3">
-                <button onClick={() => setUploaderOpen(false)} className="flex-1 rounded-xl border border-slate-700 py-3 text-xs font-bold uppercase text-slate-300 transition hover:bg-slate-800">Cancelar</button>
-                <button onClick={doUpload} disabled={uploading} className="flex-1 rounded-xl bg-indigo-500 py-3 text-xs font-black uppercase text-white shadow-lg shadow-indigo-900/30 transition hover:bg-indigo-400 active:scale-95 disabled:opacity-50">
+                <button onClick={() => setUploaderOpen(false)} className="flex-1 rounded-xl border border-brand-100/10 dark:border-brand-200/10 py-3 text-xs font-bold uppercase text-brand-100/70 dark:text-brand-200/70 transition hover:bg-brand-100/5 dark:hover:bg-brand-200/5">Cancelar</button>
+                <button onClick={doUpload} disabled={uploading} className="flex-1 rounded-xl bg-brand-primary py-3 text-xs font-black uppercase text-white shadow-lg shadow-brand-primary/30 transition hover:bg-brand-primary-deep active:scale-95 disabled:opacity-50">
                   {uploading ? "Subiendo..." : "Subir"}
                 </button>
               </div>

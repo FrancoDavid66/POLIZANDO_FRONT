@@ -1,4 +1,4 @@
-// src/components/renovaciones/Renovacionestable.jsx
+// src/components/renovaciones/RenovacionesTable.jsx
 //
 // Tabla simple de renovaciones (sin animaciones ni efectos).
 // Columnas: Patente · Compañía · Asegurado · Vto · Estado · Acciones
@@ -228,7 +228,7 @@ function RenovacionRow({
 // ─────────────────────────────────────────────────────────
 // Componente principal
 // ─────────────────────────────────────────────────────────
-export default function Renovacionestable({
+export default function RenovacionesTable({
   items = [],
   loading = false,
   submitting = false,

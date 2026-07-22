@@ -1,15 +1,16 @@
 /* src/components/pagos/PagosList.jsx */
 import { useDispatch } from "react-redux";
-import { useMemo, useState, useCallback, useEffect, memo } from "react";
+import { useMemo, useState, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import dayjs from "dayjs";
 import toast from "react-hot-toast";
+import { formatMoney } from "../../utils/formatMoney";
+import { formatDate } from "../../utils/formatDate";
 import axios from "axios";
 import {
   HiBadgeCheck,
   HiClock,
   HiCash,
-  HiDeviceMobile,
   HiExclamationCircle,
   HiUser,
   HiQuestionMarkCircle,
@@ -27,63 +28,13 @@ import {
 // 🚀 IMPORTAMOS CONTEXTO Y COMPONENTES
 import { useAuth } from "../../context/AuthContext";
 import { marcarCuotaComoPagada } from "../../store/slices/pagosSlice";
-import DescargarFactura from "./DescargarFactura";
-import ImprimirFacturaTicket from "./ImprimirFacturaTicket";
-import EnviarFacturaWhatsapp from "./EnviarFacturaWhatsapp";
-import ModalFormaPago from "./ModalFormaPago";
-import ConfirmarPagoModal from "./ConfirmarPagoModal";
-import RegistrarTraspasoModal from "./RegistrarTraspasoModal"; // <--- 🚀 NUEVO MODAL DE VENTAS
+import PagoWizardModal from "./PagoWizardModal";
+import { PALETTE, TONO_STYLES } from "./pagosListStyles";
+import CuotaRow from "./CuotaRow";
 
 const BASE_URL = import.meta.env.VITE_API_URL || "/api/";
 
 /* ====== PALETA SOBRIA — INDUSTRIAL/OPERATIVA ====== */
-const PALETTE = {
-  basePanel: "bg-slate-950 border-slate-800",
-  header: "bg-slate-900 text-slate-200 border-b border-slate-800",
-  divider: "divide-slate-800",
-  paid: {
-    stripe: "bg-emerald-600",
-    cardBg: "bg-slate-900 border-slate-800",
-    text: "text-slate-200",
-    amountText: "text-emerald-400",
-    border: "border-slate-800",
-    chipBg: "bg-emerald-900/60",
-    chipText: "text-emerald-300",
-    chipBorder: "border-emerald-800",
-    noteBg: "bg-slate-800",
-    noteText: "text-slate-300",
-    btn: "bg-slate-700 hover:bg-slate-600 text-slate-200 border-slate-600",
-  },
-  pending: {
-    stripe: "bg-slate-700",
-    cardBg: "bg-slate-900/60 border-slate-800",
-    text: "text-slate-400",
-    amountText: "text-slate-300",
-    border: "border-slate-800",
-    chipBg: "bg-slate-800",
-    chipText: "text-slate-400",
-    chipBorder: "border-slate-700",
-    noteBg: "bg-slate-800",
-    noteText: "text-slate-400",
-    btn: "bg-slate-700 hover:bg-slate-600 text-slate-200 border-slate-600",
-  },
-  overdue: {
-    stripe: "bg-rose-700",
-    cardBg: "bg-slate-900 border-rose-900/60",
-    text: "text-slate-200",
-    amountText: "text-rose-400",
-    border: "border-rose-900/60",
-    chipBg: "bg-rose-900/50",
-    chipText: "text-rose-300",
-    chipBorder: "border-rose-800",
-    noteBg: "bg-slate-800",
-    noteText: "text-slate-300",
-    btn: "bg-rose-800 hover:bg-rose-700 text-rose-100 border-rose-700",
-  },
-  neutralBtn: "bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700",
-  actionBtn: "bg-slate-700 hover:bg-slate-600 text-white border-slate-600",
-  ticketBtn: "bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700",
-};
 
 // 🎯 Lógica unificada de cuotas (única fuente de verdad para fechas/estados)
 import {
@@ -98,14 +49,10 @@ import {
   ESTADO_CUOTA,
 } from "../../utils/cuotas";
 
-const MONEY_FMT = new Intl.NumberFormat("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-const fmtMoney = (n) => MONEY_FMT.format(Number(n || 0));
-const fmtDate = (d) => (d ? dayjs(d).format("DD/MM/YYYY") : "—");
+const fmtMoney = (n) => formatMoney(n, { symbol: "" });
+const fmtDate = (d) => formatDate(d);
 
-const AUTO_FAST_THRESHOLD = 120;
-const FAST_INITIAL = 40;
-const FAST_STEP = 60;
-const SHOW_FAST_TOGGLE_FROM = 60;
+
 
 /* ═══════════════════════════════════════════════════════════════════
    🎯 HELPERS Opción A — frase humana corta + fecha grande
@@ -266,50 +213,6 @@ function buildFraseCobertura(cobertura, cuota, esCuotaFutura) {
 /**
  * Estilos por tono semántico.
  */
-const TONO_STYLES = {
-  success: {
-    bg: "bg-emerald-500/10",
-    border: "border-emerald-500/30",
-    title: "text-emerald-100",
-    subtitle: "text-emerald-300/80",
-    iconColor: "text-emerald-400",
-    label: "text-emerald-300/80",
-  },
-  warning: {
-    bg: "bg-orange-500/10",
-    border: "border-orange-500/30",
-    title: "text-orange-100",
-    subtitle: "text-orange-300/80",
-    iconColor: "text-orange-400",
-    label: "text-orange-300/80",
-  },
-  danger: {
-    bg: "bg-rose-500/10",
-    border: "border-rose-500/30",
-    title: "text-rose-100",
-    subtitle: "text-rose-300/80",
-    iconColor: "text-rose-400",
-    label: "text-rose-300/80",
-  },
-  // "danger-soft" = rojo más suave, para advertencias preventivas (cuotas futuras)
-  "danger-soft": {
-    bg: "bg-rose-500/5",
-    border: "border-rose-500/20",
-    title: "text-rose-200",
-    subtitle: "text-rose-300/70",
-    iconColor: "text-rose-400/70",
-    label: "text-rose-300/70",
-  },
-  neutral: {
-    bg: "bg-slate-900/60",
-    border: "border-slate-800",
-    title: "text-slate-100",
-    subtitle: "text-slate-400",
-    iconColor: "text-slate-400",
-    label: "text-slate-500",
-  },
-};
-
 /**
  * Devuelve el label del badge en lenguaje simple.
  */
@@ -338,21 +241,6 @@ function pickCuotaActualizada(resp) {
 
 function safeStr(v) { return v === null || v === undefined ? "" : String(v).trim(); }
 function isBadClienteLabel(s) { const x = safeStr(s).toLowerCase(); return !x || x === "cliente" || x === "client" || x === "asegurado"; }
-
-function extractRawOficina(item) {
-  const it = item && typeof item === "object" ? item : {};
-  const pol = it?.poliza && typeof it.poliza === "object" ? it.poliza : {};
-  return String(pol?.oficina_nombre ?? pol?.oficinaName ?? pol?.oficina_id ?? pol?.oficinaId ?? pol?.oficina ?? it?.oficina_nombre ?? it?.oficina_id ?? it?.oficinaId ?? it?.oficina ?? "").trim();
-}
-
-function getOficinaName(raw) {
-  const s = String(raw).toUpperCase();
-  if (!s) return "";
-  if (s === "1" || s.includes("ESQUINA")) return "5 Esquinas";
-  if (s === "2" || s.includes("AXION")) return "Axion";
-  if (s === "3" || s.includes("39")) return "Km 39";
-  return String(raw);
-}
 
 function resolveCliente(pol, cuota) {
   const p = pol && typeof pol === "object" ? pol : {};
@@ -444,7 +332,6 @@ export default function PagosList({
   cuentasMercadoPago = [],
   billeterasVirtuales = [],
   mediosCobro = [],
-  preferFast = false,
 }) {
   const dispatch = useDispatch();
   const { user } = useAuth();
@@ -454,18 +341,11 @@ export default function PagosList({
   const [obsAbiertaId, setObsAbiertaId] = useState(null);
   const [detalleAbierto, setDetalleAbierto] = useState(null);
 
-  const [confirmData, setConfirmData] = useState(null);
-  const [confirmandoPago, setConfirmandoPago] = useState(false);
-
   const [modalFechaOpen, setModalFechaOpen] = useState(false);
   const [cuotaFechaSeleccionada, setCuotaFechaSeleccionada] = useState(null);
   const [nuevaFecha, setNuevaFecha] = useState("");
   const [ajustarSiguientes, setAjustarSiguientes] = useState(true);
   const [isSubmittingFecha, setIsSubmittingFecha] = useState(false);
-
-  // 🚀 ESTADOS PARA EL MODAL DE TRASPASO/VENTAS
-  const [traspasoModalOpen, setTraspasoModalOpen] = useState(false);
-  const [clienteTraspaso, setClienteTraspaso] = useState(null);
 
   const items = useMemo(() => {
     return (Array.isArray(cuotas) ? cuotas : []).filter((c) => !ocultarPagadas || !c.pagado);
@@ -484,15 +364,7 @@ export default function PagosList({
 
   const hoy = useMemo(() => dayjs(hoyKey).startOf("day"), [hoyKey]);
 
-  const [modoRapidoManual, setModoRapidoManual] = useState(null);
-  const modoRapidoAuto = !!preferFast || items.length >= AUTO_FAST_THRESHOLD;
-  const modoRapido = modoRapidoManual ?? modoRapidoAuto;
-
-  const [renderLimit, setRenderLimit] = useState(modoRapido ? Math.min(FAST_INITIAL, items.length) : items.length);
-  useEffect(() => setRenderLimit(modoRapido ? Math.min(FAST_INITIAL, items.length) : items.length), [items.length, modoRapido]);
-
-  const visibleItems = useMemo(() => modoRapido ? items.slice(0, renderLimit) : items, [items, modoRapido, renderLimit]);
-  const showFastControls = items.length >= SHOW_FAST_TOGGLE_FROM;
+  const visibleItems = items;
 
   const abrirPagar = useCallback((cuota) => setCuotaSeleccionada(cuota), []);
   const cerrarPagar = useCallback(() => setCuotaSeleccionada(null), []);
@@ -542,48 +414,21 @@ export default function PagosList({
     }
   }, [cuotaFechaSeleccionada, nuevaFecha, ajustarSiguientes, items, actualizarCuotas]);
 
-  const confirmarPago = useCallback((datos) => {
+  const confirmarPago = useCallback(async (datos) => {
     if (!cuotaSeleccionada) return;
     const cuota = cuotaSeleccionada;
     const pol = cuota.poliza || {};
-    const fv = cuota.fecha_vencimiento ? dayjs(cuota.fecha_vencimiento).startOf("day") : null;
-    const hoyDate = dayjs().startOf("day");
+    const polizaEstado = String(pol.estado || "").toUpperCase();
 
-    // 💡 Extraemos datos del cliente para pasárselos al Traspaso Modal si el usuario lo cliclea
-    const cli = resolveCliente(pol, cuota);
-
-    setConfirmData({
-      datos,
-      cuota,
-      monto: Number(datos.monto ?? cuota.monto),
-      numeroPoliza: pol.numero_poliza || pol.numero || pol.nro_poliza || pol.n_poliza || "-",
-      cuotaNro: cuota.cuota_nro,
-      polizaEstado: String(pol.estado || "").toUpperCase(),
-      polizaCobertura: String(pol.cobertura || ""), 
-      polizaCompania: String(pol.compania_nombre || pol.compania?.nombre || pol.compania || ""), // 🚀 Compañía inyectada
-      oficinaLabel: getOficinaName(extractRawOficina(cuota)),
-      diasAtraso: fv && fv.isBefore(hoyDate) ? hoyDate.diff(fv, "day") : 0,
-      clienteNombre: cli?.nombreCompleto || "Asegurado", // 🚀 Nombre para el modal
-    });
-    cerrarPagar();
-  }, [cuotaSeleccionada, cerrarPagar]);
-
-  const ejecutarPagoConfirmado = useCallback(async () => {
-    if (!confirmData || confirmandoPago) return;
-    const { datos, cuota, monto, polizaEstado } = confirmData;
-    const cuotasMismaPoliza = items.filter(c => getPolizaId(c.poliza, c) === getPolizaId(cuota.poliza, cuota));
+    const cuotasMismaPoliza = items.filter(c => getPolizaId(c.poliza, c) === getPolizaId(pol, cuota));
     const remainingOverdue = Math.max(0, cuotasMismaPoliza.filter(c => !c.pagado && dayjs(c.fecha_vencimiento).isBefore(dayjs().startOf("day"))).length - 1);
 
-    const payload = { id: cuota.id, metodo: datos.metodo, forma_pago: datos.forma_pago, monto, fecha_pago: datos.fecha_pago, observaciones: datos.observaciones };
-    if (datos.medio_cobro_id) payload.medio_cobro_id = datos.medio_cobro_id;
-    if (datos.destino_tipo) payload.destino_tipo = datos.destino_tipo;
-    if (datos.destino_cuenta) payload.destino_cuenta = datos.destino_cuenta;
+    const payload = { id: cuota.id, ...datos };
 
     try {
-      setConfirmandoPago(true);
       const resp = await dispatch(marcarCuotaComoPagada(payload)).unwrap();
       const cuotaActualizada = pickCuotaActualizada(resp);
-      if (!cuotaActualizada) return toast.error("Pago registrado, pero no actualizó pantalla.");
+      if (!cuotaActualizada) { toast.error("Pago registrado, pero no actualizó pantalla."); return; }
 
       if (polizaEstado === "CANCELADA" || polizaEstado === "ANULADA") {
         toast.success("Deuda cobrada exitosamente (Póliza CANCELADA).", { icon: "💀", duration: 5000 });
@@ -597,39 +442,35 @@ export default function PagosList({
         observaciones_pago: (datos.observaciones || "").trim(),
         pago_registrado_en: cuotaActualizada.pago_registrado_en || dayjs().toISOString(),
       };
-      setConfirmData(null);
       actualizarCuotas?.([conObs]);
       if (conObs.observaciones_pago) setObsAbiertaId(conObs.id);
+      cerrarPagar();
     } catch {
       toast.error("No se pudo registrar el pago");
-    } finally {
-      setConfirmandoPago(false);
+      throw new Error("pago_fallido"); // el wizard necesita saber que falló para no cerrarse solo
     }
-  }, [confirmData, confirmandoPago, dispatch, actualizarCuotas, items]);
+  }, [cuotaSeleccionada, items, dispatch, actualizarCuotas, cerrarPagar]);
 
-  const handleCancelarConfirm = useCallback(() => {
-    const { cuota } = confirmData || {};
-    setConfirmData(null);
-    if (cuota) setCuotaSeleccionada(cuota);
-  }, [confirmData]);
-
-  // 🚀 FUNCIÓN PARA ABRIR EL MODAL DE VENTAS DESDE CONFIRMAR PAGO
-  const handleOpenTraspaso = useCallback((data) => {
-    setConfirmData(null); // Cerramos el modal de pago
-    setClienteTraspaso({ nombre: data.clienteNombre }); // Guardamos el cliente
-    setTraspasoModalOpen(true); // Abrimos el modal de ventas
-  }, []);
-
-  const datosNoti = useMemo(() => {
+  // Datos derivados de la cuota seleccionada, para pasarle al wizard los
+  // avisos de riesgo (atraso, robo, póliza cancelada) sin que él tenga que
+  // saber nada de la forma de la cuota.
+  const wizardContext = useMemo(() => {
     if (!cuotaSeleccionada) return null;
     const pol = cuotaSeleccionada.poliza || {};
-    const cliR = resolveCliente(pol, cuotaSeleccionada);
+    const fv = cuotaSeleccionada.fecha_vencimiento ? dayjs(cuotaSeleccionada.fecha_vencimiento).startOf("day") : null;
+    const hoyDate = dayjs().startOf("day");
+    const cli = resolveCliente(pol, cuotaSeleccionada);
     const total = cuotaSeleccionada?.cantidad_cuotas ?? (Array.isArray(pol.cuotas) ? pol.cuotas.length : null);
     return {
-      nombreAp: cliR?.nombreAp || "", dni: cliR?.dni || "",
-      compania: (pol.compania_nombre || pol.compania?.nombre || pol.compania || "").toString().trim(),
-      cobertura: (pol.cobertura || "").toString().trim(),
-      cuotaTxt: typeof cuotaSeleccionada.cuota_nro === "number" ? (total ? `Cuota ${cuotaSeleccionada.cuota_nro}/${total}` : `Cuota ${cuotaSeleccionada.cuota_nro}`) : "",
+      numeroPoliza: pol.numero_poliza || pol.numero || pol.nro_poliza || pol.n_poliza || "-",
+      cuotaNro: cuotaSeleccionada.cuota_nro,
+      polizaEstado: String(pol.estado || "").toUpperCase(),
+      polizaCobertura: String(pol.cobertura || ""),
+      polizaCompania: String(pol.compania_nombre || pol.compania?.nombre || pol.compania || ""),
+      diasAtraso: fv && fv.isBefore(hoyDate) ? hoyDate.diff(fv, "day") : 0,
+      clienteNombreApellido: cli?.nombreAp || cli?.nombreCompleto || "",
+      clienteDni: cli?.dni || "",
+      pagoCuota: typeof cuotaSeleccionada.cuota_nro === "number" ? (total ? `Cuota ${cuotaSeleccionada.cuota_nro}/${total}` : `Cuota ${cuotaSeleccionada.cuota_nro}`) : "",
     };
   }, [cuotaSeleccionada]);
 
@@ -697,7 +538,6 @@ export default function PagosList({
         fraseCobertura,
         esCuotaFutura,
         altaTxt: pol?.fecha_emision ? fmtDate(pol.fecha_emision) : null,
-        oficinaLabel: getOficinaName(extractRawOficina(cuota)),
         isWebAdmin,
         abrirModalFecha,
       };
@@ -706,7 +546,7 @@ export default function PagosList({
 
   if (items.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed border-slate-700 bg-slate-900 p-6 sm:p-10 text-center text-sm sm:text-base text-slate-400">
+      <div className="rounded-2xl border border-dashed border-brand-200/15 bg-brand-card-dark p-6 sm:p-10 text-center text-sm sm:text-base text-brand-200/50">
         No hay cuotas para mostrar en este filtro.
       </div>
     );
@@ -716,65 +556,39 @@ export default function PagosList({
     <div className={`w-full ${PALETTE.basePanel} rounded-none sm:rounded-3xl border-t border-b sm:border overflow-hidden flex flex-col`}>
       <div className={`px-3 sm:px-6 py-3 sm:py-4 text-[11px] sm:text-sm uppercase tracking-wide ${PALETTE.header}`}>
         <div className="flex items-center justify-between gap-2">
-          <span className="font-bold text-slate-200">Resultados ({items.length})</span>
-          {showFastControls && (
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] sm:text-[11px] normal-case text-slate-400">{items.length} cuotas</span>
-              <button
-                type="button"
-                onClick={() => setModoRapidoManual((v) => !(v ?? modoRapido))}
-                className={`h-7 sm:h-8 px-2 sm:px-3 rounded-lg sm:rounded-xl border text-[10px] sm:text-[11px] transition cursor-pointer font-bold ${modoRapido ? "border-emerald-500/60 bg-emerald-500/20 text-emerald-300" : "border-slate-600 bg-slate-800 text-slate-300 hover:bg-slate-700"}`}
-              >
-                {modoRapido ? "Rápido: ON ⚡" : "Rápido: OFF"}
-              </button>
-            </div>
-          )}
+          <span className="font-bold text-brand-200/90">Resultados ({items.length})</span>
         </div>
       </div>
 
-      <div className="max-h-[60vh] sm:max-h-[65vh] overflow-y-auto overscroll-contain pb-6 custom-scrollbar bg-slate-950">
+      <div className="max-h-[60vh] sm:max-h-[65vh] overflow-y-auto overscroll-contain pb-6 custom-scrollbar bg-brand-card-dark">
         <ul role="list" className={`divide-y sm:divide-y-0 ${PALETTE.divider}`}>
-          {rowModels.map((m, idx) => {
-            const Comp = modoRapido ? "li" : motion.li;
-            const motionProps = modoRapido ? {} : { initial: { opacity: 0, y: 8 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.2, ease: "easeOut", delay: Math.min(0.25, idx * 0.012) } };
-            return (
-              <Comp key={m?.cuota?.id} className="relative" {...motionProps}>
-                <CuotaRow model={m} abrirDetalle={abrirDetalle} abrirPagar={abrirPagar} onToggleObs={toggleObs} abrirModalFecha={abrirModalFecha} />
-              </Comp>
-            );
-          })}
+          {rowModels.map((m, idx) => (
+            <motion.li
+              key={m?.cuota?.id}
+              className="relative"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.2, ease: "easeOut", delay: Math.min(0.25, idx * 0.012) }}
+            >
+              <CuotaRow model={m} abrirDetalle={abrirDetalle} abrirPagar={abrirPagar} onToggleObs={toggleObs} abrirModalFecha={abrirModalFecha} />
+            </motion.li>
+          ))}
         </ul>
-        {modoRapido && renderLimit < items.length && (
-          <div className="p-3 sm:p-4 border-t sm:border-t-0 border-slate-800 bg-slate-900">
-            <button type="button" onClick={() => setRenderLimit((n) => Math.min(items.length, n + FAST_STEP))} className="w-full h-10 sm:h-11 rounded-xl sm:rounded-2xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-100 text-xs sm:text-sm font-semibold cursor-pointer shadow-sm">
-              Mostrar más ({Math.min(FAST_STEP, items.length - renderLimit)})
-            </button>
-          </div>
-        )}
       </div>
 
-      <ModalFormaPago
+      <PagoWizardModal
         isOpen={!!cuotaSeleccionada} onClose={cerrarPagar} onConfirm={confirmarPago} defaultMonto={cuotaSeleccionada?.monto}
         title={`Confirmar pago — Cuota #${cuotaSeleccionada?.cuota_nro ?? "?"}`}
         cuentasMercadoPago={cuentasMercadoPago} billeterasVirtuales={billeterasVirtuales} mediosCobro={mediosCobro}
-        clienteNombreApellido={datosNoti?.nombreAp || ""} clienteDni={datosNoti?.dni || ""} polizaCompania={datosNoti?.compania || ""} polizaCobertura={datosNoti?.cobertura || ""} pagoCuota={datosNoti?.cuotaTxt || ""}
-      />
-
-      <ConfirmarPagoModal 
-        isOpen={!!confirmData}
-        confirmData={confirmData}
-        confirmandoPago={confirmandoPago}
-        onClose={handleCancelarConfirm}
-        onConfirm={ejecutarPagoConfirmado}
-        isWebAdmin={isWebAdmin}
-        onOpenTraspaso={handleOpenTraspaso} // 🚀 PASAMOS LA FUNCIÓN
-      />
-
-      {/* 🚀 MODAL DE TRASPASO/VENTAS */}
-      <RegistrarTraspasoModal 
-        isOpen={traspasoModalOpen}
-        onClose={() => setTraspasoModalOpen(false)}
-        clienteData={clienteTraspaso}
+        clienteNombreApellido={wizardContext?.clienteNombreApellido || ""}
+        clienteDni={wizardContext?.clienteDni || ""}
+        polizaCompania={wizardContext?.polizaCompania || ""}
+        polizaCobertura={wizardContext?.polizaCobertura || ""}
+        polizaEstado={wizardContext?.polizaEstado || ""}
+        numeroPoliza={wizardContext?.numeroPoliza || ""}
+        cuotaNro={wizardContext?.cuotaNro}
+        diasAtraso={wizardContext?.diasAtraso || 0}
+        pagoCuota={wizardContext?.pagoCuota || ""}
       />
 
       {/* MODAL DE CAMBIAR FECHA */}
@@ -792,25 +606,25 @@ export default function PagosList({
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 12 }}
               transition={{ type: "spring", stiffness: 300, damping: 26 }}
-              className="relative z-[71] w-full max-w-sm rounded-2xl border border-slate-700 bg-slate-800 px-5 py-5 sm:px-6 sm:py-6 shadow-2xl"
+              className="relative z-[71] w-full max-w-sm rounded-2xl border border-brand-200/15 bg-brand-200/10 px-5 py-5 sm:px-6 sm:py-6 shadow-2xl"
             >
               <div className="flex items-start justify-between gap-3 mb-4">
                 <h3 className="text-base sm:text-lg font-bold text-white">Cambiar Vencimiento</h3>
-                <button onClick={cerrarModalFecha} disabled={isSubmittingFecha} className="h-8 w-8 rounded-lg border flex items-center justify-center text-slate-300 bg-slate-700 hover:bg-slate-600 border-slate-600 cursor-pointer"><HiX className="w-4 h-4" /></button>
+                <button onClick={cerrarModalFecha} disabled={isSubmittingFecha} className="h-8 w-8 rounded-lg border flex items-center justify-center text-brand-200/75 bg-brand-200/15 hover:bg-brand-200/20 border-brand-200/20 cursor-pointer"><HiX className="w-4 h-4" /></button>
               </div>
               <div className="space-y-4">
-                <p className="text-sm text-slate-300">Cuota <span className="font-bold text-emerald-400">#{cuotaFechaSeleccionada.cuota_nro}</span></p>
+                <p className="text-sm text-brand-200/75">Cuota <span className="font-bold text-brand-primary-tint">#{cuotaFechaSeleccionada.cuota_nro}</span></p>
                 <div>
-                  <label className="block text-sm font-semibold text-slate-300 mb-1">Nueva fecha</label>
-                  <input type="date" value={nuevaFecha} onChange={(e) => setNuevaFecha(e.target.value)} className="w-full h-11 px-3 rounded-xl bg-slate-900 border border-slate-600 text-white outline-none focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400" />
+                  <label className="block text-sm font-semibold text-brand-200/75 mb-1">Nueva fecha</label>
+                  <input type="date" value={nuevaFecha} onChange={(e) => setNuevaFecha(e.target.value)} className="w-full h-11 px-3 rounded-xl bg-brand-card-dark border border-brand-200/20 text-white outline-none focus:border-brand-secondary focus:ring-1 focus:ring-brand-secondary" />
                 </div>
-                <label className="flex items-start gap-3 cursor-pointer mt-2 bg-indigo-500/10 p-3 rounded-xl border border-indigo-500/20">
-                  <input type="checkbox" checked={ajustarSiguientes} onChange={(e) => setAjustarSiguientes(e.target.checked)} className="mt-1 accent-indigo-500 w-4 h-4" />
-                  <span className="text-sm text-indigo-200">Ajustar automáticamente los vencimientos de las <strong>cuotas siguientes</strong> (+1 mes a cada una).</span>
+                <label className="flex items-start gap-3 cursor-pointer mt-2 bg-brand-secondary/10 p-3 rounded-xl border border-brand-secondary/20">
+                  <input type="checkbox" checked={ajustarSiguientes} onChange={(e) => setAjustarSiguientes(e.target.checked)} className="mt-1 accent-brand-secondary w-4 h-4" />
+                  <span className="text-sm text-brand-secondary-tint">Ajustar automáticamente los vencimientos de las <strong>cuotas siguientes</strong> (+1 mes a cada una).</span>
                 </label>
                 <div className="mt-5 flex justify-end gap-2">
-                  <button onClick={cerrarModalFecha} disabled={isSubmittingFecha} className="h-10 px-4 rounded-xl border border-slate-600 bg-slate-700 text-sm text-white hover:bg-slate-600 cursor-pointer font-medium">Cancelar</button>
-                  <button onClick={handleCambiarFecha} disabled={isSubmittingFecha || !nuevaFecha} className="h-10 px-4 rounded-xl border border-transparent bg-indigo-500 text-sm font-bold text-white hover:bg-indigo-400 flex items-center gap-2 cursor-pointer shadow-lg shadow-indigo-500/30">{isSubmittingFecha ? "Guardando..." : "Guardar cambios"}</button>
+                  <button onClick={cerrarModalFecha} disabled={isSubmittingFecha} className="h-10 px-4 rounded-xl border border-brand-200/20 bg-brand-200/15 text-sm text-white hover:bg-brand-200/20 cursor-pointer font-medium">Cancelar</button>
+                  <button onClick={handleCambiarFecha} disabled={isSubmittingFecha || !nuevaFecha} className="h-10 px-4 rounded-xl border border-transparent bg-brand-secondary text-sm font-bold text-white hover:bg-brand-secondary-light flex items-center gap-2 cursor-pointer shadow-lg shadow-brand-secondary/30">{isSubmittingFecha ? "Guardando..." : "Guardar cambios"}</button>
                 </div>
               </div>
             </motion.div>
@@ -832,11 +646,11 @@ export default function PagosList({
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: 20, opacity: 0 }}
               transition={{ type: "spring", stiffness: 300, damping: 26 }}
-              className="relative z-[61] w-full max-w-[680px] max-h-[85vh] overflow-y-auto rounded-2xl border border-slate-700 bg-slate-800 p-4 sm:p-5 shadow-2xl custom-scrollbar"
+              className="relative z-[61] w-full max-w-[680px] max-h-[85vh] overflow-y-auto rounded-2xl border border-brand-200/15 bg-brand-200/10 p-4 sm:p-5 shadow-2xl custom-scrollbar"
             >
-              <div className="flex items-start justify-between gap-3 sticky top-0 bg-slate-800 pb-3 z-10 border-b border-slate-700 mb-3">
+              <div className="flex items-start justify-between gap-3 sticky top-0 bg-brand-200/10 pb-3 z-10 border-b border-brand-200/15 mb-3">
                 <h3 className="text-base sm:text-lg font-bold text-white">Detalle de cuota</h3>
-                <button onClick={cerrarDetalle} className="h-8 w-8 sm:h-9 sm:w-auto sm:px-3 rounded-lg sm:rounded-xl bg-slate-700 hover:bg-slate-600 border border-slate-600 text-slate-200 flex items-center justify-center cursor-pointer">
+                <button onClick={cerrarDetalle} className="h-8 w-8 sm:h-9 sm:w-auto sm:px-3 rounded-lg sm:rounded-xl bg-brand-200/15 hover:bg-brand-200/20 border border-brand-200/20 text-brand-200/90 flex items-center justify-center cursor-pointer">
                   <HiX className="w-4 h-4 sm:w-5 sm:h-5" /><span className="hidden sm:inline ml-1 text-sm font-medium">Cerrar</span>
                 </button>
               </div>
@@ -890,10 +704,10 @@ export default function PagosList({
                       {/* Resumen */}
                       {resumen.total > 0 && (
                         <div className="flex flex-wrap gap-2 text-[11px] mb-3">
-                          <span className="px-2 py-1 rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">
+                          <span className="px-2 py-1 rounded-full bg-brand-primary/10 text-brand-primary-tint border border-brand-primary/20">
                             {resumen.pagadas} pagadas
                           </span>
-                          <span className="px-2 py-1 rounded-full bg-yellow-500/10 text-yellow-300 border border-yellow-500/20">
+                          <span className="px-2 py-1 rounded-full bg-brand-secondary/10 text-brand-secondary-tint border border-brand-secondary/20">
                             {resumen.pendientes} pendientes
                           </span>
                           {resumen.vencidas > 0 && (
@@ -902,7 +716,7 @@ export default function PagosList({
                             </span>
                           )}
                           {resumen.venceHoy > 0 && (
-                            <span className="px-2 py-1 rounded-full bg-orange-500/10 text-orange-300 border border-orange-500/20">
+                            <span className="px-2 py-1 rounded-full bg-brand-secondary/10 text-brand-secondary-tint border border-brand-secondary/20">
                               {resumen.venceHoy} vence hoy
                             </span>
                           )}
@@ -913,12 +727,12 @@ export default function PagosList({
                       <div className="space-y-0">
 
                         {/* HITO: Inicio de póliza */}
-                        <div className="flex items-center gap-2.5 p-2.5 bg-emerald-500/5 border-l-[3px] border-emerald-500 rounded-r-md">
-                          <div className="shrink-0 w-9 h-9 rounded-full bg-emerald-500 text-white flex items-center justify-center text-sm font-bold">🚀</div>
+                        <div className="flex items-center gap-2.5 p-2.5 bg-brand-primary/5 border-l-[3px] border-brand-primary rounded-r-md">
+                          <div className="shrink-0 w-9 h-9 rounded-full bg-brand-primary text-white flex items-center justify-center text-sm font-bold">🚀</div>
                           <div className="flex-1 min-w-0">
-                            <div className="text-[10px] uppercase tracking-wider text-emerald-300 font-bold">Inicio de póliza</div>
+                            <div className="text-[10px] uppercase tracking-wider text-brand-primary-tint font-bold">Inicio de póliza</div>
                             <div className="text-sm font-semibold text-white">{fmtFecha(pol?.fecha_emision)}</div>
-                            <div className="text-[10px] text-slate-400">
+                            <div className="text-[10px] text-brand-200/50">
                               Asegurado · {todasCuotas.length || total || "—"} cuota{todasCuotas.length === 1 ? "" : "s"} mensual{todasCuotas.length === 1 ? "" : "es"}
                             </div>
                           </div>
@@ -938,22 +752,22 @@ export default function PagosList({
                           const esUltima = i === todasCuotas.length - 1;
 
                           // Estilo visual según estado
-                          let dotBg = "bg-slate-600";
-                          let dotText = "text-slate-300";
-                          let cardBg = "bg-slate-900/50";
-                          let cardBorder = "border-slate-700";
+                          let dotBg = "bg-brand-200/20";
+                          let dotText = "text-brand-200/75";
+                          let cardBg = "bg-brand-200/[0.04]";
+                          let cardBorder = "border-brand-200/15";
                           let opacity = "";
 
                           if (esActual) {
-                            dotBg = "bg-indigo-500";
+                            dotBg = "bg-brand-secondary";
                             dotText = "text-white";
-                            cardBg = "bg-indigo-500/10";
-                            cardBorder = "border-indigo-500 border-2";
+                            cardBg = "bg-brand-secondary/10";
+                            cardBorder = "border-brand-secondary border-2";
                           } else if (cuotaPagada) {
-                            dotBg = pagoAtrasadoCu ? "bg-orange-500" : "bg-emerald-500";
+                            dotBg = pagoAtrasadoCu ? "bg-brand-secondary" : "bg-brand-primary";
                             dotText = "text-white";
-                            cardBg = pagoAtrasadoCu ? "bg-orange-500/5" : "bg-emerald-500/5";
-                            cardBorder = pagoAtrasadoCu ? "border-orange-500/30" : "border-emerald-500/25";
+                            cardBg = pagoAtrasadoCu ? "bg-brand-secondary/5" : "bg-brand-primary/5";
+                            cardBorder = pagoAtrasadoCu ? "border-brand-secondary/30" : "border-brand-primary/25";
                           } else if (estado === "vencida") {
                             dotBg = "bg-red-500";
                             dotText = "text-white";
@@ -980,11 +794,11 @@ export default function PagosList({
                           return (
                             <div key={cu.id || i}>
                               {/* Conector vertical */}
-                              <div className="ml-[18px] w-[2px] h-3 bg-slate-700"></div>
+                              <div className="ml-[18px] w-[2px] h-3 bg-brand-200/15"></div>
 
                               <div className={`flex items-stretch gap-2.5 ${opacity}`}>
                                 <div className="flex flex-col items-center shrink-0">
-                                  <div className={`${esActual ? "w-10 h-10" : "w-9 h-9"} rounded-full ${dotBg} ${dotText} flex items-center justify-center text-sm font-bold ${esActual ? "ring-2 ring-indigo-500/40 ring-offset-2 ring-offset-slate-800" : ""}`}>
+                                  <div className={`${esActual ? "w-10 h-10" : "w-9 h-9"} rounded-full ${dotBg} ${dotText} flex items-center justify-center text-sm font-bold ${esActual ? "ring-2 ring-brand-secondary/40 ring-offset-2 ring-offset-slate-800" : ""}`}>
                                     {cuotaPagada && !esActual ? "✓" : (cu?.cuota_nro || (i + 1))}
                                   </div>
                                 </div>
@@ -993,31 +807,31 @@ export default function PagosList({
                                   <div className="flex items-start justify-between gap-2 mb-1.5">
                                     <div className="min-w-0">
                                       {esActual && (
-                                        <div className="text-[9px] uppercase tracking-wider text-indigo-300 font-bold mb-0.5">📍 Aquí estás</div>
+                                        <div className="text-[9px] uppercase tracking-wider text-brand-secondary-tint font-bold mb-0.5">📍 Aquí estás</div>
                                       )}
                                       <div className="text-xs font-bold text-white">
                                         Cuota {cu?.cuota_nro || (i + 1)}
-                                        {esUltima && <span className="ml-1 text-[10px] text-rose-300 font-normal">· Última</span>}
+                                        {esUltima && <span className="ml-1 text-[10px] text-red-300 font-normal">· Última</span>}
                                       </div>
                                     </div>
                                     <span className={getBadgeClasses(estado)}>{getBadgeLabel(estado)}</span>
                                   </div>
 
                                   {/* Datos clave: vence + monto */}
-                                  <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-[11px] text-slate-300 mb-1">
-                                    <div>📅 <span className="text-slate-500">Vence:</span> <span className="font-medium">{fmtFecha(cu?.fecha_vencimiento)}</span></div>
-                                    <div>💵 <span className="text-slate-500">Monto:</span> <span className="font-medium">${fmtMoney(cu?.monto)}</span></div>
+                                  <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-[11px] text-brand-200/75 mb-1">
+                                    <div>📅 <span className="text-brand-200/40">Vence:</span> <span className="font-medium">{fmtFecha(cu?.fecha_vencimiento)}</span></div>
+                                    <div>💵 <span className="text-brand-200/40">Monto:</span> <span className="font-medium">${fmtMoney(cu?.monto)}</span></div>
 
                                     {cuotaPagada ? (
                                       <>
-                                        <div className="col-span-2 text-emerald-300">
-                                          ✅ <span className="text-slate-400">Pagada el:</span> <span className="font-semibold">{fmtFecha(fechaPago)}</span>
+                                        <div className="col-span-2 text-brand-primary-tint">
+                                          ✅ <span className="text-brand-200/50">Pagada el:</span> <span className="font-semibold">{fmtFecha(fechaPago)}</span>
                                         </div>
                                       </>
                                     ) : (
                                       <>
                                         {diasFaltan !== null && (
-                                          <div className={`col-span-2 ${diasFaltan < 0 ? "text-red-300" : diasFaltan === 0 ? "text-orange-300" : "text-yellow-300"}`}>
+                                          <div className={`col-span-2 ${diasFaltan < 0 ? "text-red-300" : diasFaltan === 0 ? "text-brand-secondary-tint" : "text-brand-secondary-tint"}`}>
                                             ⏳ {diasFaltan > 0 ? `Faltan ${diasFaltan} día${diasFaltan === 1 ? "" : "s"}` : diasFaltan === 0 ? "Vence hoy" : `Venció hace ${Math.abs(diasFaltan)} día${Math.abs(diasFaltan) === 1 ? "" : "s"}`}
                                           </div>
                                         )}
@@ -1027,33 +841,33 @@ export default function PagosList({
 
                                   {/* AVISO: recibo emitido al día hábil siguiente */}
                                   {reciboEmitido && (
-                                    <div className="mt-1.5 text-[10px] px-2 py-1 rounded bg-sky-500/10 border border-sky-500/20 text-sky-200">
+                                    <div className="mt-1.5 text-[10px] px-2 py-1 rounded bg-brand-secondary/10 border border-brand-secondary/20 text-brand-secondary-tint">
                                       📝 <span className="font-semibold">Recibo emitido:</span> {fmtFecha(reciboEmitido)}
-                                      <span className="text-sky-400/70 ml-1">(al día hábil siguiente del aseguramiento)</span>
+                                      <span className="text-brand-secondary-tint/70 ml-1">(al día hábil siguiente del aseguramiento)</span>
                                     </div>
                                   )}
 
                                   {/* AVISO: pago tardío recupera cobertura a las 48hs hábiles */}
                                   {pagoAtrasadoCu && inicioCoberturaTardia && (
-                                    <div className="mt-1.5 text-[10px] px-2 py-1 rounded bg-orange-500/10 border border-orange-500/30 text-orange-200">
+                                    <div className="mt-1.5 text-[10px] px-2 py-1 rounded bg-brand-secondary/10 border border-brand-secondary/30 text-brand-secondary-tint">
                                       ⚠️ <span className="font-semibold">Pago atrasado:</span> recupera cobertura el {fmtFecha(inicioCoberturaTardia)}
-                                      <span className="text-orange-400/70 ml-1">(48hs hábiles después del pago)</span>
+                                      <span className="text-brand-secondary-tint/70 ml-1">(48hs hábiles después del pago)</span>
                                     </div>
                                   )}
 
                                   {/* Cobertura */}
                                   {cob && cob.tipo === "sin_cobertura" && (
-                                    <div className="mt-1.5 pt-1.5 border-t border-dashed border-rose-500/20 text-[10px] text-rose-300">
+                                    <div className="mt-1.5 pt-1.5 border-t border-dashed border-red-500/20 text-[10px] text-red-300">
                                       🛡 Sin cobertura desde {fmtFecha(cob.desde)}
                                     </div>
                                   )}
                                   {cob && cob.tipo === "ok" && cob.desde && cob.hasta && (
-                                    <div className="mt-1.5 pt-1.5 border-t border-dashed border-emerald-500/20 text-[10px] text-emerald-300">
+                                    <div className="mt-1.5 pt-1.5 border-t border-dashed border-brand-primary/20 text-[10px] text-brand-primary-tint">
                                       🛡 Cubre: {fmtFecha(cob.desde)} → {fmtFecha(cob.hasta)}
                                     </div>
                                   )}
                                   {cob && cob.tipo === "atrasado" && cob.desde && cob.hasta && (
-                                    <div className="mt-1.5 pt-1.5 border-t border-dashed border-orange-500/20 text-[10px] text-orange-300">
+                                    <div className="mt-1.5 pt-1.5 border-t border-dashed border-brand-secondary/20 text-[10px] text-brand-secondary-tint">
                                       🛡 Cubre: {fmtFecha(cob.desde)} → {fmtFecha(cob.hasta)}
                                     </div>
                                   )}
@@ -1064,13 +878,13 @@ export default function PagosList({
                         })}
 
                         {/* HITO: Vto final */}
-                        <div className="ml-[18px] w-[2px] h-3 bg-rose-300/60"></div>
-                        <div className="flex items-center gap-2.5 p-2.5 bg-rose-500/5 border-l-[3px] border-rose-500 rounded-r-md">
-                          <div className="shrink-0 w-9 h-9 rounded-full bg-rose-500 text-white flex items-center justify-center text-sm font-bold">🏁</div>
+                        <div className="ml-[18px] w-[2px] h-3 bg-red-300/60"></div>
+                        <div className="flex items-center gap-2.5 p-2.5 bg-red-500/5 border-l-[3px] border-red-500 rounded-r-md">
+                          <div className="shrink-0 w-9 h-9 rounded-full bg-red-500 text-white flex items-center justify-center text-sm font-bold">🏁</div>
                           <div className="flex-1 min-w-0">
-                            <div className="text-[10px] uppercase tracking-wider text-rose-300 font-bold">Vto final de la póliza</div>
+                            <div className="text-[10px] uppercase tracking-wider text-red-300 font-bold">Vto final de la póliza</div>
                             <div className="text-sm font-semibold text-white">{fmtFecha(finPoliza)}</div>
-                            <div className="text-[10px] text-slate-400">Renovar antes de esta fecha</div>
+                            <div className="text-[10px] text-brand-200/50">Renovar antes de esta fecha</div>
                           </div>
                         </div>
 
@@ -1079,11 +893,11 @@ export default function PagosList({
 
                     {/* Observación si existe */}
                     {(c?.observaciones_pago || c?.ultima_observacion_pago) && (
-                      <div className="rounded-xl border border-rose-500/50 bg-rose-900/40 p-3 sm:p-4 text-rose-100 shadow-inner">
+                      <div className="rounded-xl border border-red-500/50 bg-red-900/30 p-3 sm:p-4 text-red-200 shadow-inner">
                         <div className="flex items-start gap-2">
-                          <HiExclamationCircle className="w-4 h-4 sm:w-5 sm:h-5 mt-0.5 shrink-0 text-rose-400" />
+                          <HiExclamationCircle className="w-4 h-4 sm:w-5 sm:h-5 mt-0.5 shrink-0 text-red-400" />
                           <div className="whitespace-pre-wrap break-words text-xs sm:text-sm">
-                            <span className="font-bold text-rose-300">Observación: </span>
+                            <span className="font-bold text-red-300">Observación: </span>
                             {(c?.observaciones_pago || c?.ultima_observacion_pago || "").toString().trim()}
                           </div>
                         </div>
@@ -1100,269 +914,21 @@ export default function PagosList({
   );
 }
 
-const CuotaRow = memo(
-  function CuotaRow({ model, abrirDetalle, abrirPagar, onToggleObs, abrirModalFecha }) {
-    const [expanded, setExpanded] = useState(false);
-    const {
-      cuota, cuotaPdf, nombreCompleto, patente, modelo, observacion,
-      hasObs, isObsOpen, state, label, dias, polizaEstado,
-      montoTxt, sinCobertura, pagoAtrasado, altaTxt, oficinaLabel, isWebAdmin,
-      cuotaTextoFull,
-      // 🎯 Opción A amigable
-      fraseEstado, fraseCobertura, esCuotaFutura,
-    } = model || {};
-    const S = PALETTE[state || "pending"];
-
-    const isPolicyVencida = polizaEstado === "VENCIDA";
-    const isPolicyCancelada = polizaEstado === "CANCELADA" || polizaEstado === "ANULADA";
-
-    let extraClasses = "";
-    if (isPolicyCancelada && !cuota.pagado) extraClasses = "opacity-60";
-    else if (isPolicyVencida && !cuota.pagado) extraClasses = "border-rose-900/50";
-
-    // Botón de acción con texto simple
-    const textoBtnPagar = isPolicyVencida ? "Cobrar y reactivar el seguro" : "Cobrar esta cuota";
-
-    return (
-      <>
-        <span className={`absolute left-0 top-0 h-full w-1 ${S.stripe}`} aria-hidden />
-        <div className={`mx-0 sm:mx-2 my-0 sm:my-1 sm:rounded-lg border p-3 sm:p-4 ${S.cardBg} ${S.border} ${extraClasses} relative`}>
-          <div className="pl-2 sm:pl-2.5 flex flex-col gap-3">
-
-            {/* ═══ HEADER: cliente + monto + estado ═══ */}
-            <div className="flex justify-between items-start gap-3">
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className={`truncate max-w-[200px] sm:max-w-md font-semibold text-sm ${state === "overdue" ? "text-rose-200" : "text-white"}`}>
-                    {nombreCompleto}
-                  </span>
-                  {isWebAdmin && oficinaLabel && (
-                    <span className="text-[10px] font-mono text-slate-400 border border-slate-700 rounded px-1.5 py-0.5">
-                      {oficinaLabel}
-                    </span>
-                  )}
-                  {isPolicyCancelada && !cuota.pagado && (
-                    <span className="text-[10px] font-mono text-rose-400 border border-rose-800 rounded px-1.5 py-0.5">BAJA</span>
-                  )}
-                  {isPolicyVencida && !cuota.pagado && (
-                    <span className="text-[10px] font-mono text-amber-400 border border-amber-800 rounded px-1.5 py-0.5">REACTIVAR</span>
-                  )}
-                </div>
-                <div className="text-[11px] text-slate-500 mt-0.5 flex items-center gap-1.5 font-mono">
-                  <span>{cuotaTextoFull}</span>
-                  {patente && <><span>·</span><span>{patente}</span></>}
-                </div>
-              </div>
-              <div className="text-right shrink-0">
-                <div className={`text-lg sm:text-xl font-mono font-bold ${isPolicyVencida && !cuota.pagado ? "text-amber-400" : S.amountText}`}>
-                  $ {montoTxt}
-                </div>
-                <span className={`inline-block mt-0.5 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${S.chipBg} ${S.chipText} border ${S.chipBorder}`}>
-                  {label}
-                </span>
-              </div>
-            </div>
-
-            {/* ═══ Fecha de alta de la póliza — centrada y destacada ═══ */}
-            {altaTxt && (
-              <div className="flex justify-center">
-                <div className="inline-flex items-center gap-2 rounded-lg border border-sky-500/30 bg-sky-500/10 px-4 py-2">
-                  <HiCalendar className="text-sky-400 text-base shrink-0" />
-                  <span className="text-[11px] uppercase tracking-wide text-sky-300/80">Póliza dada de alta el</span>
-                  <span className="text-base font-bold text-white">{altaTxt}</span>
-                </div>
-              </div>
-            )}
-
-            {/* ═══ Fecha de pago → período de cobertura → Vence (mismo formato que Cuotas) ═══ */}
-            {(() => {
-              const fechaPago = cuota?.pago_registrado_en || cuota?.fecha_pago;
-              const pagada = !!cuota?.pagado;
-
-              // Verde = pagada · Naranja = vence hoy · Rojo = vencida impaga · Gris = pendiente sin vencer
-              const vtoStyles = pagada
-                ? TONO_STYLES.success
-                : state === "overdue"
-                ? TONO_STYLES.danger
-                : dias === 0
-                ? TONO_STYLES.warning
-                : TONO_STYLES.neutral;
-
-              const pagoStyles = pagada ? TONO_STYLES.success : TONO_STYLES.neutral;
-
-              // Renglón sutil debajo de la fecha de vencimiento
-              let vtoSubtitulo = null;
-              let vtoSubAlerta = false;
-              if (pagada) {
-                vtoSubtitulo = "Cubierta";
-              } else if (state === "overdue") {
-                const d = dias != null ? Math.abs(dias) : null;
-                vtoSubtitulo = d != null ? `Venció hace ${d} día${d === 1 ? "" : "s"}` : "Vencida";
-                vtoSubAlerta = true;
-              } else if (dias === 0) {
-                vtoSubtitulo = "Vence hoy";
-              } else if (dias != null && dias > 0) {
-                vtoSubtitulo = dias === 1 ? "Vence mañana" : `Vence en ${dias} días`;
-              }
-
-              return (
-                <div className="flex items-stretch gap-2">
-                  {/* Box: Fecha de pago */}
-                  <div className={`flex-1 rounded-lg border ${pagoStyles.bg} ${pagoStyles.border} p-2.5`}>
-                    <div className="flex items-center gap-1.5 mb-1">
-                      <HiCheck className={`${pagoStyles.iconColor} text-sm`} />
-                      <div className={`text-[10px] uppercase tracking-wide font-bold ${pagoStyles.subtitle}`}>
-                        Fecha de pago
-                      </div>
-                    </div>
-                    <div className={`text-base font-bold ${pagoStyles.title}`}>
-                      {pagada && fechaPago ? fmtFecha(fechaPago) : "Sin pagar"}
-                    </div>
-                  </div>
-
-                  {/* Flecha central: período de cobertura */}
-                  <div className="flex flex-col items-center justify-center shrink-0 px-1">
-                    <div className="text-[9px] uppercase tracking-wide font-bold text-neutral-400 text-center leading-tight mb-0.5">
-                      Período de<br />cobertura
-                    </div>
-                    <div className="text-2xl text-neutral-500 leading-none">→</div>
-                  </div>
-
-                  {/* Box: Fin de cobertura / Vence */}
-                  <div className={`flex-1 rounded-lg border ${vtoStyles.bg} ${vtoStyles.border} p-2.5`}>
-                    <div className="flex items-center justify-between gap-1.5 mb-1">
-                      <div className="flex items-center gap-1.5">
-                        <HiCalendar className={`${vtoStyles.iconColor} text-sm`} />
-                        <div className={`text-[10px] uppercase tracking-wide font-bold ${vtoStyles.subtitle}`}>
-                          Fin de cobertura / Vence
-                        </div>
-                      </div>
-                      {!cuota?.pagado && (
-                        <button
-                          type="button"
-                          onClick={() => abrirModalFecha(cuota)}
-                          className="text-slate-500 hover:text-slate-300 transition-colors shrink-0"
-                          title="Cambiar fecha de vencimiento"
-                        >
-                          <HiPencil className="w-3 h-3" />
-                        </button>
-                      )}
-                    </div>
-                    <div className={`text-base font-bold ${vtoStyles.title}`}>
-                      {fmtFecha(cuota?.fecha_vencimiento)}
-                    </div>
-                    {vtoSubtitulo && (
-                      <div className={`text-[11px] ${vtoStyles.subtitle} mt-0.5 flex items-center gap-1`}>
-                        {vtoSubAlerta && <HiExclamation className="text-xs shrink-0" />}
-                        {vtoSubtitulo}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              );
-            })()}
-
-            {/* ═══ ACCIÓN PRINCIPAL ═══ */}
-            <div className="flex items-center gap-2 w-full">
-              {!cuota?.pagado ? (
-                <button
-                  onClick={() => abrirPagar(cuota)}
-                  className={`w-full h-11 px-4 rounded-lg border transition-colors inline-flex items-center justify-center gap-2 font-semibold text-sm ${
-                    isPolicyVencida
-                      ? "bg-amber-500 hover:bg-amber-400 text-white border-amber-400 shadow-sm shadow-amber-500/20"
-                      : "bg-emerald-500 hover:bg-emerald-400 text-white border-emerald-400 shadow-sm shadow-emerald-500/20"
-                  }`}
-                >
-                  <HiCash className="w-4 h-4" />
-                  {textoBtnPagar}
-                </button>
-              ) : (
-                <div className="flex gap-1.5 w-full">
-                  <div className="flex-1">
-                    <DescargarFactura cliente={model?.pol?.cliente} poliza={model?.pol} cuota={cuotaPdf || cuota} label="PDF" tone="neutral"
-                      className="w-full h-10 px-3 rounded-lg border border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium transition-colors inline-flex items-center justify-center gap-1.5" />
-                  </div>
-                  <div className="flex-1">
-                    <ImprimirFacturaTicket cliente={model?.pol?.cliente} poliza={model?.pol} cuota={cuotaPdf || cuota} label="Ticket"
-                      className="w-full h-10 px-3 rounded-lg border border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium transition-colors inline-flex items-center justify-center gap-1.5" />
-                  </div>
-                  <div className="flex-1">
-                    <EnviarFacturaWhatsapp cuota={cuota}>
-                      <button className="w-full h-10 px-3 rounded-lg border border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium transition-colors inline-flex items-center justify-center gap-1.5">
-                        <HiDeviceMobile className="w-4 h-4" /><span className="hidden sm:inline">WhatsApp</span><span className="sm:hidden">WPP</span>
-                      </button>
-                    </EnviarFacturaWhatsapp>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Expandible */}
-            <button
-              onClick={() => setExpanded(!expanded)}
-              className="w-full py-1.5 flex items-center justify-center gap-1 text-[11px] text-slate-600 hover:text-slate-400 transition-colors"
-            >
-              {expanded ? <><HiChevronUp className="w-3.5 h-3.5" /> Ocultar</> : <><HiChevronDown className="w-3.5 h-3.5" /> Ver detalles</>}
-            </button>
-
-            <AnimatePresence>
-              {expanded && (
-                <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
-                  <div className="pt-3 border-t border-slate-800 grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-xs">
-                    {modelo && <div className="flex justify-between px-2 py-1.5 rounded bg-slate-800/50"><span className="text-slate-500">Vehículo</span><span className="text-slate-300 font-mono">{modelo}</span></div>}
-                    {altaTxt && <div className="flex justify-between px-2 py-1.5 rounded bg-slate-800/50"><span className="text-slate-500">Alta póliza</span><span className="text-slate-300 font-mono">{altaTxt}</span></div>}
-                  </div>
-                  <div className="mt-2 flex gap-1.5">
-                    <button onClick={() => abrirDetalle(cuota)} className="h-8 px-3 rounded-lg border border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs transition-colors inline-flex items-center gap-1.5">
-                      <HiQuestionMarkCircle className="w-3.5 h-3.5" /> Info completa
-                    </button>
-                    {hasObs && (
-                      <button onClick={() => onToggleObs(cuota?.id)} className="h-8 px-3 rounded-lg border border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs transition-colors inline-flex items-center gap-1.5">
-                        <HiExclamationCircle className="w-3.5 h-3.5" /> Nota
-                      </button>
-                    )}
-                  </div>
-                  {hasObs && isObsOpen && (
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-2 rounded-lg border border-slate-700 bg-slate-800 px-3 py-2.5 text-xs text-slate-300">
-                      <div className="flex items-start gap-2">
-                        <HiExclamationCircle className="w-4 h-4 mt-0.5 shrink-0 text-amber-400" />
-                        <span className="whitespace-pre-wrap">{observacion}</span>
-                      </div>
-                    </motion.div>
-                  )}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        </div>
-      </>
-    );
-  },
-  (prev, next) => {
-    const a = prev?.model, b = next?.model;
-    if (a === b) return true;
-    if (a?.isObsOpen !== b?.isObsOpen) return false;
-    const ca = a?.cuota, cb = b?.cuota;
-    if (ca?.id !== cb?.id || ca?.pagado !== cb?.pagado || ca?.monto !== cb?.monto || ca?.fecha_vencimiento !== cb?.fecha_vencimiento || ca?.fecha_pago !== cb?.fecha_pago || ca?.observaciones_pago !== cb?.observaciones_pago || ca?.ultima_observacion_pago !== cb?.ultima_observacion_pago || a?.nombreCompleto !== b?.nombreCompleto || a?.patente !== b?.patente || a?.modelo !== b?.modelo) return false;
-    return true;
-  }
-);
-
 function InfoRow({ label, value }) {
   return (
-    <div className="flex items-center justify-between gap-2 rounded-md border border-slate-800 bg-slate-900 px-2.5 py-1.5">
-      <span className="text-slate-500 text-xs">{label}</span>
-      <span className="text-slate-200 truncate max-w-[60%] text-right text-xs font-mono">{value}</span>
+    <div className="flex items-center justify-between gap-2 rounded-md border border-brand-200/10 bg-brand-card-dark px-2.5 py-1.5">
+      <span className="text-brand-200/40 text-xs">{label}</span>
+      <span className="text-brand-200/90 truncate max-w-[60%] text-right text-xs font-mono">{value}</span>
     </div>
   );
 }
 
 function SectionCard({ title, icon, children }) {
   return (
-    <div className="rounded-xl border border-slate-700 bg-slate-900/50 overflow-hidden">
-      <div className="flex items-center gap-2 px-3 py-2 bg-slate-900/80 border-b border-slate-800">
-        {icon && <span className="text-indigo-400">{icon}</span>}
-        <span className="text-[11px] uppercase tracking-wider font-bold text-slate-300">{title}</span>
+    <div className="rounded-xl border border-brand-200/15 bg-brand-200/[0.04] overflow-hidden">
+      <div className="flex items-center gap-2 px-3 py-2 bg-brand-200/8 border-b border-brand-200/10">
+        {icon && <span className="text-brand-secondary-tint">{icon}</span>}
+        <span className="text-[11px] uppercase tracking-wider font-bold text-brand-200/75">{title}</span>
       </div>
       <div className="p-3">
         {children}

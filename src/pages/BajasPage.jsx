@@ -34,7 +34,7 @@ import {
   apiAction,
 } from "../store/slices/bajasSlice";
 
-import BajasTable from "../components/bajas/BajasTable";
+import BajasTable, { BajaBadge } from "../components/bajas/BajasTable";
 import { useAuth } from "../context/AuthContext";
 
 const STATUS = {
@@ -73,22 +73,6 @@ function formatDateTime(isoString) {
   });
 }
 
-// Badge de estado usado en el modal de historial.
-function StatusBadge({ status }) {
-  const s = String(status || "");
-  const map = {
-    PENDIENTE_ENVIO: { label: "Pendiente", clase: "border-rose-500/40 text-rose-300 bg-rose-500/10" },
-    ENVIADA: { label: "Enviada", clase: "border-amber-500/40 text-amber-300 bg-amber-500/10" },
-    REALIZADA: { label: "Realizada", clase: "border-emerald-500/40 text-emerald-300 bg-emerald-500/10" },
-  };
-  const c = map[s] || { label: s || "—", clase: "border-white/20 text-white/60 bg-white/5" };
-  return (
-    <span className={`inline-flex items-center px-2.5 py-1 rounded-lg text-[10px] font-bold tracking-wide border ${c.clase}`}>
-      {c.label}
-    </span>
-  );
-}
-
 export default function BajasPage() {
   const dispatch = useDispatch();
   const { user } = useAuth();
@@ -124,9 +108,6 @@ export default function BajasPage() {
   const [historyModalOpen, setHistoryModalOpen] = useState(false);
   const [historyData, setHistoryData] = useState([]);
   const [isHistoryLoading, setIsHistoryLoading] = useState(false);
-  
-  // 🚀 Estado para mostrar feedback visual al descargar desde la tarjeta
-  const [downloadingTab, setDownloadingTab] = useState(null); 
 
   const companiasUnicas = useMemo(() => {
     const names = (items || []).map((p) => p.compania).filter(Boolean);
@@ -290,63 +271,6 @@ export default function BajasPage() {
     link.href = URL.createObjectURL(new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }));
     link.setAttribute("download", `Bajas_${activeTab}_${new Date().toLocaleDateString()}.xlsx`);
     link.click();
-  };
-
-  // 🚀 NUEVA FUNCIÓN: Descarga el Excel directo desde el Backend
-  const handleDownloadExcelFromBackend = async (e, tabId, isGlobal) => {
-    e.stopPropagation(); // Evita que se active el click de la tarjeta (setActiveTab)
-    if (downloadingTab) return;
-    
-    setDownloadingTab(tabId);
-    try {
-      const token = localStorage.getItem("access_token");
-      const ofiFiltro = isGlobal ? "ALL" : (!isWebAdmin && user?.perfil?.oficina ? String(user.perfil.oficina.id || user.perfil.oficina) : oficina);
-      
-      // Mapeamos el nombre de la tarjeta para enviarlo a Django
-      let estadoBackend = "UNIVERSO";
-      if (tabId === STATUS.ENVIAR) estadoBackend = "PENDIENTES";
-      if (tabId === STATUS.ENVIADA) estadoBackend = "ENVIADAS";
-      if (tabId === STATUS.REALIZADA) estadoBackend = "REALIZADAS";
-
-      const url = new URL(`${import.meta.env.VITE_API_URL}bajas/operativo/exportar-excel/`);
-      url.searchParams.append("estado_tarjeta", estadoBackend);
-      url.searchParams.append("dias", umbralDias);
-      url.searchParams.append("include_canceladas", "1");
-      
-      if (ofiFiltro) url.searchParams.append("oficina", ofiFiltro);
-      if (compania) url.searchParams.append("compania", compania);
-      if (search) url.searchParams.append("search", search);
-
-      const response = await fetch(url.toString(), {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-
-      if (!response.ok) throw new Error("Error al descargar el Excel");
-
-      const blob = await response.blob();
-      
-      // Capturamos el nombre de archivo desde el header si es posible
-      let filename = `Bajas_${estadoBackend}_${new Date().toLocaleDateString()}.xlsx`;
-      const disposition = response.headers.get('Content-Disposition');
-      if (disposition && disposition.includes('filename=')) {
-          filename = disposition.split('filename=')[1].replace(/"/g, '');
-      }
-
-      const objectUrl = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = objectUrl;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      window.URL.revokeObjectURL(objectUrl);
-
-    } catch (error) {
-      console.error(error);
-      alert("Hubo un error al generar el archivo Excel.");
-    } finally {
-      setDownloadingTab(null);
-    }
   };
 
   const executeAction = async () => {
@@ -538,8 +462,6 @@ export default function BajasPage() {
                 return n; 
             })}
             onSelectAllVisible={(check) => setSelectedIds(check ? new Set(filtered.map(x => String(x.id))) : new Set())}
-            onComposeEmail={(ids) => openConfirmModal("EXCEL", ids)}
-            onSetStatus={(id, s) => openConfirmModal(s, [id])}
           />
         </div>
 
@@ -636,9 +558,9 @@ export default function BajasPage() {
                         </div>
                       </div>
                       <div className="flex items-center gap-4 bg-slate-950/60 p-4 rounded-3xl border border-white/5 shadow-inner">
-                        <StatusBadge status={mov.estado_anterior} />
+                        <BajaBadge status={mov.estado_anterior} modo="detalle" />
                         <HiChevronRight className="text-slate-700 text-xl" />
-                        <StatusBadge status={mov.estado_nuevo} />
+                        <BajaBadge status={mov.estado_nuevo} modo="detalle" />
                       </div>
                     </div>
                   ))
