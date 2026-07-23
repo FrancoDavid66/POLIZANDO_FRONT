@@ -42,3 +42,28 @@ body {
     min-height: -webkit-fill-available;
   }
 }
+/* ✅ FIX CONTRASTE de las opciones de <select> en toda la app.
+   Los <select> están estilizados para superficies oscuras (modales sobre
+   brand-card-dark), pero el menú desplegable lo pinta el sistema operativo y
+   las <option> quedaban gris clarito sobre blanco → casi ilegibles
+   (ej: "Responsable / quién cobra" en el modal de pago).
+   Forzamos fondo oscuro (brand-card-dark) + texto claro (brand-200) para que
+   se lean SIEMPRE. Vale para todos los <select> del proyecto, sin tocar JSX. */
+option {
+  background-color: #605750; /* brand-card-dark */
+  color: #F4EFE6;            /* brand-200 (crema) */
+}
+
+/* En modo claro, las opciones van con fondo claro y texto oscuro
+   (por si algún <select> vive sobre una superficie clara). */
+:root:not(.dark) option {
+  background-color: #FFFDF8; /* brand-card (claro) */
+  color: #3D322A;            /* brand-100 (tinta texto) */
+}
+
+/* La opción resaltada/seleccionada, legible en ambos modos. */
+option:checked,
+option:hover {
+  background-color: #1F7A4C; /* brand-primary (verde marca) */
+  color: #ffffff;
+}
