@@ -1,13 +1,10 @@
 // src/pages/SolicitudesPage.jsx
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux"; // 🚀 IMPORTAMOS REDUX
-import { 
-  HiPlus, 
-  HiRefresh, 
-  HiShieldCheck, 
-  HiBadgeCheck, 
-  HiChevronDown,
-  HiCollection,
+import {
+  HiPlus,
+  HiRefresh,
+  HiShieldCheck,
   HiSearch,
   HiLightningBolt
 } from "react-icons/hi";
@@ -61,9 +58,9 @@ function normalizeList(list) {
 }
 
 export default function SolicitudesPage() {
-  const { user } = useAuth(); 
+  const { user } = useAuth();
   const dispatch = useDispatch();
-  
+
   // 🚀 LEEMOS LOS CATÁLOGOS DIRECTO DE LA "TORRE DE CONTROL" (REDUX)
   const { companias, coberturas } = useSelector((state) => state.admin);
 
@@ -93,9 +90,9 @@ export default function SolicitudesPage() {
       setCreating(true);
     }
   }, [paramNueva]);
-  
+
   const [hasLoaded, setHasLoaded] = useState(false);
-  const [autoRefresh, setAutoRefresh] = useState(true);
+  const [autoRefresh] = useState(true);
 
   const isWebAdmin = user?.perfil?.rol === 'ADMIN' || user?.rol === 'ADMIN';
 
@@ -105,7 +102,6 @@ export default function SolicitudesPage() {
   })();
   const [tab, setTab] = useState(initialTab);
   const [search, setSearch] = useState("");
-  const [toolbarOpen, setToolbarOpen] = useState(false);
 
   const [oficinaFilter, setOficinaFilter] = useState(() => {
     if (!isWebAdmin && user?.perfil?.oficina) {
@@ -131,7 +127,7 @@ export default function SolicitudesPage() {
   useEffect(() => {
     const token = localStorage.getItem('access_token') || localStorage.getItem('token') || localStorage.getItem('jwt');
     const API_BASE = (import.meta.env.VITE_API_URL || "/api").replace(/\/+$/, "");
-    
+
     fetch(`${API_BASE}/usuarios/oficinas/`, {
       headers: token ? { "Authorization": `Bearer ${token}` } : {}
     })
@@ -161,7 +157,7 @@ export default function SolicitudesPage() {
       const list = await solicitudesApi.listar({ signal: controller.signal });
       if (reqId !== latestReqIdRef.current) return;
       const norm = normalizeList(list);
-      
+
       const currentIds = norm.map(item => item.id);
       if (isFirstLoadRef.current) {
         knownIdsRef.current = new Set(currentIds);
@@ -171,8 +167,8 @@ export default function SolicitudesPage() {
         if (newItems.length > 0) {
           toast.success(`🔔 ¡Tenés ${newItems.length === 1 ? 'una nueva solicitud' : newItems.length + ' nuevas solicitudes'} asignadas!`, {
             duration: 6000, position: 'top-center',
-            style: { background: '#059669', color: '#fff', fontWeight: 'bold' },
-            iconTheme: { primary: '#fff', secondary: '#059669' }
+            style: { background: '#1F7A4C', color: '#fff', fontWeight: 'bold' },
+            iconTheme: { primary: '#fff', secondary: '#1F7A4C' }
           });
           knownIdsRef.current = new Set(currentIds);
         }
@@ -280,7 +276,7 @@ export default function SolicitudesPage() {
           <div className="sticky top-0 z-20 border-b border-brand-200/10 bg-brand-card-dark/90 backdrop-blur">
             <div className="px-3 sm:px-4 lg:px-6 pt-3">
 
-              {/* Fila 1: título + cargar */}
+              {/* Fila 1: título + chips de resumen + cargar */}
               <div className="flex items-center justify-between gap-2">
                 <motion.div className="flex items-center gap-3 min-w-0" initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}>
                   <span className="p-2 rounded-xl bg-brand-primary/10 border border-brand-primary/20 shrink-0">
@@ -296,7 +292,7 @@ export default function SolicitudesPage() {
                 <motion.button
                   onClick={() => cargar({ silent: false, force: true })}
                   disabled={loading || refreshing}
-                  className="inline-flex items-center gap-2 px-3 py-2.5 rounded-2xl text-[#0b0f1e] font-bold bg-gradient-to-br from-brand-primary-tint to-brand-primary-tint/70 border border-brand-primary/30 shadow-lg disabled:opacity-60 shrink-0"
+                  className="inline-flex items-center gap-2 px-3 py-2.5 rounded-2xl text-white font-bold bg-brand-primary hover:bg-brand-primary-deep border border-brand-primary-deep shadow-lg disabled:opacity-60 shrink-0 transition-colors"
                   variants={pressable} initial="initial" whileHover="hover" whileTap="tap"
                 >
                   <HiRefresh className={(loading || refreshing) ? "animate-spin" : ""} />
@@ -304,18 +300,34 @@ export default function SolicitudesPage() {
                 </motion.button>
               </div>
 
+              {/* Chips de pendientes (alta / envío) */}
+              {hasLoaded && (counts.alta > 0 || counts.envio > 0) && (
+                <div className="flex flex-wrap gap-2 mt-3">
+                  {counts.alta > 0 && (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold bg-brand-secondary/10 border border-brand-secondary/30 text-brand-secondary-tint">
+                      {counts.alta} pendiente{counts.alta !== 1 ? "s" : ""} de alta
+                    </span>
+                  )}
+                  {counts.envio > 0 && (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold bg-brand-primary/10 border border-brand-primary/30 text-brand-primary-tint">
+                      {counts.envio} pendiente{counts.envio !== 1 ? "s" : ""} de envío
+                    </span>
+                  )}
+                </div>
+              )}
+
               {/* Fila 2: botones de acción grandes */}
               <div className="grid grid-cols-2 gap-2.5 mt-3">
                 <motion.button
                   onClick={() => setSubidaRapida(true)}
-                  className="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-2xl text-white font-black uppercase text-[11px] tracking-widest bg-brand-secondary border border-brand-secondary-light shadow-xl"
+                  className="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-2xl text-white font-black uppercase text-[11px] tracking-widest bg-brand-secondary hover:bg-brand-secondary-light border border-brand-secondary-light shadow-xl transition-colors"
                   initial="initial" whileHover="hover" whileTap="tap" variants={pressable}
                 >
                   <HiLightningBolt className="text-lg" /> Subida rápida
                 </motion.button>
                 <motion.button
                   onClick={openCreate}
-                  className="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-2xl text-white font-black uppercase text-[11px] tracking-widest bg-brand-primary border border-brand-primary-deep shadow-xl"
+                  className="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-2xl text-white font-black uppercase text-[11px] tracking-widest bg-brand-primary hover:bg-brand-primary-deep border border-brand-primary-deep shadow-xl transition-colors"
                   initial="initial" whileHover="hover" whileTap="tap" variants={pressable}
                 >
                   <HiPlus className="text-lg" /> Nueva
@@ -332,7 +344,7 @@ export default function SolicitudesPage() {
                     <button
                       key={t.id} onClick={() => cambiarTab(t.id)}
                       className={`flex-1 px-4 py-2.5 text-[11px] font-black uppercase tracking-widest transition-all ${
-                        tab === t.id ? "bg-brand-primary/25 text-brand-200 shadow-inner" : "bg-brand-200/5 text-brand-200/30 hover:text-brand-200/60"
+                        tab === t.id ? "bg-brand-primary/25 text-brand-200 shadow-inner" : "bg-brand-200/5 text-brand-200/40 hover:text-brand-200/70"
                       }`}
                     >
                       {t.label}
@@ -350,7 +362,7 @@ export default function SolicitudesPage() {
                   <input
                     value={search} onChange={(e) => setSearch(e.target.value)}
                     placeholder="Buscar cliente, DNI, patente..."
-                    className="w-full pl-10 pr-4 py-3 rounded-xl bg-brand-200/10 border border-brand-200/10 text-brand-200 text-sm outline-none focus:ring-2 ring-brand-primary/40 placeholder-brand-200/20"
+                    className="w-full pl-10 pr-4 py-3 rounded-xl bg-brand-200/10 border border-brand-200/10 text-brand-200 text-sm outline-none focus:ring-2 ring-brand-primary/40 placeholder-brand-200/30"
                     disabled={!hasLoaded}
                   />
                 </div>
@@ -371,9 +383,10 @@ export default function SolicitudesPage() {
             {!hasLoaded && !loading ? (
               <div className="mt-12 grid place-items-center text-center">
                 <div className="rounded-3xl border border-brand-200/10 bg-brand-200/[0.03] p-12 shadow-2xl backdrop-blur-md max-w-md">
+                  <HiShieldCheck className="mx-auto w-12 h-12 text-brand-primary-tint/40 mb-4" />
                   <p className="text-lg font-bold text-brand-200/80">Base de datos desconectada</p>
-                  <p className="text-xs text-brand-200/30 uppercase font-black tracking-widest mt-2">Sincronización requerida para ver datos</p>
-                  <button onClick={() => cargar({ force: true })} className="mt-8 w-full py-4 rounded-2xl bg-gradient-to-br from-brand-primary to-brand-primary-deep text-white font-black uppercase text-xs shadow-xl tracking-widest hover:scale-105 transition-all">Sincronizar ahora</button>
+                  <p className="text-xs text-brand-200/40 uppercase font-black tracking-widest mt-2">Sincronización requerida para ver datos</p>
+                  <button onClick={() => cargar({ force: true })} className="mt-8 w-full py-4 rounded-2xl bg-brand-primary hover:bg-brand-primary-deep text-white font-black uppercase text-xs shadow-xl tracking-widest transition-all active:scale-95">Sincronizar ahora</button>
                 </div>
               </div>
             ) : (

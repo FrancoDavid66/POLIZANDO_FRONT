@@ -1,9 +1,8 @@
 // src/components/solicitudes/SolicitudesList.jsx
-import { memo, useEffect, useMemo, useRef, useState } from "react";
+import { memo, useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import { HiShieldCheck, HiTrash, HiCheck, HiExternalLink, HiOfficeBuilding } from "react-icons/hi";
-import toast from "react-hot-toast";
 import { useAuth } from "../../context/AuthContext";
 
 /* Variants */
@@ -31,7 +30,8 @@ function fmtDate(iso) {
   return Number.isNaN(d.getTime()) ? "-" : DATE_FMT.format(d);
 }
 
-/* Estado */
+/* Estado — paleta de marca brand-* (los 7 estados vivos del backend).
+   Nota: el label de VIGENTE_24H sigue al backend ("Constancia 12 h vigente"). */
 const ESTILO_ESTADO = {
   BORRADOR: "bg-brand-200/10 text-brand-200/80",
   EN_REVISION: "bg-brand-secondary/20 text-brand-secondary-tint border border-brand-secondary/30",
@@ -140,12 +140,12 @@ const SolicitudCard = memo(function SolicitudCard({ row, onEliminar, onTerminar 
     <div
       id={String(s?.id ?? "")}
       className={`rounded-2xl border p-4 text-brand-200 transition-all ${
-        isHighlighted ? "border-brand-secondary ring-2 ring-brand-secondary/30" : "bg-brand-200/[0.04] border-brand-200/10 hover:border-brand-200/20"
+        isHighlighted ? "border-brand-secondary ring-2 ring-brand-secondary/30" : "bg-brand-200/[0.04] border-brand-200/10 hover:border-brand-primary/30 hover:bg-brand-200/[0.06]"
       }`}
     >
       {/* Fila principal */}
       <div className="flex items-center gap-3">
-        <div className={`w-10 h-10 rounded-full flex items-center justify-center font-black text-sm shrink-0 ${avatarColor}`}>
+        <div className={`w-11 h-11 rounded-full flex items-center justify-center font-black text-sm shrink-0 ${avatarColor}`}>
           {iniciales}
         </div>
         <div className="min-w-0 flex-1">

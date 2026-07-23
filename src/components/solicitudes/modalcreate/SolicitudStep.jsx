@@ -14,11 +14,12 @@ const itemVariants = {
   animate: { opacity: 1, y: 0, transition: { duration: 0.25 } },
 };
 
-/* Opciones de prioridad con su color de acento */
+/* Opciones de prioridad con su color de acento (paleta de marca brand-*).
+   Baja = verde (primary), Normal = naranja (secondary), Alta = rojo (urgencia). */
 const PRIORIDADES = [
-  { id: "BAJA",   nombre: "Baja",   sub: "Sin apuro",            dot: "bg-emerald-400", ring: "ring-emerald-500/40", soft: "bg-emerald-500/10 border-emerald-500/30 text-emerald-300" },
-  { id: "NORMAL", nombre: "Normal", sub: "Estándar",             dot: "bg-amber-400",   ring: "ring-amber-500/40",   soft: "bg-amber-500/10 border-amber-500/30 text-amber-300" },
-  { id: "ALTA",   nombre: "Alta",   sub: "Prioridad inmediata",  dot: "bg-rose-400",    ring: "ring-rose-500/40",    soft: "bg-rose-500/10 border-rose-500/30 text-rose-300" },
+  { id: "BAJA",   nombre: "Baja",   sub: "Sin apuro",           dot: "bg-brand-primary",   ring: "ring-brand-primary/40",   soft: "bg-brand-primary/10 border-brand-primary/30 text-brand-primary-tint" },
+  { id: "NORMAL", nombre: "Normal", sub: "Estándar",            dot: "bg-brand-secondary", ring: "ring-brand-secondary/40", soft: "bg-brand-secondary/10 border-brand-secondary/30 text-brand-secondary-tint" },
+  { id: "ALTA",   nombre: "Alta",   sub: "Prioridad inmediata", dot: "bg-red-400",         ring: "ring-red-500/40",         soft: "bg-red-500/10 border-red-500/30 text-red-300" },
 ];
 
 /**
@@ -44,23 +45,23 @@ export default function SolicitudStep({
       {/* ===== Responsable ===== */}
       <motion.section
         variants={itemVariants}
-        className="rounded-3xl border border-white/10 bg-gradient-to-br from-white/[0.06] to-white/[0.02] p-4 sm:p-5 shadow-xl"
+        className="rounded-3xl border border-brand-200/10 bg-gradient-to-br from-brand-200/[0.06] to-brand-200/[0.02] p-4 sm:p-5 shadow-xl"
       >
         <div className="flex items-center gap-2 mb-3">
-          <HiUser className="text-emerald-400" />
-          <span className="text-[10px] font-black uppercase tracking-[0.18em] text-white/50">
+          <HiUser className="text-brand-primary-tint" />
+          <span className="text-[10px] font-black uppercase tracking-[0.18em] text-brand-200/50">
             Responsable de gestión
           </span>
         </div>
 
         <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-          <div className="flex-1 flex items-center gap-3 px-4 py-3 rounded-2xl border border-white/10 bg-black/30">
-            <div className="h-11 w-11 shrink-0 rounded-2xl bg-gradient-to-br from-emerald-400/30 to-teal-500/20 flex items-center justify-center text-emerald-300 border border-emerald-500/30">
+          <div className="flex-1 flex items-center gap-3 px-4 py-3 rounded-2xl border border-brand-200/10 bg-black/30">
+            <div className="h-11 w-11 shrink-0 rounded-2xl bg-gradient-to-br from-brand-primary/30 to-brand-primary-deep/20 flex items-center justify-center text-brand-primary-tint border border-brand-primary/30">
               <HiUser className="text-xl" />
             </div>
             <div className="min-w-0">
-              <p className="text-[10px] text-white/40 font-bold uppercase tracking-widest">Asignado a</p>
-              <p className="text-base font-bold text-white truncate leading-tight">
+              <p className="text-[10px] text-brand-200/40 font-bold uppercase tracking-widest">Asignado a</p>
+              <p className="text-base font-bold text-brand-200 truncate leading-tight">
                 {responsableNombre || "Sin asignar"}
               </p>
             </div>
@@ -69,12 +70,12 @@ export default function SolicitudStep({
           <button
             type="button"
             onClick={onCambiarResponsable}
-            className="shrink-0 inline-flex items-center justify-center gap-2 px-4 py-3 sm:py-2.5 rounded-2xl bg-white/10 border border-white/10 text-white/80 text-xs font-black uppercase tracking-wider hover:bg-white/20 hover:text-white active:scale-95 transition-all"
+            className="shrink-0 inline-flex items-center justify-center gap-2 px-4 py-3 sm:py-2.5 rounded-2xl bg-brand-200/10 border border-brand-200/10 text-brand-200/80 text-xs font-black uppercase tracking-wider hover:bg-brand-200/20 hover:text-brand-200 active:scale-95 transition-all"
           >
             <HiSwitchHorizontal /> Cambiar
           </button>
         </div>
-        <p className="text-[10px] text-white/30 italic mt-2 ml-1">
+        <p className="text-[10px] text-brand-200/30 italic mt-2 ml-1">
           El responsable recibirá las notificaciones de esta solicitud.
         </p>
       </motion.section>
@@ -82,11 +83,11 @@ export default function SolicitudStep({
       {/* ===== Prioridad (pills táctiles, ideal celular) ===== */}
       <motion.section
         variants={itemVariants}
-        className="rounded-3xl border border-white/10 bg-gradient-to-br from-white/[0.06] to-white/[0.02] p-4 sm:p-5 shadow-xl"
+        className="rounded-3xl border border-brand-200/10 bg-gradient-to-br from-brand-200/[0.06] to-brand-200/[0.02] p-4 sm:p-5 shadow-xl"
       >
         <div className="flex items-center gap-2 mb-3">
-          <HiExclamationCircle className="text-amber-400" />
-          <span className="text-[10px] font-black uppercase tracking-[0.18em] text-white/50">
+          <HiExclamationCircle className="text-brand-secondary-tint" />
+          <span className="text-[10px] font-black uppercase tracking-[0.18em] text-brand-200/50">
             Nivel de prioridad
           </span>
         </div>
@@ -102,7 +103,7 @@ export default function SolicitudStep({
                 className={`flex items-center gap-3 px-4 py-3.5 rounded-2xl border text-left transition-all active:scale-[0.98] ${
                   sel
                     ? `${p.soft} ring-2 ${p.ring}`
-                    : "bg-white/5 border-white/10 text-white/70 hover:bg-white/[0.08]"
+                    : "bg-brand-200/5 border-brand-200/10 text-brand-200/70 hover:bg-brand-200/[0.08]"
                 }`}
               >
                 <span className={`h-3 w-3 rounded-full shrink-0 ${p.dot} ${sel ? "" : "opacity-40"}`} />
@@ -119,18 +120,18 @@ export default function SolicitudStep({
       {/* ===== Observaciones ===== */}
       <motion.section
         variants={itemVariants}
-        className="rounded-3xl border border-white/10 bg-gradient-to-br from-white/[0.06] to-white/[0.02] p-4 sm:p-5 shadow-xl"
+        className="rounded-3xl border border-brand-200/10 bg-gradient-to-br from-brand-200/[0.06] to-brand-200/[0.02] p-4 sm:p-5 shadow-xl"
       >
         <label className="flex flex-col gap-2">
-          <span className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.18em] text-white/50">
-            <HiChatAlt2 className="text-sky-400" /> Observaciones internas
+          <span className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.18em] text-brand-200/50">
+            <HiChatAlt2 className="text-brand-secondary-tint" /> Observaciones internas
           </span>
           <textarea
             rows={4}
             value={solicitud.observaciones || ""}
             onChange={(e) => setSolicitud((s) => ({ ...s, observaciones: e.target.value }))}
             placeholder="Detalles adicionales para el equipo técnico…"
-            className="w-full rounded-2xl bg-black/30 border border-white/10 px-4 py-3 text-sm text-white placeholder:text-white/25 outline-none focus:ring-2 ring-sky-500/40 focus:border-sky-500/30 transition-all resize-none shadow-inner"
+            className="w-full rounded-2xl bg-black/30 border border-brand-200/10 px-4 py-3 text-sm text-brand-200 placeholder:text-brand-200/25 outline-none focus:ring-2 ring-brand-primary/40 focus:border-brand-primary/30 transition-all resize-none shadow-inner"
           />
         </label>
       </motion.section>

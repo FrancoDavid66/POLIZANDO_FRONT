@@ -2,7 +2,9 @@
 import { Page, Text, View, Document, StyleSheet, Image, Font } from "@react-pdf/renderer";
 import { formatMoney } from "../../utils/formatMoney";
 import { formatDate } from "../../utils/formatDate";
-import polizandoLogo from "../../assets/logos/polizando_logo.webp";
+// Logo del comprobante. IMPORTANTE: react-pdf solo soporta PNG/JPG (NO webp).
+// ISOTIPO.png debe existir en src/assets/logos/ (mismo nombre y mayúsculas).
+import polizandoLogo from "../../assets/logos/ISOTIPO.png";
 
 const A4_WIDTH = 595.28;
 const A4_HEIGHT = 841.89;
@@ -20,25 +22,12 @@ const CARD = "#FFFDF8";
 const ALERT_TEXT = "#991B1B";
 const ALERT_BG = "#FEF2F2";
 
-// Fuentes de marca (Baloo 2 para títulos, Nunito para texto) cargadas desde
-// Google Fonts — react-pdf no tiene acceso a las fuentes @font-face del sitio,
-// hay que registrarlas explícitamente para este documento.
-Font.register({
-  family: "Baloo 2",
-  fonts: [
-    { src: "https://fonts.gstatic.com/s/baloo2/v22/wXK0E3kTposypRydzVT08TS3JnAmtdQ.ttf", fontWeight: 600 },
-    { src: "https://fonts.gstatic.com/s/baloo2/v22/wXKvE3kTposypRydzWyKp5rp0ymQFgQi.ttf", fontWeight: 700 },
-    { src: "https://fonts.gstatic.com/s/baloo2/v22/wXKvE3kTposypRydzWyys5rp0ymQFgQi.ttf", fontWeight: 800 },
-  ],
-});
-Font.register({
-  family: "Nunito",
-  fonts: [
-    { src: "https://fonts.gstatic.com/s/nunito/v26/XRXV3I6Li01BKofINeaE.ttf", fontWeight: 400 },
-    { src: "https://fonts.gstatic.com/s/nunito/v26/XRXW3I6Li01BKofAjsOUYevN.ttf", fontWeight: 700 },
-    { src: "https://fonts.gstatic.com/s/nunito/v26/XRXW3I6Li01BKofAjsOgYevN.ttf", fontWeight: 800 },
-  ],
-});
+// 🔧 Fuentes: se sacaron los Font.register de Baloo 2 / Nunito que se bajaban
+// de Google Fonts (fonts.gstatic.com) — esas URLs .ttf empezaron a dar 404 y
+// react-pdf tiraba "Unknown font format", rompiendo la generación del PDF.
+// Usamos Helvetica, la fuente estándar que @react-pdf/renderer trae incluida:
+// no descarga nada, así el comprobante SIEMPRE se genera. Los pesos se piden
+// con fontWeight normal/bold (Helvetica no tiene 800, mapea a bold).
 Font.registerHyphenationCallback((word) => [word]);
 
 const safe = (v, d = "—") =>
@@ -78,7 +67,7 @@ const styles = StyleSheet.create({
   page: {
     width: A4_WIDTH,
     height: A4_HEIGHT,
-    fontFamily: "Nunito",
+    fontFamily: "Helvetica",
     color: INK,
     backgroundColor: "#E7E1D5",
     padding: 28,
@@ -110,26 +99,26 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   logoImg: { width: "100%", height: "100%", objectFit: "contain" },
-  brandName: { fontFamily: "Baloo 2", fontWeight: 800, fontSize: 20, color: "#fff" },
-  brandTagline: { fontFamily: "Nunito", fontWeight: 800, fontSize: 7.5, letterSpacing: 1.2, color: SECONDARY_SOFT, marginTop: 3 },
+  brandName: { fontFamily: "Helvetica", fontWeight: 800, fontSize: 20, color: "#fff" },
+  brandTagline: { fontFamily: "Helvetica", fontWeight: 800, fontSize: 7.5, letterSpacing: 1.2, color: SECONDARY_SOFT, marginTop: 3 },
   headerRight: { alignItems: "flex-end" },
-  comprobanteLabel: { fontFamily: "Nunito", fontWeight: 800, fontSize: 10, letterSpacing: 1.2, color: SECONDARY_SOFT },
-  comprobanteValue: { fontFamily: "Baloo 2", fontWeight: 800, fontSize: 16, color: "#fff", marginTop: 5 },
+  comprobanteLabel: { fontFamily: "Helvetica", fontWeight: 800, fontSize: 10, letterSpacing: 1.2, color: SECONDARY_SOFT },
+  comprobanteValue: { fontFamily: "Helvetica", fontWeight: 800, fontSize: 16, color: "#fff", marginTop: 5 },
 
   // Meta row (número / fecha)
   metaRow: { flexDirection: "row", borderBottomWidth: 1, borderBottomColor: "#ECE9E3" },
   metaCol: { flex: 1, paddingVertical: 14, paddingHorizontal: 28 },
   metaColBorder: { borderRightWidth: 1, borderRightColor: "#ECE9E3" },
-  metaLabel: { fontFamily: "Nunito", fontWeight: 800, fontSize: 8, letterSpacing: 1, color: "rgba(61,50,42,0.45)" },
-  metaValue: { fontFamily: "Baloo 2", fontWeight: 800, fontSize: 15, color: INK, marginTop: 5 },
+  metaLabel: { fontFamily: "Helvetica", fontWeight: 800, fontSize: 8, letterSpacing: 1, color: "rgba(61,50,42,0.45)" },
+  metaValue: { fontFamily: "Helvetica", fontWeight: 800, fontSize: 15, color: INK, marginTop: 5 },
 
   // Secciones
   section: { paddingHorizontal: 28, paddingTop: 18 },
-  sectionLabel: { fontFamily: "Nunito", fontWeight: 800, fontSize: 8.5, letterSpacing: 1.2, color: SECONDARY, marginBottom: 10 },
+  sectionLabel: { fontFamily: "Helvetica", fontWeight: 800, fontSize: 8.5, letterSpacing: 1.2, color: SECONDARY, marginBottom: 10 },
   grid2: { flexDirection: "row", flexWrap: "wrap" },
   gridItem: { width: "50%", paddingBottom: 12, paddingRight: 12 },
-  fieldLabel: { fontFamily: "Nunito", fontWeight: 700, fontSize: 9, color: "rgba(61,50,42,0.5)" },
-  fieldValue: { fontFamily: "Nunito", fontWeight: 800, fontSize: 11.5, color: INK, marginTop: 3 },
+  fieldLabel: { fontFamily: "Helvetica", fontWeight: 700, fontSize: 9, color: "rgba(61,50,42,0.5)" },
+  fieldValue: { fontFamily: "Helvetica", fontWeight: 800, fontSize: 11.5, color: INK, marginTop: 3 },
 
   // Tabla detalle
   table: { borderWidth: 1, borderColor: "#E8E5DF", borderRadius: 10, overflow: "hidden" },
@@ -137,29 +126,29 @@ const styles = StyleSheet.create({
     flexDirection: "row", justifyContent: "space-between",
     backgroundColor: CREAM, paddingVertical: 9, paddingHorizontal: 14,
   },
-  tableHeadText: { fontFamily: "Nunito", fontWeight: 800, fontSize: 8.5, letterSpacing: 0.6, color: "rgba(61,50,42,0.55)" },
+  tableHeadText: { fontFamily: "Helvetica", fontWeight: 800, fontSize: 8.5, letterSpacing: 0.6, color: "rgba(61,50,42,0.55)" },
   tableRow: {
     flexDirection: "row", justifyContent: "space-between", alignItems: "center",
     paddingVertical: 11, paddingHorizontal: 14, borderTopWidth: 1, borderTopColor: "#EFEDE8",
   },
-  tableRowConcepto: { fontFamily: "Baloo 2", fontWeight: 800, fontSize: 12, color: INK },
-  tableRowSub: { fontFamily: "Nunito", fontWeight: 700, fontSize: 9, color: "rgba(61,50,42,0.55)", marginTop: 2 },
-  tableRowImporte: { fontFamily: "Nunito", fontWeight: 800, fontSize: 12.5, color: INK },
-  tableRowLabel: { fontFamily: "Nunito", fontWeight: 700, fontSize: 9.5, color: "rgba(61,50,42,0.7)" },
-  tableRowValue: { fontFamily: "Nunito", fontWeight: 800, fontSize: 10.5, color: INK },
+  tableRowConcepto: { fontFamily: "Helvetica", fontWeight: 800, fontSize: 12, color: INK },
+  tableRowSub: { fontFamily: "Helvetica", fontWeight: 700, fontSize: 9, color: "rgba(61,50,42,0.55)", marginTop: 2 },
+  tableRowImporte: { fontFamily: "Helvetica", fontWeight: 800, fontSize: 12.5, color: INK },
+  tableRowLabel: { fontFamily: "Helvetica", fontWeight: 700, fontSize: 9.5, color: "rgba(61,50,42,0.7)" },
+  tableRowValue: { fontFamily: "Helvetica", fontWeight: 800, fontSize: 10.5, color: INK },
 
   // Total + sello
   totalRowWrap: { flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 28, paddingTop: 16 },
   stamp: {
     borderWidth: 2, borderRadius: 8, paddingVertical: 6, paddingHorizontal: 11,
-    fontFamily: "Baloo 2", fontWeight: 800, fontSize: 13, letterSpacing: 0.5,
+    fontFamily: "Helvetica", fontWeight: 800, fontSize: 13, letterSpacing: 0.5,
   },
   totalBox: {
     flex: 1, backgroundColor: PRIMARY, borderRadius: 10, paddingVertical: 12, paddingHorizontal: 16,
     flexDirection: "row", justifyContent: "space-between", alignItems: "center",
   },
-  totalBoxLabel: { fontFamily: "Baloo 2", fontWeight: 800, fontSize: 10.5, color: SECONDARY_SOFT },
-  totalBoxValue: { fontFamily: "Nunito", fontWeight: 800, fontSize: 22, color: "#fff" },
+  totalBoxLabel: { fontFamily: "Helvetica", fontWeight: 800, fontSize: 10.5, color: SECONDARY_SOFT },
+  totalBoxValue: { fontFamily: "Helvetica", fontWeight: 800, fontSize: 22, color: "#fff" },
 
   // Vencimiento
   dueNotice: {
@@ -167,17 +156,17 @@ const styles = StyleSheet.create({
     borderWidth: 1, borderColor: "#F9DBCB", borderRadius: 10,
     paddingVertical: 10, paddingHorizontal: 14,
   },
-  dueNoticeText: { fontFamily: "Nunito", fontWeight: 700, fontSize: 9.5, color: INK, lineHeight: 1.4 },
-  dueNoticeBold: { fontFamily: "Nunito", fontWeight: 800, color: SECONDARY },
+  dueNoticeText: { fontFamily: "Helvetica", fontWeight: 700, fontSize: 9.5, color: INK, lineHeight: 1.4 },
+  dueNoticeBold: { fontFamily: "Helvetica", fontWeight: 800, color: SECONDARY },
 
   // Alertas legales
   alertBox: {
     marginHorizontal: 28, marginTop: 12, borderWidth: 1, borderColor: ALERT_TEXT,
     backgroundColor: ALERT_BG, borderRadius: 10, padding: 13,
   },
-  alertTitle: { fontFamily: "Nunito", fontWeight: 800, fontSize: 9, color: ALERT_TEXT, textAlign: "center", marginBottom: 7, textTransform: "uppercase" },
-  alertText: { fontFamily: "Nunito", fontWeight: 400, fontSize: 9, color: ALERT_TEXT, textAlign: "justify", lineHeight: 1.5 },
-  alertBold: { fontFamily: "Nunito", fontWeight: 800 },
+  alertTitle: { fontFamily: "Helvetica", fontWeight: 800, fontSize: 9, color: ALERT_TEXT, textAlign: "center", marginBottom: 7, textTransform: "uppercase" },
+  alertText: { fontFamily: "Helvetica", fontWeight: 400, fontSize: 9, color: ALERT_TEXT, textAlign: "justify", lineHeight: 1.5 },
+  alertBold: { fontFamily: "Helvetica", fontWeight: 800 },
 
   // Footer
   footer: { backgroundColor: CREAM, marginTop: 18, paddingVertical: 16, paddingHorizontal: 28 },
@@ -185,9 +174,9 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start", backgroundColor: PRIMARY, borderRadius: 100,
     paddingVertical: 6, paddingHorizontal: 12,
   },
-  footerBadgeText: { fontFamily: "Baloo 2", fontWeight: 800, fontSize: 9.5, color: "#fff" },
-  footerText: { fontFamily: "Nunito", fontWeight: 700, fontSize: 8.8, color: "rgba(61,50,42,0.7)", marginTop: 10, lineHeight: 1.6 },
-  footerTextBold: { fontFamily: "Nunito", fontWeight: 800, color: INK },
+  footerBadgeText: { fontFamily: "Helvetica", fontWeight: 800, fontSize: 9.5, color: "#fff" },
+  footerText: { fontFamily: "Helvetica", fontWeight: 700, fontSize: 8.8, color: "rgba(61,50,42,0.7)", marginTop: 10, lineHeight: 1.6 },
+  footerTextBold: { fontFamily: "Helvetica", fontWeight: 800, color: INK },
 });
 
 const FacturaCuotaPDF = ({
