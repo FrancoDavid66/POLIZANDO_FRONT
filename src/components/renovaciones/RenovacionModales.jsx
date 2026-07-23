@@ -36,12 +36,12 @@ function severityFor(code) {
 
 const BANNER_STYLES = {
   error: {
-    bg: "bg-rose-500/10", border: "border-rose-500/40", icon: "text-rose-400",
-    title: "text-rose-200", text: "text-rose-100/85", action: "text-rose-300",
+    bg: "bg-red-500/10", border: "border-red-500/40", icon: "text-red-400",
+    title: "text-red-200", text: "text-red-100/85", action: "text-red-300",
   },
   warning: {
-    bg: "bg-amber-500/10", border: "border-amber-500/40", icon: "text-amber-400",
-    title: "text-amber-200", text: "text-amber-100/85", action: "text-amber-300",
+    bg: "bg-brand-secondary/10", border: "border-brand-secondary/40", icon: "text-brand-secondary-tint",
+    title: "text-brand-secondary-tint", text: "text-brand-secondary-tint/85", action: "text-brand-secondary-tint",
   },
 };
 
@@ -77,7 +77,7 @@ function ErrorBanner({ error, onClose, children }) {
             {Object.entries(error.context)
               .filter(([, v]) => v !== null && v !== undefined && v !== "")
               .map(([k, v]) => (
-                <span key={k} className="inline-flex items-center gap-1 rounded-md bg-black/20 px-2 py-0.5 text-[10px] font-mono text-white/70">
+                <span key={k} className="inline-flex items-center gap-1 rounded-md bg-black/20 px-2 py-0.5 text-[10px] font-mono text-brand-200/70">
                   <span className="opacity-60">{k}:</span>
                   <span className="font-bold">{String(v)}</span>
                 </span>
@@ -87,7 +87,7 @@ function ErrorBanner({ error, onClose, children }) {
         {children && <div className="mt-3">{children}</div>}
       </div>
       {onClose && (
-        <button type="button" onClick={onClose} className="shrink-0 p-1 rounded hover:bg-white/10 transition-colors" title="Cerrar">
+        <button type="button" onClick={onClose} className="shrink-0 p-1 rounded hover:bg-brand-200/10 transition-colors" title="Cerrar">
           <HiX className={s.icon} />
         </button>
       )}
@@ -112,52 +112,52 @@ export function PolizaYaRenovadaModal({ open, error, onClose }) {
         onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}
       >
         <motion.div
-          className="w-full max-w-md rounded-2xl border border-amber-500/30 bg-slate-900 shadow-2xl"
+          className="w-full max-w-md rounded-2xl border border-brand-secondary/30 bg-brand-card-dark shadow-2xl"
           initial={{ y: 18, opacity: 0, scale: 0.96 }} animate={{ y: 0, opacity: 1, scale: 1 }} exit={{ y: 18, opacity: 0, scale: 0.96 }}
         >
-          <div className="flex items-start justify-between gap-3 border-b border-white/10 p-4">
+          <div className="flex items-start justify-between gap-3 border-b border-brand-200/10 p-4">
             <div className="flex items-center gap-3">
-              <HiExclamationCircle className="text-3xl text-amber-400 shrink-0" />
+              <HiExclamationCircle className="text-3xl text-brand-secondary-tint shrink-0" />
               <div>
-                <div className="text-lg font-extrabold text-white">No se puede renovar</div>
-                <div className="text-xs text-amber-200/80 mt-0.5">{error.message}</div>
+                <div className="text-lg font-extrabold text-brand-200">No se puede renovar</div>
+                <div className="text-xs text-brand-secondary-tint/80 mt-0.5">{error.message}</div>
               </div>
             </div>
-            <button type="button" onClick={onClose} className="rounded-lg border border-white/10 bg-white/10 px-2.5 py-1.5 text-white hover:bg-white/15 transition-colors" title="Cerrar">
+            <button type="button" onClick={onClose} className="rounded-lg border border-brand-200/10 bg-brand-200/10 px-2.5 py-1.5 text-brand-200 hover:bg-brand-200/15 transition-colors" title="Cerrar">
               <HiX />
             </button>
           </div>
 
           <div className="p-4 space-y-3">
-            <p className="text-sm text-white/85 leading-relaxed">
+            <p className="text-sm text-brand-200/85 leading-relaxed">
               {error.detail || "Esta póliza ya tiene una versión renovada en el sistema."}
             </p>
             {nuevaId && (
-              <div className="rounded-xl border border-white/10 bg-white/5 p-3">
-                <div className="text-[10px] uppercase tracking-wider text-white/40 font-bold mb-1.5">Versión renovada</div>
+              <div className="rounded-xl border border-brand-200/10 bg-brand-200/5 p-3">
+                <div className="text-[10px] uppercase tracking-wider text-brand-200/40 font-bold mb-1.5">Versión renovada</div>
                 <div className="space-y-1 text-sm">
                   <div className="flex items-center justify-between">
-                    <span className="text-white/60">N° de póliza:</span>
-                    <span className="font-bold text-white tabular-nums">{nuevoNumero}</span>
+                    <span className="text-brand-200/60">N° de póliza:</span>
+                    <span className="font-bold text-brand-200 tabular-nums">{nuevoNumero}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-white/60">ID interno:</span>
-                    <span className="font-mono text-white tabular-nums">#{nuevaId}</span>
+                    <span className="text-brand-200/60">ID interno:</span>
+                    <span className="font-mono text-brand-200 tabular-nums">#{nuevaId}</span>
                   </div>
                   {nuevaFecha && (
                     <div className="flex items-center justify-between">
-                      <span className="text-white/60">Fecha de emisión:</span>
-                      <span className="text-white tabular-nums">{nuevaFecha}</span>
+                      <span className="text-brand-200/60">Fecha de emisión:</span>
+                      <span className="text-brand-200 tabular-nums">{nuevaFecha}</span>
                     </div>
                   )}
                 </div>
               </div>
             )}
             {error.action && (
-              <div className="text-xs text-amber-200/90 leading-relaxed">💡 {error.action}</div>
+              <div className="text-xs text-brand-secondary-tint/90 leading-relaxed">💡 {error.action}</div>
             )}
             <div className="flex flex-col-reverse gap-2 md:flex-row md:justify-end pt-2">
-              <button type="button" onClick={onClose} className="rounded-xl border border-white/10 bg-white/10 px-4 py-2 text-sm text-white hover:bg-white/15 transition-colors">
+              <button type="button" onClick={onClose} className="rounded-xl border border-brand-200/10 bg-brand-200/10 px-4 py-2 text-sm text-brand-200 hover:bg-brand-200/15 transition-colors">
                 Cerrar
               </button>
               {nuevaId && (
@@ -165,7 +165,7 @@ export function PolizaYaRenovadaModal({ open, error, onClose }) {
                   href={`/polizas/${nuevaId}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-sky-500 px-5 py-2 text-sm font-extrabold text-white hover:bg-sky-400 transition-colors shadow-md shadow-sky-500/20"
+                  className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-brand-primary px-5 py-2 text-sm font-extrabold text-white hover:bg-brand-primary-deep transition-colors shadow-md shadow-brand-primary/20"
                 >
                   Ver póliza nueva <HiArrowRight />
                 </a>
@@ -296,18 +296,18 @@ export function RenovacionModal({
         }}
       >
         <motion.div
-          className="w-full max-w-xl rounded-2xl border border-white/10 bg-slate-900 backdrop-blur-xl shadow-2xl max-h-[90vh] overflow-y-auto"
+          className="w-full max-w-xl rounded-2xl border border-brand-200/10 bg-brand-card-dark backdrop-blur-xl shadow-2xl max-h-[90vh] overflow-y-auto"
           initial={{ y: 18, opacity: 0, scale: 0.98 }}
           animate={{ y: 0, opacity: 1, scale: 1 }}
           exit={{ y: 18, opacity: 0, scale: 0.98 }}
         >
-          <div className="flex items-start justify-between gap-3 border-b border-white/10 p-4 sticky top-0 bg-slate-900 z-10">
+          <div className="flex items-start justify-between gap-3 border-b border-brand-200/10 p-4 sticky top-0 bg-brand-card-dark z-10">
             <div>
-              <div className="text-lg font-extrabold text-white">Renovar póliza</div>
-              <div className="mt-1 text-sm text-white/80">
+              <div className="text-lg font-extrabold text-brand-200">Renovar póliza</div>
+              <div className="mt-1 text-sm text-brand-200/80">
                 {item?.patente ? (
                   <>
-                    <span className="font-semibold text-white">{item.patente}</span> ·{" "}
+                    <span className="font-semibold text-brand-200">{item.patente}</span> ·{" "}
                     {item?.cliente?.apellido}, {item?.cliente?.nombre}
                   </>
                 ) : (
@@ -319,7 +319,7 @@ export function RenovacionModal({
             </div>
 
             <button
-              className="rounded-xl border border-white/10 bg-white/10 px-3 py-2 text-white hover:bg-white/15 transition-colors"
+              className="rounded-xl border border-brand-200/10 bg-brand-200/10 px-3 py-2 text-brand-200 hover:bg-brand-200/15 transition-colors"
               onClick={onClose}
               disabled={submitting}
               title="Cerrar"
@@ -337,7 +337,7 @@ export function RenovacionModal({
                   {/* Input inline solo si el error es "COBERTURA_NO_CONFIGURADA" */}
                   {necesitaOverride && (
                     <div className="bg-black/30 rounded-lg p-3 mt-1">
-                      <label className="text-xs font-bold text-white/90 mb-1.5 block">
+                      <label className="text-xs font-bold text-brand-200/90 mb-1.5 block">
                         Cantidad de cuotas (manual)
                       </label>
                       <div className="flex items-center gap-2">
@@ -349,9 +349,9 @@ export function RenovacionModal({
                           onChange={(e) => setCantidadCuotasOverride(e.target.value)}
                           disabled={submitting}
                           placeholder="Ej: 6"
-                          className="w-24 rounded-lg border border-white/15 bg-black/40 px-3 py-1.5 text-white text-sm outline-none focus:border-amber-400 transition-colors disabled:opacity-50"
+                          className="w-24 rounded-lg border border-brand-200/15 bg-black/40 px-3 py-1.5 text-brand-200 text-sm outline-none focus:border-brand-secondary transition-colors disabled:opacity-50"
                         />
-                        <span className="text-[11px] text-white/60">
+                        <span className="text-[11px] text-brand-200/60">
                           cuotas mensuales se van a generar
                         </span>
                       </div>
@@ -362,78 +362,78 @@ export function RenovacionModal({
             </AnimatePresence>
 
             <div className="grid gap-2">
-              <label className="text-xs font-semibold text-white/90">Nuevo número (opcional)</label>
+              <label className="text-xs font-semibold text-brand-200/90">Nuevo número (opcional)</label>
               <input
                 value={nuevoNumero}
                 onChange={(e) => setNuevoNumero(e.target.value)}
-                className="w-full rounded-xl border border-white/10 bg-black/30 px-3 py-2 text-white outline-none focus:border-white/30 transition-colors"
+                className="w-full rounded-xl border border-brand-200/10 bg-black/30 px-3 py-2 text-brand-200 outline-none focus:border-brand-200/30 transition-colors"
                 placeholder="Ej: 12345-ABC"
               />
-              <div className="text-xs text-white/60">
+              <div className="text-xs text-brand-200/60">
                 Si existe, el backend lo hace único (agrega sufijo -R1, -R2…).
               </div>
             </div>
 
             <div className="grid gap-2">
-              <label className="text-xs font-semibold text-white/90">Tipo de vehículo *</label>
+              <label className="text-xs font-semibold text-brand-200/90">Tipo de vehículo *</label>
               <select
                 value={tipo}
                 onChange={(e) => setTipo(e.target.value)}
-                className="w-full rounded-xl border border-white/10 bg-black/30 px-3 py-2 text-white outline-none focus:border-white/30 transition-colors"
+                className="w-full rounded-xl border border-brand-200/10 bg-black/30 px-3 py-2 text-brand-200 outline-none focus:border-brand-200/30 transition-colors"
               >
-                <option value="" className="bg-slate-900">— Elegir —</option>
+                <option value="" className="bg-brand-card-dark">— Elegir —</option>
                 {TIPOS_VEHICULO.map((t) => (
-                  <option key={t} value={t} className="bg-slate-900">{t}</option>
+                  <option key={t} value={t} className="bg-brand-card-dark">{t}</option>
                 ))}
               </select>
-              <div className="text-xs text-white/60">
+              <div className="text-xs text-brand-200/60">
                 Confirmá o corregí el tipo (define el precio). Si nació mal cargado, corregilo acá.
               </div>
             </div>
 
             <div className="grid gap-2">
-              <label className="text-xs font-semibold text-white/90">Precio de cuota (opcional)</label>
+              <label className="text-xs font-semibold text-brand-200/90">Precio de cuota (opcional)</label>
               <input
                 type="number"
                 min="0"
                 step="0.01"
                 value={precioCuota}
                 onChange={(e) => setPrecioCuota(e.target.value)}
-                className="w-full rounded-xl border border-white/10 bg-black/30 px-3 py-2 text-white outline-none focus:border-white/30 transition-colors"
+                className="w-full rounded-xl border border-brand-200/10 bg-black/30 px-3 py-2 text-brand-200 outline-none focus:border-brand-200/30 transition-colors"
                 placeholder="Ej: 35000"
               />
-              <div className="text-xs text-white/60">
+              <div className="text-xs text-brand-200/60">
                 Si lo dejás vacío, las cuotas quedan en $0 y se cargan después desde Pagos.
               </div>
             </div>
 
             <div className="grid gap-2">
-              <label className="text-xs font-semibold text-white/90">Nueva compañía (opcional)</label>
+              <label className="text-xs font-semibold text-brand-200/90">Nueva compañía (opcional)</label>
               <input
                 value={nuevaCompania}
                 onChange={(e) => setNuevaCompania(e.target.value)}
-                className="w-full rounded-xl border border-white/10 bg-black/30 px-3 py-2 text-white outline-none focus:border-white/30 transition-colors"
+                className="w-full rounded-xl border border-brand-200/10 bg-black/30 px-3 py-2 text-brand-200 outline-none focus:border-brand-200/30 transition-colors"
                 placeholder="Ej: RUS / SANCOR / etc."
               />
             </div>
 
             <div className="grid gap-2">
-              <label className="text-xs font-semibold text-white/90">Inicio de vigencia (alta)</label>
+              <label className="text-xs font-semibold text-brand-200/90">Inicio de vigencia (alta)</label>
               <input
                 type="date"
                 value={nuevaFecha}
                 onChange={(e) => setNuevaFecha(e.target.value)}
-                className="w-full rounded-xl border border-white/10 bg-black/30 px-3 py-2 text-white outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400 transition-colors"
+                className="w-full rounded-xl border border-brand-200/10 bg-black/30 px-3 py-2 text-brand-200 outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary transition-colors"
               />
-              <div className="text-xs text-white/60">
-                Es el día que <strong className="text-white/80">arranca la cobertura</strong>. Por defecto, el día que vence la última cuota de la póliza actual (así no queda hueco). La <strong className="text-white/80">1ª cuota vence un mes después</strong>.
+              <div className="text-xs text-brand-200/60">
+                Es el día que <strong className="text-brand-200/80">arranca la cobertura</strong>. Por defecto, el día que vence la última cuota de la póliza actual (así no queda hueco). La <strong className="text-brand-200/80">1ª cuota vence un mes después</strong>.
               </div>
             </div>
 
-            <div className="mt-1 flex items-start gap-3 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-3.5">
-              <HiExclamation className="mt-0.5 shrink-0 text-xl text-amber-400" />
-              <div className="text-[13px] leading-relaxed text-amber-100/90">
-                <strong className="block text-sm font-bold text-amber-400 mb-0.5">Atención</strong>
+            <div className="mt-1 flex items-start gap-3 rounded-2xl border border-brand-secondary/30 bg-brand-secondary/10 p-3.5">
+              <HiExclamation className="mt-0.5 shrink-0 text-xl text-brand-secondary-tint" />
+              <div className="text-[13px] leading-relaxed text-brand-secondary-tint/90">
+                <strong className="block text-sm font-bold text-brand-secondary-tint mb-0.5">Atención</strong>
                 La póliza actual pasará a estado <strong>FINALIZADA</strong> y se creará una nueva versión <strong>ACTIVA</strong>.
                 <br />
                 <span className="mt-1 block opacity-90">No te olvides de emitir/subir la póliza en la página web de la aseguradora si corresponde.</span>
@@ -442,7 +442,7 @@ export function RenovacionModal({
 
             <div className="mt-3 flex flex-col-reverse gap-2 md:flex-row md:justify-end">
               <button
-                className="rounded-xl border border-white/10 bg-white/10 px-4 py-2 text-white hover:bg-white/15 transition-colors"
+                className="rounded-xl border border-brand-200/10 bg-brand-200/10 px-4 py-2 text-brand-200 hover:bg-brand-200/15 transition-colors"
                 onClick={onClose}
                 disabled={submitting}
                 type="button"
@@ -452,10 +452,10 @@ export function RenovacionModal({
 
               <button
                 className={cx(
-                  "rounded-xl px-5 py-2 font-extrabold text-black transition-colors shadow-md",
+                  "rounded-xl px-5 py-2 font-extrabold text-white transition-colors shadow-md",
                   submitting || !canSubmit
-                    ? "bg-white/40 shadow-none cursor-not-allowed"
-                    : "bg-emerald-400 hover:bg-emerald-300 shadow-emerald-500/20"
+                    ? "bg-brand-200/40 shadow-none cursor-not-allowed"
+                    : "bg-brand-primary hover:bg-brand-primary-deep shadow-brand-primary/20"
                 )}
                 disabled={submitting || !canSubmit}
                 type="button"
@@ -537,19 +537,19 @@ export function DescartarRenovacionModal({
         }}
       >
         <motion.div
-          className="w-full max-w-md rounded-2xl border border-white/10 bg-slate-900 shadow-2xl"
+          className="w-full max-w-md rounded-2xl border border-brand-200/10 bg-brand-card-dark shadow-2xl"
           initial={{ y: 18, opacity: 0, scale: 0.98 }}
           animate={{ y: 0, opacity: 1, scale: 1 }}
           exit={{ y: 18, opacity: 0, scale: 0.98 }}
         >
           {/* Header */}
-          <div className="flex items-start justify-between gap-3 border-b border-white/10 p-4">
+          <div className="flex items-start justify-between gap-3 border-b border-brand-200/10 p-4">
             <div>
-              <div className="text-lg font-extrabold text-white">No renovar</div>
-              <div className="mt-1 text-xs text-white/70">
+              <div className="text-lg font-extrabold text-brand-200">No renovar</div>
+              <div className="mt-1 text-xs text-brand-200/70">
                 {item?.patente && (
                   <>
-                    <span className="font-semibold text-white">{item.patente}</span>
+                    <span className="font-semibold text-brand-200">{item.patente}</span>
                     {item?.cliente && (
                       <> · {item.cliente.apellido}, {item.cliente.nombre}</>
                     )}
@@ -558,7 +558,7 @@ export function DescartarRenovacionModal({
               </div>
             </div>
             <button
-              className="rounded-xl border border-white/10 bg-white/10 px-2.5 py-1.5 text-white hover:bg-white/15 transition-colors disabled:opacity-50"
+              className="rounded-xl border border-brand-200/10 bg-brand-200/10 px-2.5 py-1.5 text-brand-200 hover:bg-brand-200/15 transition-colors disabled:opacity-50"
               onClick={onClose}
               disabled={submitting}
               type="button"
@@ -570,7 +570,7 @@ export function DescartarRenovacionModal({
 
           {/* Body */}
           <div className="p-4 space-y-3">
-            <p className="text-xs text-white/70">
+            <p className="text-xs text-brand-200/70">
               ¿Por qué este cliente no va a renovar?
             </p>
 
@@ -586,8 +586,8 @@ export function DescartarRenovacionModal({
                     className={cx(
                       "flex items-center gap-2 rounded-xl border px-3 py-2.5 text-xs font-bold text-left transition-all disabled:opacity-50",
                       active
-                        ? "border-rose-400/60 bg-rose-500/20 text-rose-50 ring-2 ring-rose-500/30"
-                        : "border-white/10 bg-white/5 text-white/80 hover:bg-white/10"
+                        ? "border-red-400/60 bg-red-500/20 text-red-100 ring-2 ring-red-500/30"
+                        : "border-brand-200/10 bg-brand-200/5 text-brand-200/80 hover:bg-brand-200/10"
                     )}
                   >
                     <span className="text-base">{m.emoji}</span>
@@ -599,8 +599,8 @@ export function DescartarRenovacionModal({
 
             {/* Detalle (opcional siempre, obligatorio si motivo=OTRO) */}
             <div className="mt-2">
-              <label className="text-[11px] font-bold text-white/70 mb-1 block">
-                Detalle {isOtro ? <span className="text-rose-400">*</span> : <span className="text-white/40">(opcional)</span>}
+              <label className="text-[11px] font-bold text-brand-200/70 mb-1 block">
+                Detalle {isOtro ? <span className="text-red-400">*</span> : <span className="text-brand-200/40">(opcional)</span>}
               </label>
               <textarea
                 value={detalle}
@@ -613,17 +613,17 @@ export function DescartarRenovacionModal({
                     ? "Especificá el motivo…"
                     : "Notas adicionales (ej: 'llamar en 30 días')"
                 }
-                className="w-full rounded-xl border border-white/10 bg-black/30 px-3 py-2 text-sm text-white outline-none focus:border-white/30 transition-colors disabled:opacity-50 resize-none"
+                className="w-full rounded-xl border border-brand-200/10 bg-black/30 px-3 py-2 text-sm text-brand-200 outline-none focus:border-brand-200/30 transition-colors disabled:opacity-50 resize-none"
               />
-              <div className="mt-0.5 text-right text-[10px] text-white/40">
+              <div className="mt-0.5 text-right text-[10px] text-brand-200/40">
                 {detalle.length}/300
               </div>
             </div>
 
             {/* Aviso */}
-            <div className="flex items-start gap-2 rounded-xl border border-amber-500/30 bg-amber-500/10 p-2.5">
-              <HiExclamation className="mt-0.5 shrink-0 text-amber-400" />
-              <div className="text-[11px] leading-relaxed text-amber-100/90">
+            <div className="flex items-start gap-2 rounded-xl border border-brand-secondary/30 bg-brand-secondary/10 p-2.5">
+              <HiExclamation className="mt-0.5 shrink-0 text-brand-secondary-tint" />
+              <div className="text-[11px] leading-relaxed text-brand-secondary-tint/90">
                 Esto <strong>no cancela ni da de baja</strong> la póliza. Solo marca que el cliente no va a renovar.
                 Podés revertirlo en cualquier momento desde la pestaña "No renovaron".
               </div>
@@ -631,12 +631,12 @@ export function DescartarRenovacionModal({
           </div>
 
           {/* Footer */}
-          <div className="flex flex-col-reverse gap-2 border-t border-white/10 p-4 md:flex-row md:justify-end">
+          <div className="flex flex-col-reverse gap-2 border-t border-brand-200/10 p-4 md:flex-row md:justify-end">
             <button
               type="button"
               onClick={onClose}
               disabled={submitting}
-              className="rounded-xl border border-white/10 bg-white/10 px-4 py-2 text-sm text-white hover:bg-white/15 transition-colors disabled:opacity-50"
+              className="rounded-xl border border-brand-200/10 bg-brand-200/10 px-4 py-2 text-sm text-brand-200 hover:bg-brand-200/15 transition-colors disabled:opacity-50"
             >
               Cancelar
             </button>
@@ -647,8 +647,8 @@ export function DescartarRenovacionModal({
               className={cx(
                 "rounded-xl px-5 py-2 text-sm font-extrabold transition-colors shadow-md",
                 canSubmit && !submitting
-                  ? "bg-rose-500 text-white hover:bg-rose-400 shadow-rose-500/20"
-                  : "bg-white/20 text-white/50 shadow-none cursor-not-allowed"
+                  ? "bg-red-500 text-white hover:bg-red-400 shadow-red-500/20"
+                  : "bg-brand-200/20 text-brand-200/50 shadow-none cursor-not-allowed"
               )}
             >
               {submitting ? "Guardando…" : "Confirmar 'No renueva'"}
@@ -701,19 +701,19 @@ function nombreCoincide(a, b) {
 function SlotPdf({ slot, archivo, onPick }) {
   const ref = useRef(null);
   return (
-    <div className="rounded-2xl bg-black/40 border border-white/5 p-4 flex items-center gap-3">
-      <div className="h-10 w-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 shrink-0">
+    <div className="rounded-2xl bg-black/40 border border-brand-200/5 p-4 flex items-center gap-3">
+      <div className="h-10 w-10 rounded-xl bg-brand-primary/10 border border-brand-primary/20 flex items-center justify-center text-brand-primary-tint shrink-0">
         <HiDocumentText className="text-xl" />
       </div>
       <div className="min-w-0 flex-1">
-        <div className="text-sm font-bold text-white">{slot.label}</div>
-        <div className="text-[11px] text-white/40 truncate">{archivo ? archivo.name : "Sin archivo"}</div>
+        <div className="text-sm font-bold text-brand-200">{slot.label}</div>
+        <div className="text-[11px] text-brand-200/40 truncate">{archivo ? archivo.name : "Sin archivo"}</div>
       </div>
       <button
         type="button"
         onClick={() => ref.current?.click()}
         className={`h-10 px-4 rounded-xl inline-flex items-center gap-2 text-[11px] font-black uppercase tracking-widest transition-all ${
-          archivo ? "bg-white/5 text-white border border-white/10 hover:bg-white/10" : "bg-indigo-500 text-white hover:bg-indigo-400"
+          archivo ? "bg-brand-200/5 text-brand-200 border border-brand-200/10 hover:bg-brand-200/10" : "bg-brand-primary text-white hover:bg-brand-primary-deep"
         }`}
       >
         <HiUpload className="text-sm" /> {archivo ? "Cambiar" : "Elegir"}
@@ -862,67 +862,67 @@ export function SubirPolizaSistemaModal({ isOpen, item, onClose, onSaved }) {
       {isOpen && item && (
         <motion.div className="fixed inset-0 z-[150] flex items-end sm:items-center justify-center bg-black/80 backdrop-blur-sm p-0 sm:p-4"
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose}>
-          <motion.div className="w-full max-w-lg rounded-t-3xl sm:rounded-3xl bg-[#0b0f1e] border border-white/10 shadow-2xl overflow-hidden"
+          <motion.div className="w-full max-w-lg rounded-t-3xl sm:rounded-3xl bg-brand-card-dark border border-brand-200/10 shadow-2xl overflow-hidden"
             initial={{ y: "100%", opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: "100%", opacity: 0 }}
             transition={{ type: "spring", damping: 25, stiffness: 200 }} onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between px-6 py-4 border-b border-white/5">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-brand-200/5">
               <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400">
+                <div className="h-10 w-10 rounded-xl bg-brand-primary/10 border border-brand-primary/20 flex items-center justify-center text-brand-primary-tint">
                   <HiDocumentText className="text-xl" />
                 </div>
                 <div>
-                  <h2 className="text-base font-bold text-white">Subir póliza a sistema</h2>
-                  <p className="text-[11px] text-white/40">{item.cliente} · {item.patente}</p>
+                  <h2 className="text-base font-bold text-brand-200">Subir póliza a sistema</h2>
+                  <p className="text-[11px] text-brand-200/40">{item.cliente} · {item.patente}</p>
                 </div>
               </div>
-              <button onClick={onClose} className="p-2 rounded-lg bg-white/5 text-white/40 hover:text-white"><HiX className="text-xl" /></button>
+              <button onClick={onClose} className="p-2 rounded-lg bg-brand-200/5 text-brand-200/40 hover:text-brand-200"><HiX className="text-xl" /></button>
             </div>
 
             {resultado ? (
               <div className="p-6">
                 <div className="flex flex-col items-center text-center gap-3 py-4">
-                  <div className="h-14 w-14 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+                  <div className="h-14 w-14 rounded-full bg-brand-primary/10 border border-brand-primary/20 flex items-center justify-center text-brand-primary-tint">
                     <HiCheckCircle className="text-3xl" />
                   </div>
-                  <div className="text-lg font-bold text-white">¡Papeles cargados!</div>
-                  <div className="text-sm text-white/60 space-y-1">
+                  <div className="text-lg font-bold text-brand-200">¡Papeles cargados!</div>
+                  <div className="text-sm text-brand-200/60 space-y-1">
                     <div>{resultado.documentos_guardados} archivo(s) guardado(s).</div>
                     {resultado.autocompletado?.length > 0 && (
-                      <div className="inline-flex items-center gap-1 text-indigo-300"><HiSparkles /> {resultado.autocompletado.join(", ")}.</div>
+                      <div className="inline-flex items-center gap-1 text-brand-primary-tint"><HiSparkles /> {resultado.autocompletado.join(", ")}.</div>
                     )}
                     {resultado.cupones_actualizados > 0 && (
-                      <div className="text-amber-300">{resultado.cupones_actualizados} cupón(es) de robo actualizado(s).</div>
+                      <div className="text-brand-secondary-tint">{resultado.cupones_actualizados} cupón(es) de robo actualizado(s).</div>
                     )}
                     {resultado.cuotas_actualizadas > 0 && (
-                      <div className="text-sky-300">{resultado.cuotas_actualizadas} cuota(s) reprogramada(s).</div>
+                      <div className="text-brand-primary-tint">{resultado.cuotas_actualizadas} cuota(s) reprogramada(s).</div>
                     )}
                   </div>
                 </div>
-                <button onClick={() => onSaved?.()} className="mt-4 w-full h-12 rounded-xl bg-emerald-500 text-black font-bold text-sm hover:bg-emerald-400">Listo</button>
+                <button onClick={() => onSaved?.()} className="mt-4 w-full h-12 rounded-xl bg-brand-primary text-white font-bold text-sm hover:bg-brand-primary-deep">Listo</button>
               </div>
             ) : incActual ? (
               incActual.campo === "vigencia" ? (
                 <div className="p-6">
                   <div className="flex flex-col items-center text-center gap-2 mb-4">
-                    <div className="h-14 w-14 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
+                    <div className="h-14 w-14 rounded-full bg-brand-secondary/10 border border-brand-secondary/30 flex items-center justify-center text-brand-secondary-tint">
                       <HiExclamation className="text-3xl" />
                     </div>
-                    <div className="text-lg font-bold text-white">¿Es el papel correcto?</div>
-                    <div className="text-[11px] text-white/40">{idxInc + 1} de {inconsistencias.length}</div>
+                    <div className="text-lg font-bold text-brand-200">¿Es el papel correcto?</div>
+                    <div className="text-[11px] text-brand-200/40">{idxInc + 1} de {inconsistencias.length}</div>
                   </div>
 
-                  <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-4 mb-4">
-                    <p className="text-[13px] leading-snug text-amber-100">
+                  <div className="rounded-2xl border border-brand-secondary/20 bg-brand-secondary/5 p-4 mb-4">
+                    <p className="text-[13px] leading-snug text-brand-secondary-tint">
                       La vigencia de este papel termina el <b>{fmtFecha(incActual.valorPdf)}</b>, una fecha que ya pasó.
                       Puede ser el papel de la <b>póliza anterior</b>, no el de la renovación nueva.
                     </p>
                   </div>
 
                   <div className="space-y-2">
-                    <button onClick={() => resolver(false)} className="w-full h-11 rounded-xl bg-sky-500/15 border border-sky-500/30 text-sky-200 font-bold text-sm hover:bg-sky-500/25">
+                    <button onClick={() => resolver(false)} className="w-full h-11 rounded-xl bg-brand-primary/15 border border-brand-primary/30 text-brand-primary-tint font-bold text-sm hover:bg-brand-primary/25">
                       Está bien, continuar
                     </button>
-                    <button onClick={onClose} className="w-full h-11 rounded-xl bg-white/5 border border-white/10 text-white/60 font-bold text-sm hover:bg-white/10">
+                    <button onClick={onClose} className="w-full h-11 rounded-xl bg-brand-200/5 border border-brand-200/10 text-brand-200/60 font-bold text-sm hover:bg-brand-200/10">
                       Cancelar, es el papel viejo
                     </button>
                   </div>
@@ -930,32 +930,32 @@ export function SubirPolizaSistemaModal({ isOpen, item, onClose, onSaved }) {
               ) : (
               <div className="p-6">
                 <div className="flex flex-col items-center text-center gap-2 mb-4">
-                  <div className="h-14 w-14 rounded-full bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400">
+                  <div className="h-14 w-14 rounded-full bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-400">
                     <HiExclamation className="text-3xl" />
                   </div>
-                  <div className="text-lg font-bold text-white">El dato no coincide</div>
-                  <div className="text-[11px] text-white/40">{idxInc + 1} de {inconsistencias.length}</div>
+                  <div className="text-lg font-bold text-brand-200">El dato no coincide</div>
+                  <div className="text-[11px] text-brand-200/40">{idxInc + 1} de {inconsistencias.length}</div>
                 </div>
 
-                <div className="rounded-2xl border border-white/10 bg-black/30 divide-y divide-white/5 mb-4">
+                <div className="rounded-2xl border border-brand-200/10 bg-black/30 divide-y divide-brand-200/5 mb-4">
                   <div className="px-4 py-3">
-                    <div className="text-[10px] uppercase tracking-widest text-white/40 mb-1">{incActual.label} en el PDF</div>
-                    <div className="text-sm font-bold text-rose-300">{incActual.valorPdf}</div>
+                    <div className="text-[10px] uppercase tracking-widest text-brand-200/40 mb-1">{incActual.label} en el PDF</div>
+                    <div className="text-sm font-bold text-red-300">{incActual.valorPdf}</div>
                   </div>
                   <div className="px-4 py-3">
-                    <div className="text-[10px] uppercase tracking-widest text-white/40 mb-1">{incActual.label} en la póliza</div>
-                    <div className="text-sm font-bold text-sky-300">{incActual.valorPol}</div>
+                    <div className="text-[10px] uppercase tracking-widest text-brand-200/40 mb-1">{incActual.label} en la póliza</div>
+                    <div className="text-sm font-bold text-brand-primary-tint">{incActual.valorPol}</div>
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <button onClick={() => resolver(false)} className="w-full h-11 rounded-xl bg-sky-500/15 border border-sky-500/30 text-sky-200 font-bold text-sm hover:bg-sky-500/25">
+                  <button onClick={() => resolver(false)} className="w-full h-11 rounded-xl bg-brand-primary/15 border border-brand-primary/30 text-brand-primary-tint font-bold text-sm hover:bg-brand-primary/25">
                     Dejar la de la póliza
                   </button>
-                  <button onClick={() => resolver(true)} className="w-full h-11 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-200 font-bold text-sm hover:bg-amber-500/25">
+                  <button onClick={() => resolver(true)} className="w-full h-11 rounded-xl bg-brand-secondary/15 border border-brand-secondary/30 text-brand-secondary-tint font-bold text-sm hover:bg-brand-secondary/25">
                     Usar la del PDF
                   </button>
-                  <button onClick={onClose} className="w-full h-11 rounded-xl bg-white/5 border border-white/10 text-white/60 font-bold text-sm hover:bg-white/10">
+                  <button onClick={onClose} className="w-full h-11 rounded-xl bg-brand-200/5 border border-brand-200/10 text-brand-200/60 font-bold text-sm hover:bg-brand-200/10">
                     Cancelar, me equivoqué de papel
                   </button>
                 </div>
@@ -968,30 +968,30 @@ export function SubirPolizaSistemaModal({ isOpen, item, onClose, onSaved }) {
                     <SlotPdf key={s.key} slot={s} archivo={files[s.key]} onPick={(f) => pick(s.key, f)} />
                   ))}
                   {!files.CUPONERA && (
-                    <div className="rounded-2xl bg-black/40 border border-white/5 p-4">
-                      <label className="text-[11px] font-bold text-white/50 uppercase tracking-widest">
+                    <div className="rounded-2xl bg-black/40 border border-brand-200/5 p-4">
+                      <label className="text-[11px] font-bold text-brand-200/50 uppercase tracking-widest">
                         Fecha de la 1ª cuota (sin cuponera)
                       </label>
                       <input
                         type="date"
                         value={fechaInicial}
                         onChange={(e) => setFechaInicial(e.target.value)}
-                        className="mt-2 h-12 w-full rounded-xl bg-black/40 border border-white/10 px-4 text-sm font-bold text-white [color-scheme:dark] focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+                        className="mt-2 h-12 w-full rounded-xl bg-black/40 border border-brand-200/10 px-4 text-sm font-bold text-brand-200 [color-scheme:dark] focus:outline-none focus:ring-2 focus:ring-brand-primary/50"
                       />
-                      <p className="mt-1.5 text-[11px] text-white/40">Las demás cuotas se calculan +1 mes cada una.</p>
+                      <p className="mt-1.5 text-[11px] text-brand-200/40">Las demás cuotas se calculan +1 mes cada una.</p>
                     </div>
                   )}
-                  <p className="text-[11px] text-white/40 leading-snug pt-1">
+                  <p className="text-[11px] text-brand-200/40 leading-snug pt-1">
                     La app lee los PDFs y completa sola número y compañía. Si la patente, el DNI o el titular no coinciden, te avisa antes de guardar.
                   </p>
                 </div>
 
-                <div className="px-6 py-5 border-t border-white/5 flex justify-end gap-3">
+                <div className="px-6 py-5 border-t border-brand-200/5 flex justify-end gap-3">
                   <button onClick={onClose} disabled={saving}
-                    className="px-6 py-2.5 rounded-xl bg-white/5 text-white/60 font-bold text-sm hover:bg-white/10 disabled:opacity-50">Cancelar</button>
+                    className="px-6 py-2.5 rounded-xl bg-brand-200/5 text-brand-200/60 font-bold text-sm hover:bg-brand-200/10 disabled:opacity-50">Cancelar</button>
                   <button onClick={analizar} disabled={saving}
-                    className="px-6 py-2.5 rounded-xl bg-indigo-500 text-white font-bold text-sm hover:bg-indigo-400 disabled:opacity-50 inline-flex items-center gap-2">
-                    {saving ? (<><div className="h-4 w-4 border-2 border-white/40 border-t-white rounded-full animate-spin" /> Procesando…</>) : (<><HiUpload /> Subir y leer</>)}
+                    className="px-6 py-2.5 rounded-xl bg-brand-primary text-white font-bold text-sm hover:bg-brand-primary-deep disabled:opacity-50 inline-flex items-center gap-2">
+                    {saving ? (<><div className="h-4 w-4 border-2 border-brand-200/40 border-t-brand-200 rounded-full animate-spin" /> Procesando…</>) : (<><HiUpload /> Subir y leer</>)}
                   </button>
                 </div>
               </>

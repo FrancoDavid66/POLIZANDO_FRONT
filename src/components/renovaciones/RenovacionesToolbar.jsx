@@ -57,12 +57,12 @@ function FiltersBar({
   const searchHint = useMemo(() => {
     const trimmed = (localSearch || "").trim();
     if (!trimmed) return null;
-    if (isTyping) return { text: "Escribiendo…", color: "text-white/40" };
-    if (loading) return { text: `Buscando "${trimmed}"…`, color: "text-sky-300" };
-    if (totalCount === 0) return { text: `Sin resultados para "${trimmed}"`, color: "text-amber-300" };
+    if (isTyping) return { text: "Escribiendo…", color: "text-brand-200/40" };
+    if (loading) return { text: `Buscando "${trimmed}"…`, color: "text-brand-primary-tint" };
+    if (totalCount === 0) return { text: `Sin resultados para "${trimmed}"`, color: "text-brand-secondary-tint" };
     return {
       text: `${totalCount} resultado${totalCount === 1 ? "" : "s"} para "${trimmed}"`,
-      color: "text-emerald-300",
+      color: "text-brand-primary-tint",
     };
   }, [isTyping, loading, localSearch, totalCount]);
 
@@ -71,7 +71,7 @@ function FiltersBar({
       {/* Buscador */}
       <div className="relative">
         <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-          {isTyping ? <Spinner /> : <HiSearch className="text-white/40" />}
+          {isTyping ? <Spinner /> : <HiSearch className="text-brand-200/40" />}
         </div>
         <input
           type="text"
@@ -86,13 +86,13 @@ function FiltersBar({
           }}
           placeholder="Buscar por asegurado, patente, póliza, compañía…"
           aria-label="Buscar renovaciones"
-          className="w-full bg-white/[0.04] border border-white/10 text-white text-sm rounded-xl pl-10 pr-20 py-2.5 outline-none focus:border-sky-400/40 focus:bg-white/[0.06] transition-colors"
+          className="w-full bg-brand-200/[0.04] border border-brand-200/10 text-brand-200 text-sm rounded-xl pl-10 pr-20 py-2.5 outline-none focus:border-brand-primary/40 focus:bg-brand-200/[0.06] transition-colors"
         />
         {localSearch && (
           <button
             type="button"
             onClick={clearSearch}
-            className="absolute inset-y-0 right-3 flex items-center gap-1 text-xs text-white/50 hover:text-white"
+            className="absolute inset-y-0 right-3 flex items-center gap-1 text-xs text-brand-200/50 hover:text-brand-200"
             title="Limpiar (Esc)"
             aria-label="Limpiar búsqueda"
           >
@@ -111,18 +111,18 @@ function FiltersBar({
       {isWebAdmin && (
         <div className="relative">
           <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-            <HiOfficeBuilding className="text-white/40" />
+            <HiOfficeBuilding className="text-brand-200/40" />
           </div>
           <select
             value={String(oficina || "")}
             onChange={(e) => setOficina(String(e.target.value || ""))}
             disabled={loading}
             aria-label="Filtrar por sucursal"
-            className="w-full bg-white/[0.04] border border-white/10 text-white text-sm rounded-xl pl-9 pr-3 py-2 outline-none focus:border-sky-400/40 focus:bg-white/[0.06] transition-colors appearance-none cursor-pointer disabled:opacity-50"
+            className="w-full bg-brand-200/[0.04] border border-brand-200/10 text-brand-200 text-sm rounded-xl pl-9 pr-3 py-2 outline-none focus:border-brand-primary/40 focus:bg-brand-200/[0.06] transition-colors appearance-none cursor-pointer disabled:opacity-50"
           >
-            <option value="" className="bg-slate-900 text-white">Todas las sucursales</option>
+            <option value="" className="bg-brand-card-dark text-brand-200">Todas las sucursales</option>
             {(Array.isArray(oficinasOptions) ? oficinasOptions : []).map((o) => (
-              <option key={o.value} value={o.value} className="bg-slate-900 text-white">
+              <option key={o.value} value={o.value} className="bg-brand-card-dark text-brand-200">
                 {o.label}
               </option>
             ))}
@@ -135,7 +135,7 @@ function FiltersBar({
 
 function Spinner() {
   return (
-    <svg className="animate-spin h-4 w-4 text-sky-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+    <svg className="animate-spin h-4 w-4 text-brand-primary-tint" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
     </svg>
@@ -151,10 +151,10 @@ const TABS = [
 
 function tabToneActive(tone) {
   switch (tone) {
-    case "amber": return "border-amber-400/50 bg-amber-500/15 text-amber-100";
-    case "sky":   return "border-sky-400/50 bg-sky-500/15 text-sky-100";
-    case "rose":  return "border-rose-400/50 bg-rose-500/15 text-rose-100";
-    default:      return "border-white/30 bg-white/10 text-white";
+    case "amber": return "border-brand-secondary/50 bg-brand-secondary/15 text-brand-secondary-tint";
+    case "sky":   return "border-brand-primary/50 bg-brand-primary/15 text-brand-primary-tint";
+    case "rose":  return "border-red-400/50 bg-red-500/15 text-red-100";
+    default:      return "border-brand-200/30 bg-brand-200/10 text-brand-200";
   }
 }
 
@@ -174,7 +174,7 @@ function Tabs({ activeTab = "renovar_hoy", onChange, counts = {} }) {
             aria-pressed={active}
             className={cx(
               "inline-flex items-center gap-2 rounded-xl border px-3.5 py-2 text-sm font-semibold transition-colors",
-              active ? tabToneActive(t.tone) : "border-white/10 bg-white/[0.03] text-white/55 hover:bg-white/[0.07] hover:text-white/80"
+              active ? tabToneActive(t.tone) : "border-brand-200/10 bg-brand-200/[0.03] text-brand-200/55 hover:bg-brand-200/[0.07] hover:text-brand-200/80"
             )}
           >
             <Icon className="text-base" />
@@ -195,20 +195,20 @@ function Tabs({ activeTab = "renovar_hoy", onChange, counts = {} }) {
 /* ══════════ Resumen en línea + progreso (ex ProgresoDelDia) ══════════ */
 function ResumenInline({ tab, kpis }) {
   const N = ({ children, tone = "white" }) => {
-    const map = { white: "text-white", amber: "text-amber-300", rose: "text-rose-300" };
+    const map = { white: "text-brand-200", amber: "text-brand-secondary-tint", rose: "text-red-300" };
     return <span className={cx("font-bold tabular-nums", map[tone])}>{children}</span>;
   };
 
   if (tab === "vencidas") {
     return (
-      <span className="text-xs text-white/55">
+      <span className="text-xs text-brand-200/55">
         <N tone="rose">{kpis.total}</N> sin renovar · <N tone="amber">{kpis.masDe30}</N> hace 30+ días
       </span>
     );
   }
   const label = tab === "renovar_hoy" ? "para renovar hoy" : "para los próximos 3 días";
   return (
-    <span className="text-xs text-white/55">
+    <span className="text-xs text-brand-200/55">
       <N>{kpis.total}</N> {label}
     </span>
   );
@@ -220,17 +220,17 @@ function ProgresoDelDia({ hechasHoy = 0, pendientesTotales = 0 }) {
   const completo = pendientesTotales === 0 && hechasHoy > 0;
 
   return (
-    <div className="flex items-center gap-2 text-xs text-white/50 whitespace-nowrap">
+    <div className="flex items-center gap-2 text-xs text-brand-200/50 whitespace-nowrap">
       <span>
-        Hoy gestionaste <span className="font-bold text-white/80 tabular-nums">{hechasHoy}</span>
+        Hoy gestionaste <span className="font-bold text-brand-200/80 tabular-nums">{hechasHoy}</span>
       </span>
-      <span className="relative inline-block h-1.5 w-24 rounded-full bg-white/10 overflow-hidden">
+      <span className="relative inline-block h-1.5 w-24 rounded-full bg-brand-200/10 overflow-hidden">
         <span
-          className={completo ? "absolute inset-y-0 left-0 rounded-full bg-amber-400" : "absolute inset-y-0 left-0 rounded-full bg-emerald-400"}
+          className={completo ? "absolute inset-y-0 left-0 rounded-full bg-brand-secondary" : "absolute inset-y-0 left-0 rounded-full bg-brand-primary"}
           style={{ width: `${pct}%` }}
         />
       </span>
-      {completo && <span className="text-amber-300 font-semibold">¡Listo!</span>}
+      {completo && <span className="text-brand-secondary-tint font-semibold">¡Listo!</span>}
     </div>
   );
 }

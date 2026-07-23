@@ -77,15 +77,15 @@ function RenovacionRow({
   const detalle = p?.renovacion_descartada_detalle || "";
 
   const rowClass = cx(
-    "border-t border-white/5 transition-colors border-l-[3px]",
+    "border-t border-brand-200/5 transition-colors border-l-[3px]",
     descartada
-      ? "border-l-rose-500 bg-rose-500/[0.06] hover:bg-rose-500/[0.10]"
+      ? "border-l-red-500 bg-red-500/[0.06] hover:bg-red-500/[0.10]"
       : verificada
-      ? "border-l-amber-500 bg-amber-500/[0.05] hover:bg-amber-500/[0.09]"
-      : "border-l-transparent hover:bg-sky-500/[0.06]"
+      ? "border-l-brand-secondary bg-brand-secondary/[0.05] hover:bg-brand-secondary/[0.09]"
+      : "border-l-transparent hover:bg-brand-primary/[0.06]"
   );
 
-  const textClass = descartada ? "line-through text-white/45" : "text-white/95";
+  const textClass = descartada ? "line-through text-brand-200/45" : "text-brand-200/95";
 
   // Botón cuadrado de ícono reutilizable
   const IconBtn = ({ onClick, title, disabled, className, children }) => (
@@ -109,7 +109,7 @@ function RenovacionRow({
       {/* Patente */}
       <td className={cx("px-3 py-3 font-bold tabular-nums tracking-wider", textClass)}>
         {verificada && !descartada && (
-          <HiClock className="inline mr-1.5 align-middle text-amber-400 text-base" title="En seguimiento" />
+          <HiClock className="inline mr-1.5 align-middle text-brand-secondary-tint text-base" title="En seguimiento" />
         )}
         {p?.patente || "—"}
       </td>
@@ -133,22 +133,22 @@ function RenovacionRow({
       <td className="px-3 py-3">
         {descartada ? (
           <div className="flex flex-col gap-0.5">
-            <span className="inline-flex items-center gap-1 rounded-full bg-rose-500/20 border border-rose-400/40 text-rose-200 text-[10px] font-bold px-2 py-0.5 w-fit">
+            <span className="inline-flex items-center gap-1 rounded-full bg-red-500/20 border border-red-400/40 text-red-200 text-[10px] font-bold px-2 py-0.5 w-fit">
               <HiXCircle /> No renueva
             </span>
             {motivoLabel && (
-              <span className="text-[10px] text-rose-300/70" title={detalle}>
+              <span className="text-[10px] text-red-300/70" title={detalle}>
                 {motivoLabel}
                 {detalle ? ` · ${detalle.slice(0, 40)}${detalle.length > 40 ? "…" : ""}` : ""}
               </span>
             )}
           </div>
         ) : verificada ? (
-          <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-200 text-[10px] font-bold px-2 py-0.5">
+          <span className="inline-flex items-center gap-1 rounded-full bg-brand-secondary/20 border border-brand-secondary/40 text-brand-secondary-tint text-[10px] font-bold px-2 py-0.5">
             <HiClock /> En seguimiento
           </span>
         ) : (
-          <span className="text-[10px] text-white/30">—</span>
+          <span className="text-[10px] text-brand-200/30">—</span>
         )}
       </td>
 
@@ -161,7 +161,7 @@ function RenovacionRow({
               onClick={() => onDesmarcarNoRenueva?.(p)}
               disabled={submitting}
               title="Revertir 'no renueva'"
-              className="inline-flex items-center gap-1 rounded-lg border border-white/20 bg-white/8 px-3 py-1.5 text-xs font-bold text-white/85 hover:bg-white/15 transition-colors disabled:opacity-40"
+              className="inline-flex items-center gap-1 rounded-lg border border-brand-200/20 bg-brand-200/8 px-3 py-1.5 text-xs font-bold text-brand-200/85 hover:bg-brand-200/15 transition-colors disabled:opacity-40"
             >
               <HiArrowLeft /> Revertir
             </button>
@@ -173,7 +173,7 @@ function RenovacionRow({
                 onClick={() => onRenovar?.(p)}
                 disabled={submitting}
                 title="Renovar póliza"
-                className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-400/40 bg-emerald-500/20 px-3 py-1.5 text-xs font-bold text-emerald-100 hover:bg-emerald-500/30 hover:border-emerald-400/60 transition-colors disabled:opacity-40"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-brand-primary/40 bg-brand-primary/20 px-3 py-1.5 text-xs font-bold text-brand-primary-tint hover:bg-brand-primary/30 hover:border-brand-primary/60 transition-colors disabled:opacity-40"
               >
                 <HiRefresh /> Renovar
               </button>
@@ -185,8 +185,8 @@ function RenovacionRow({
                 title={verificada ? "Quitar de seguimiento" : "Marcar en seguimiento"}
                 className={
                   verificada
-                    ? "border-amber-400/60 bg-amber-500/30 text-amber-100 hover:bg-amber-500/40"
-                    : "border-white/20 bg-white/8 text-white/80 hover:bg-white/15 hover:border-white/35"
+                    ? "border-brand-secondary/60 bg-brand-secondary/30 text-brand-secondary-tint hover:bg-brand-secondary/40"
+                    : "border-brand-200/20 bg-brand-200/8 text-brand-200/80 hover:bg-brand-200/15 hover:border-brand-200/35"
                 }
               >
                 <HiClock />
@@ -197,7 +197,7 @@ function RenovacionRow({
                 onClick={() => onMarcarNoRenueva?.(p)}
                 disabled={submitting}
                 title="Marcar que no va a renovar"
-                className="border-rose-400/40 bg-rose-500/15 text-rose-300 hover:bg-rose-500/25 hover:border-rose-400/60"
+                className="border-red-400/40 bg-red-500/15 text-red-300 hover:bg-red-500/25 hover:border-red-400/60"
               >
                 <HiX />
               </IconBtn>
@@ -211,7 +211,7 @@ function RenovacionRow({
                 aria-label="Ver detalle"
                 className={cx(
                   "inline-flex items-center justify-center h-9 w-9 rounded-lg border transition-colors",
-                  "border-sky-400/40 bg-sky-500/15 text-sky-300 hover:bg-sky-500/25 hover:border-sky-400/60",
+                  "border-brand-primary/40 bg-brand-primary/15 text-brand-primary-tint hover:bg-brand-primary/25 hover:border-brand-primary/60",
                   submitting && "pointer-events-none opacity-40"
                 )}
               >
@@ -241,9 +241,9 @@ export default function RenovacionesTable({
 }) {
   if (loading && (!items || items.length === 0)) {
     return (
-      <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-12 text-center">
-        <div className="inline-block h-8 w-8 animate-spin rounded-full border-2 border-sky-400/30 border-t-sky-400" />
-        <p className="mt-3 text-sm text-white/60">Cargando renovaciones…</p>
+      <div className="rounded-2xl border border-brand-200/10 bg-brand-200/[0.02] p-12 text-center">
+        <div className="inline-block h-8 w-8 animate-spin rounded-full border-2 border-brand-primary/30 border-t-brand-primary" />
+        <p className="mt-3 text-sm text-brand-200/60">Cargando renovaciones…</p>
       </div>
     );
   }
@@ -256,28 +256,28 @@ export default function RenovacionesTable({
     }[tab] || { icon: "—", text: "Sin resultados." };
 
     return (
-      <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-12 text-center">
+      <div className="rounded-2xl border border-brand-200/10 bg-brand-200/[0.02] p-12 text-center">
         <div className="text-4xl mb-2">{empty.icon}</div>
-        <p className="text-sm text-white/60">{empty.text}</p>
+        <p className="text-sm text-brand-200/60">{empty.text}</p>
       </div>
     );
   }
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-white/15 bg-slate-900/60 shadow-lg">
+    <div className="overflow-hidden rounded-2xl border border-brand-200/15 bg-brand-card-dark/60 shadow-lg">
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
-          <thead className="bg-white/[0.04] border-b border-white/10">
+          <thead className="bg-brand-200/[0.04] border-b border-brand-200/10">
             <tr>
               {["Patente", "Compañía", "Asegurado", "Vto", "Estado"].map((h) => (
                 <th
                   key={h}
-                  className="px-3 py-3 text-left text-[10px] font-bold uppercase tracking-[0.1em] text-white/50"
+                  className="px-3 py-3 text-left text-[10px] font-bold uppercase tracking-[0.1em] text-brand-200/50"
                 >
                   {h}
                 </th>
               ))}
-              <th className="px-3 py-3 text-right text-[10px] font-bold uppercase tracking-[0.1em] text-white/50">
+              <th className="px-3 py-3 text-right text-[10px] font-bold uppercase tracking-[0.1em] text-brand-200/50">
                 Acciones
               </th>
             </tr>
@@ -300,8 +300,8 @@ export default function RenovacionesTable({
       </div>
 
       {/* Footer con conteo */}
-      <div className="border-t border-white/10 bg-slate-900/80 px-3 py-2 text-[11px] text-white/55">
-        Mostrando <span className="font-bold text-white/85">{items.length}</span>{" "}
+      <div className="border-t border-brand-200/10 bg-brand-card-dark/80 px-3 py-2 text-[11px] text-brand-200/55">
+        Mostrando <span className="font-bold text-brand-200/85">{items.length}</span>{" "}
         {items.length === 1 ? "póliza" : "pólizas"}
       </div>
     </div>

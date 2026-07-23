@@ -169,7 +169,7 @@ export default function RegistrarPagoModal({ pago, onClose, onSuccess }) {
   };
 
   const fmt = (n) => `$${Number(n || 0).toLocaleString("es-AR")}`;
-  const inputCls = "w-full px-3 h-10 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-sky-400 focus:outline-none text-sm text-slate-900 dark:text-slate-100 disabled:opacity-60 transition";
+  const inputCls = "w-full px-3 h-10 rounded-lg bg-brand-card dark:bg-brand-card-dark border border-brand-100/10 dark:border-brand-200/15 focus:border-brand-primary focus:outline-none text-sm text-brand-100 dark:text-brand-200 disabled:opacity-60 transition";
 
   const cuentaLabel = (() => {
     const m = mediosCobro.find((x) => String(x.id) === String(medioCobroId));
@@ -184,7 +184,7 @@ export default function RegistrarPagoModal({ pago, onClose, onSuccess }) {
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         onClick={onClose}
-        className="fixed inset-0 z-[100] bg-slate-900/80 dark:bg-black/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4"
+        className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4"
       >
         <motion.div
           initial={{ y: 40, opacity: 0 }}
@@ -192,26 +192,26 @@ export default function RegistrarPagoModal({ pago, onClose, onSuccess }) {
           exit={{ y: 40, opacity: 0 }}
           transition={{ type: "spring", damping: 28, stiffness: 320 }}
           onClick={(e) => e.stopPropagation()}
-          className="w-full sm:max-w-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 sm:rounded-2xl rounded-t-3xl shadow-2xl max-h-[95vh] flex flex-col overflow-hidden"
+          className="w-full sm:max-w-lg bg-brand-card dark:bg-brand-card-dark border border-brand-100/10 dark:border-brand-200/10 sm:rounded-2xl rounded-t-3xl shadow-2xl max-h-[95vh] flex flex-col overflow-hidden"
         >
           {/* HEADER */}
-          <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200 dark:border-slate-800 shrink-0">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-brand-100/10 dark:border-brand-200/10 shrink-0">
             <div className="min-w-0 flex-1">
-              <p className="text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-0.5 font-semibold">
+              <p className="text-[10px] text-brand-100/60 dark:text-brand-200/50 uppercase tracking-wider mb-0.5 font-semibold">
                 {yaPagado ? "Detalle del pago" : "Registrar pago"}
               </p>
-              <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 truncate">
+              <h2 className="text-lg font-bold text-brand-100 dark:text-brand-200 truncate">
                 {pago.servicio_nombre}
               </h2>
               {pago.fecha_vencimiento && (
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                <p className="text-xs text-brand-100/60 dark:text-brand-200/50 mt-0.5">
                   Vence: {dayjs(pago.fecha_vencimiento).format("DD/MM/YYYY")}
                 </p>
               )}
             </div>
             <button
               onClick={onClose}
-              className="ml-3 w-9 h-9 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 transition shrink-0"
+              className="ml-3 w-9 h-9 rounded-lg bg-brand-100/5 dark:bg-brand-200/10 hover:bg-brand-100/10 dark:hover:bg-brand-200/15 flex items-center justify-center text-brand-100/70 dark:text-brand-200/80 transition shrink-0"
             >
               <HiX className="w-4 h-4" />
             </button>
@@ -222,17 +222,17 @@ export default function RegistrarPagoModal({ pago, onClose, onSuccess }) {
             {yaPagado ? (
               /* ════════ YA PAGADO: vista de detalle (igual que antes) ════════ */
               <>
-                <div className="flex items-center gap-2 p-3 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-900/50">
-                  <HiCheck className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                  <p className="text-sm text-emerald-700 dark:text-emerald-300 font-medium">
+                <div className="flex items-center gap-2 p-3 rounded-lg bg-brand-primary/10 dark:bg-brand-primary/15 border border-brand-primary/20 dark:border-brand-primary/30">
+                  <HiCheck className="w-5 h-5 text-brand-primary dark:text-brand-primary-tint shrink-0" />
+                  <p className="text-sm text-brand-primary dark:text-brand-primary-tint font-medium">
                     Pagado el {dayjs(pago.fecha_pago).format("DD/MM/YYYY")}
                   </p>
                 </div>
 
                 <Field label="Monto" icon={<HiOutlineCash className="w-3.5 h-3.5" />}>
                   <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xl font-bold text-slate-400">$</span>
-                    <input type="text" value={montoToDisplay(monto)} disabled className="w-full pl-9 pr-3 h-12 text-xl font-bold rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 disabled:opacity-60" />
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xl font-bold text-brand-100/40 dark:text-brand-200/40">$</span>
+                    <input type="text" value={montoToDisplay(monto)} disabled className="w-full pl-9 pr-3 h-12 text-xl font-bold rounded-lg bg-brand-card dark:bg-brand-card-dark border border-brand-100/10 dark:border-brand-200/15 text-brand-100 dark:text-brand-200 disabled:opacity-60" />
                   </div>
                 </Field>
 
@@ -241,7 +241,7 @@ export default function RegistrarPagoModal({ pago, onClose, onSuccess }) {
                 </Field>
 
                 <Field label="Forma de pago" icon={<HiOutlineCreditCard className="w-3.5 h-3.5" />}>
-                  <div className="h-10 flex items-center px-3 rounded-lg bg-slate-100 dark:bg-slate-800 text-sm font-semibold text-slate-700 dark:text-slate-300">
+                  <div className="h-10 flex items-center px-3 rounded-lg bg-brand-100/5 dark:bg-brand-200/10 text-sm font-semibold text-brand-100/80 dark:text-brand-200/80">
                     {labelForma(formaPago)}
                   </div>
                 </Field>
@@ -249,11 +249,11 @@ export default function RegistrarPagoModal({ pago, onClose, onSuccess }) {
                 <Field label="Comprobante" icon={<HiOutlineReceiptTax className="w-3.5 h-3.5" />}>
                   {comprobanteUrl ? (
                     <div className="space-y-2">
-                      <div className="relative rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-900">
+                      <div className="relative rounded-lg overflow-hidden border border-brand-100/10 dark:border-brand-200/15 bg-brand-100/5 dark:bg-brand-card-dark">
                         {comprobanteUrl.toLowerCase().endsWith(".pdf") ? (
-                          <a href={comprobanteUrl} target="_blank" rel="noreferrer" className="block p-6 text-center hover:bg-slate-200 dark:hover:bg-slate-800 transition">
-                            <HiOutlineDocumentText className="w-8 h-8 mx-auto text-slate-400 mb-1" />
-                            <p className="text-xs font-semibold text-slate-600 dark:text-slate-300">Abrir PDF</p>
+                          <a href={comprobanteUrl} target="_blank" rel="noreferrer" className="block p-6 text-center hover:bg-brand-100/10 dark:hover:bg-brand-200/10 transition">
+                            <HiOutlineDocumentText className="w-8 h-8 mx-auto text-brand-100/40 dark:text-brand-200/40 mb-1" />
+                            <p className="text-xs font-semibold text-brand-100/70 dark:text-brand-200/80">Abrir PDF</p>
                           </a>
                         ) : (
                           <a href={comprobanteUrl} target="_blank" rel="noreferrer" title="Ver en grande">
@@ -266,26 +266,26 @@ export default function RegistrarPagoModal({ pago, onClose, onSuccess }) {
                           href={comprobanteUrl}
                           target="_blank"
                           rel="noreferrer"
-                          className="flex-1 h-9 inline-flex items-center justify-center gap-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+                          className="flex-1 h-9 inline-flex items-center justify-center gap-1.5 rounded-lg border border-brand-100/10 dark:border-brand-200/15 text-sm font-medium text-brand-100/80 dark:text-brand-200/85 hover:bg-brand-100/5 dark:hover:bg-brand-200/10 transition"
                         >
                           <HiOutlineEye className="w-4 h-4" /> Ver en grande
                         </a>
                         <a
                           href={comprobanteUrl.includes("/upload/") ? comprobanteUrl.replace("/upload/", "/upload/fl_attachment/") : comprobanteUrl}
-                          className="flex-1 h-9 inline-flex items-center justify-center gap-1.5 rounded-lg bg-sky-500 hover:bg-sky-400 text-white text-sm font-semibold transition"
+                          className="flex-1 h-9 inline-flex items-center justify-center gap-1.5 rounded-lg bg-brand-primary hover:bg-brand-primary-deep text-white text-sm font-semibold transition"
                         >
                           <HiOutlineDownload className="w-4 h-4" /> Descargar
                         </a>
                       </div>
                     </div>
                   ) : (
-                    <p className="text-xs text-slate-500">Sin comprobante</p>
+                    <p className="text-xs text-brand-100/60 dark:text-brand-200/50">Sin comprobante</p>
                   )}
                 </Field>
 
                 {observaciones && (
                   <Field label="Notas">
-                    <p className="text-sm text-slate-600 dark:text-slate-300">{observaciones}</p>
+                    <p className="text-sm text-brand-100/70 dark:text-brand-200/80">{observaciones}</p>
                   </Field>
                 )}
               </>
@@ -297,13 +297,13 @@ export default function RegistrarPagoModal({ pago, onClose, onSuccess }) {
                   {PASOS.map((p, i) => (
                     <Fragment key={p.n}>
                       <div className="flex items-center gap-2">
-                        <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${step >= p.n ? "bg-sky-500 text-white" : "bg-slate-200 dark:bg-slate-700 text-slate-400"}`}>
+                        <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${step >= p.n ? "bg-brand-primary text-white" : "bg-brand-100/10 dark:bg-brand-200/15 text-brand-100/40 dark:text-brand-200/40"}`}>
                           {p.n}
                         </div>
-                        <span className={`text-xs font-medium hidden sm:inline ${step >= p.n ? "text-slate-900 dark:text-slate-100" : "text-slate-400"}`}>{p.label}</span>
+                        <span className={`text-xs font-medium hidden sm:inline ${step >= p.n ? "text-brand-100 dark:text-brand-200" : "text-brand-100/40 dark:text-brand-200/40"}`}>{p.label}</span>
                       </div>
                       {i < PASOS.length - 1 && (
-                        <div className={`flex-1 h-0.5 rounded ${step > p.n ? "bg-sky-500" : "bg-slate-200 dark:bg-slate-700"}`} />
+                        <div className={`flex-1 h-0.5 rounded ${step > p.n ? "bg-brand-primary" : "bg-brand-100/10 dark:bg-brand-200/15"}`} />
                       )}
                     </Fragment>
                   ))}
@@ -314,7 +314,7 @@ export default function RegistrarPagoModal({ pago, onClose, onSuccess }) {
                   <div className="space-y-4">
                     <Field label="Monto" icon={<HiOutlineCash className="w-3.5 h-3.5" />}>
                       <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xl font-bold text-slate-400">$</span>
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xl font-bold text-brand-100/40 dark:text-brand-200/40">$</span>
                         <input
                           type="text"
                           inputMode="decimal"
@@ -322,7 +322,7 @@ export default function RegistrarPagoModal({ pago, onClose, onSuccess }) {
                           onChange={(e) => setMonto(montoFromInput(e.target.value))}
                           placeholder="0"
                           autoFocus
-                          className="w-full pl-9 pr-3 h-12 text-xl font-bold rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-sky-400 focus:outline-none text-slate-900 dark:text-slate-100 transition"
+                          className="w-full pl-9 pr-3 h-12 text-xl font-bold rounded-lg bg-brand-card dark:bg-brand-card-dark border border-brand-100/10 dark:border-brand-200/15 focus:border-brand-primary focus:outline-none text-brand-100 dark:text-brand-200 transition"
                         />
                       </div>
                     </Field>
@@ -349,8 +349,8 @@ export default function RegistrarPagoModal({ pago, onClose, onSuccess }) {
                             onClick={() => setFormaPago(opt.v)}
                             className={`h-10 rounded-lg text-xs font-semibold transition ${
                               formaPago === opt.v
-                                ? "bg-sky-500 text-white"
-                                : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700"
+                                ? "bg-brand-primary text-white"
+                                : "bg-brand-100/5 dark:bg-brand-200/10 text-brand-100/70 dark:text-brand-200/60 hover:bg-brand-100/10 dark:hover:bg-brand-200/15"
                             }`}
                           >
                             {opt.label}
@@ -374,7 +374,7 @@ export default function RegistrarPagoModal({ pago, onClose, onSuccess }) {
                           })}
                         </select>
                         {mediosCobro.length === 0 && (
-                          <p className="text-xs text-amber-500 mt-1">
+                          <p className="text-xs text-brand-secondary dark:text-brand-secondary-tint mt-1">
                             ⚠️ No hay billeteras configuradas. Cargá una desde Configuración de Pagos.
                           </p>
                         )}
@@ -382,7 +382,7 @@ export default function RegistrarPagoModal({ pago, onClose, onSuccess }) {
                     )}
 
                     {formaPago === "EFECTIVO" && (
-                      <p className="text-[11px] text-slate-500 dark:text-slate-400 italic">
+                      <p className="text-[11px] text-brand-100/60 dark:text-brand-200/50 italic">
                         Pago en efectivo: no hace falta seleccionar cuenta.
                       </p>
                     )}
@@ -393,15 +393,15 @@ export default function RegistrarPagoModal({ pago, onClose, onSuccess }) {
                 {step === 3 && (
                   <div className="space-y-4">
                     <Field
-                      label={<>Comprobante <span className="text-rose-500">*</span></>}
+                      label={<>Comprobante <span className="text-red-500">*</span></>}
                       icon={<HiOutlineReceiptTax className="w-3.5 h-3.5" />}
                     >
                       {comprobanteUrl ? (
-                        <div className="relative rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+                        <div className="relative rounded-lg overflow-hidden border border-brand-100/10 dark:border-brand-200/15 bg-brand-200/60 dark:bg-brand-200/[0.05]">
                           {comprobanteFile?.type === "application/pdf" || comprobanteUrl?.endsWith?.(".pdf") ? (
-                            <a href={comprobanteUrl} target="_blank" rel="noreferrer" className="block p-6 text-center hover:bg-slate-100 dark:hover:bg-slate-700 transition">
-                              <HiOutlineDocumentText className="w-8 h-8 mx-auto text-slate-400 mb-1" />
-                              <p className="text-xs font-semibold text-slate-600 dark:text-slate-300">Ver PDF</p>
+                            <a href={comprobanteUrl} target="_blank" rel="noreferrer" className="block p-6 text-center hover:bg-brand-100/5 dark:hover:bg-brand-200/15 transition">
+                              <HiOutlineDocumentText className="w-8 h-8 mx-auto text-brand-100/40 dark:text-brand-200/40 mb-1" />
+                              <p className="text-xs font-semibold text-brand-100/70 dark:text-brand-200/80">Ver PDF</p>
                             </a>
                           ) : (
                             <img src={comprobanteUrl} alt="" className="w-full h-36 object-cover" />
@@ -409,7 +409,7 @@ export default function RegistrarPagoModal({ pago, onClose, onSuccess }) {
                           <button
                             type="button"
                             onClick={() => { setComprobanteFile(null); setComprobanteUrl(null); }}
-                            className="absolute top-2 right-2 w-7 h-7 rounded-full bg-rose-500 hover:bg-rose-400 flex items-center justify-center text-white transition"
+                            className="absolute top-2 right-2 w-7 h-7 rounded-full bg-red-500 hover:bg-red-400 flex items-center justify-center text-white transition"
                           >
                             <HiX className="w-3.5 h-3.5" />
                           </button>
@@ -417,10 +417,10 @@ export default function RegistrarPagoModal({ pago, onClose, onSuccess }) {
                       ) : (
                         <label className="block cursor-pointer">
                           <input type="file" accept="image/*,application/pdf" onChange={handleFile} className="hidden" />
-                          <div className="rounded-lg border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 px-4 py-6 text-center transition">
-                            <HiOutlineCloudUpload className="w-8 h-8 mx-auto text-slate-400 mb-1.5" />
-                            <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">Subir comprobante</p>
-                            <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">Foto o PDF</p>
+                          <div className="rounded-lg border-2 border-dashed border-brand-100/20 dark:border-brand-200/15 hover:border-brand-primary hover:bg-brand-primary/10 dark:hover:bg-brand-primary/15 px-4 py-6 text-center transition">
+                            <HiOutlineCloudUpload className="w-8 h-8 mx-auto text-brand-100/40 dark:text-brand-200/40 mb-1.5" />
+                            <p className="text-xs font-semibold text-brand-100/80 dark:text-brand-200/80">Subir comprobante</p>
+                            <p className="text-[10px] text-brand-100/60 dark:text-brand-200/50 mt-0.5">Foto o PDF</p>
                           </div>
                         </label>
                       )}
@@ -432,18 +432,18 @@ export default function RegistrarPagoModal({ pago, onClose, onSuccess }) {
                         onChange={(e) => setObservaciones(e.target.value)}
                         rows={2}
                         placeholder="..."
-                        className="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-sky-400 focus:outline-none resize-none text-sm text-slate-900 dark:text-slate-100 transition"
+                        className="w-full px-3 py-2 rounded-lg bg-brand-card dark:bg-brand-card-dark border border-brand-100/10 dark:border-brand-200/15 focus:border-brand-primary focus:outline-none resize-none text-sm text-brand-100 dark:text-brand-200 transition"
                       />
                     </Field>
 
                     {/* Resumen */}
-                    <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/40 p-3 text-sm space-y-1.5">
-                      <p className="text-[11px] uppercase tracking-wider text-slate-400 mb-1">Resumen</p>
-                      <div className="flex justify-between"><span className="text-slate-500">Monto</span><span className="font-bold text-slate-800 dark:text-slate-100">{fmt(monto)}</span></div>
-                      <div className="flex justify-between"><span className="text-slate-500">Fecha</span><span className="text-slate-800 dark:text-slate-100">{dayjs(fecha).format("DD/MM/YYYY")}</span></div>
-                      <div className="flex justify-between"><span className="text-slate-500">Forma de pago</span><span className="text-slate-800 dark:text-slate-100">{labelForma(formaPago)}</span></div>
+                    <div className="rounded-xl border border-brand-100/10 dark:border-brand-200/15 bg-brand-200/60 dark:bg-brand-200/[0.04] p-3 text-sm space-y-1.5">
+                      <p className="text-[11px] uppercase tracking-wider text-brand-100/40 dark:text-brand-200/40 mb-1">Resumen</p>
+                      <div className="flex justify-between"><span className="text-brand-100/60 dark:text-brand-200/50">Monto</span><span className="font-bold text-brand-100 dark:text-brand-200">{fmt(monto)}</span></div>
+                      <div className="flex justify-between"><span className="text-brand-100/60 dark:text-brand-200/50">Fecha</span><span className="text-brand-100 dark:text-brand-200">{dayjs(fecha).format("DD/MM/YYYY")}</span></div>
+                      <div className="flex justify-between"><span className="text-brand-100/60 dark:text-brand-200/50">Forma de pago</span><span className="text-brand-100 dark:text-brand-200">{labelForma(formaPago)}</span></div>
                       {formaPago !== "EFECTIVO" && (
-                        <div className="flex justify-between"><span className="text-slate-500">Cuenta</span><span className="text-slate-800 dark:text-slate-100">{cuentaLabel || "—"}</span></div>
+                        <div className="flex justify-between"><span className="text-brand-100/60 dark:text-brand-200/50">Cuenta</span><span className="text-brand-100 dark:text-brand-200">{cuentaLabel || "—"}</span></div>
                       )}
                     </div>
                   </div>
@@ -453,30 +453,30 @@ export default function RegistrarPagoModal({ pago, onClose, onSuccess }) {
           </div>
 
           {/* FOOTER */}
-          <div className="px-5 py-4 border-t border-slate-200 dark:border-slate-800 shrink-0 bg-white dark:bg-slate-900">
+          <div className="px-5 py-4 border-t border-brand-100/10 dark:border-brand-200/10 shrink-0 bg-brand-card dark:bg-brand-card-dark">
             {yaPagado ? (
               <button
                 type="button"
                 onClick={handleDeshacer}
                 disabled={submitting}
-                className="w-full h-11 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-rose-900/30 text-slate-600 dark:text-slate-300 hover:text-rose-600 dark:hover:text-rose-400 font-semibold text-sm transition disabled:opacity-50"
+                className="w-full h-11 rounded-xl bg-brand-100/5 dark:bg-brand-200/10 hover:bg-red-500/10 dark:hover:bg-red-500/20 text-brand-100/70 dark:text-brand-200/80 hover:text-red-600 dark:hover:text-red-400 font-semibold text-sm transition disabled:opacity-50"
               >
                 Deshacer pago
               </button>
             ) : (
               <div className="flex gap-2">
                 {step === 1 ? (
-                  <button type="button" onClick={onClose} className="flex-1 h-11 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold text-sm transition">
+                  <button type="button" onClick={onClose} className="flex-1 h-11 rounded-xl bg-brand-100/5 dark:bg-brand-200/10 hover:bg-brand-100/10 dark:hover:bg-brand-200/15 text-brand-100/80 dark:text-brand-200/85 font-semibold text-sm transition">
                     Cancelar
                   </button>
                 ) : (
-                  <button type="button" onClick={atras} className="flex-1 h-11 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold text-sm transition">
+                  <button type="button" onClick={atras} className="flex-1 h-11 rounded-xl bg-brand-100/5 dark:bg-brand-200/10 hover:bg-brand-100/10 dark:hover:bg-brand-200/15 text-brand-100/80 dark:text-brand-200/85 font-semibold text-sm transition">
                     ← Atrás
                   </button>
                 )}
 
                 {step < 3 ? (
-                  <button type="button" onClick={siguiente} className="flex-1 h-11 rounded-xl bg-sky-500 hover:bg-sky-400 font-bold text-white text-sm transition">
+                  <button type="button" onClick={siguiente} className="flex-1 h-11 rounded-xl bg-brand-primary hover:bg-brand-primary-deep font-bold text-white text-sm transition">
                     Siguiente →
                   </button>
                 ) : (
@@ -484,7 +484,7 @@ export default function RegistrarPagoModal({ pago, onClose, onSuccess }) {
                     type="button"
                     onClick={handleSubmit}
                     disabled={submitting || subiendo}
-                    className="flex-1 h-11 rounded-xl bg-sky-500 hover:bg-sky-400 font-bold text-white text-sm transition disabled:opacity-50 flex items-center justify-center gap-2"
+                    className="flex-1 h-11 rounded-xl bg-brand-primary hover:bg-brand-primary-deep font-bold text-white text-sm transition disabled:opacity-50 flex items-center justify-center gap-2"
                   >
                     {subiendo || submitting ? (
                       <>
@@ -511,7 +511,7 @@ export default function RegistrarPagoModal({ pago, onClose, onSuccess }) {
 function Field({ label, icon, children }) {
   return (
     <div>
-      <label className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
+      <label className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-brand-100/60 dark:text-brand-200/50 mb-1.5">
         {icon}
         <span>{label}</span>
       </label>

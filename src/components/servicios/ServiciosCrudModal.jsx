@@ -49,7 +49,7 @@ const getIcon = (nombre = "") => {
 };
 
 const COLORES_CATEGORIA = [
-  { value: "sky", label: "Celeste", cls: "bg-sky-500" },
+  { value: "sky", label: "Celeste", cls: "bg-brand-primary" },
   { value: "emerald", label: "Verde", cls: "bg-emerald-500" },
   { value: "amber", label: "Amarillo", cls: "bg-amber-500" },
   { value: "rose", label: "Rojo", cls: "bg-rose-500" },
@@ -60,7 +60,7 @@ const COLORES_CATEGORIA = [
 ];
 
 const COLOR_MAP = {
-  sky: "bg-sky-500",
+  sky: "bg-brand-primary",
   emerald: "bg-emerald-500",
   amber: "bg-amber-500",
   rose: "bg-rose-500",
@@ -140,7 +140,7 @@ export default function ServiciosCrudModal({ isOpen, onClose }) {
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         onClick={onClose}
-        className="fixed inset-0 z-[100] bg-slate-900/80 dark:bg-black/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4"
+        className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4"
       >
         <motion.div
           initial={{ y: 40, opacity: 0 }}
@@ -148,29 +148,29 @@ export default function ServiciosCrudModal({ isOpen, onClose }) {
           exit={{ y: 40, opacity: 0 }}
           transition={{ type: "spring", damping: 28, stiffness: 320 }}
           onClick={(e) => e.stopPropagation()}
-          className="w-full sm:max-w-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 sm:rounded-2xl rounded-t-3xl shadow-2xl max-h-[95vh] flex flex-col overflow-hidden"
+          className="w-full sm:max-w-lg bg-brand-card dark:bg-brand-card-dark border border-brand-100/10 dark:border-brand-200/10 sm:rounded-2xl rounded-t-3xl shadow-2xl max-h-[95vh] flex flex-col overflow-hidden"
         >
           {/* HEADER */}
-          <div className="flex items-center gap-3 px-5 py-4 border-b border-slate-200 dark:border-slate-800 shrink-0">
+          <div className="flex items-center gap-3 px-5 py-4 border-b border-brand-100/10 dark:border-brand-200/10 shrink-0">
             {enForm && (
               <button
                 onClick={() => setVista("lista")}
-                className="w-9 h-9 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 transition shrink-0"
+                className="w-9 h-9 rounded-lg bg-brand-100/5 dark:bg-brand-200/10 hover:bg-brand-100/10 dark:hover:bg-brand-200/15 flex items-center justify-center text-brand-100/70 dark:text-brand-200/80 transition shrink-0"
               >
                 <HiArrowLeft className="w-4 h-4" />
               </button>
             )}
             <div className="flex-1 min-w-0">
-              <p className="text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-0.5 font-semibold">
+              <p className="text-[10px] text-brand-100/60 dark:text-brand-200/50 uppercase tracking-wider mb-0.5 font-semibold">
                 {tituloVista}
               </p>
-              <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 truncate">
+              <h2 className="text-lg font-bold text-brand-100 dark:text-brand-200 truncate">
                 {subtitulo}
               </h2>
             </div>
             <button
               onClick={onClose}
-              className="w-9 h-9 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 transition shrink-0"
+              className="w-9 h-9 rounded-lg bg-brand-100/5 dark:bg-brand-200/10 hover:bg-brand-100/10 dark:hover:bg-brand-200/15 flex items-center justify-center text-brand-100/70 dark:text-brand-200/80 transition shrink-0"
             >
               <HiX className="w-4 h-4" />
             </button>
@@ -178,18 +178,18 @@ export default function ServiciosCrudModal({ isOpen, onClose }) {
 
           {/* TABS (solo en vista lista) */}
           {vista === "lista" && (
-            <div className="flex gap-1 px-5 pt-3 border-b border-slate-200 dark:border-slate-800 shrink-0">
+            <div className="flex gap-1 px-5 pt-3 border-b border-brand-100/10 dark:border-brand-200/10 shrink-0">
               <button
                 onClick={() => setTab("servicios")}
                 className={`flex items-center gap-2 px-3 py-2 text-sm font-semibold border-b-2 transition ${
                   tab === "servicios"
-                    ? "border-sky-500 text-sky-500"
-                    : "border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+                    ? "border-brand-primary text-brand-primary dark:text-brand-primary-tint"
+                    : "border-transparent text-brand-100/60 dark:text-brand-200/50 hover:text-brand-100/80 dark:hover:text-brand-200/80"
                 }`}
               >
                 <HiCog className="w-4 h-4" />
                 Servicios
-                <span className="text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded px-1.5 py-0.5">
+                <span className="text-[10px] bg-brand-100/5 dark:bg-brand-200/10 text-brand-100/70 dark:text-brand-200/60 rounded px-1.5 py-0.5">
                   {servicios.length}
                 </span>
               </button>
@@ -197,13 +197,13 @@ export default function ServiciosCrudModal({ isOpen, onClose }) {
                 onClick={() => setTab("categorias")}
                 className={`flex items-center gap-2 px-3 py-2 text-sm font-semibold border-b-2 transition ${
                   tab === "categorias"
-                    ? "border-sky-500 text-sky-500"
-                    : "border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+                    ? "border-brand-primary text-brand-primary dark:text-brand-primary-tint"
+                    : "border-transparent text-brand-100/60 dark:text-brand-200/50 hover:text-brand-100/80 dark:hover:text-brand-200/80"
                 }`}
               >
                 <HiTag className="w-4 h-4" />
                 Categorías
-                <span className="text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded px-1.5 py-0.5">
+                <span className="text-[10px] bg-brand-100/5 dark:bg-brand-200/10 text-brand-100/70 dark:text-brand-200/60 rounded px-1.5 py-0.5">
                   {categorias.length}
                 </span>
               </button>
@@ -262,13 +262,13 @@ function ListaServicios({ servicios, onNuevo, onEditar, onEliminar }) {
   if (servicios.length === 0) {
     return (
       <div className="px-6 py-12 text-center">
-        <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-sky-50 dark:bg-sky-900/20 flex items-center justify-center">
-          <HiOutlineCash className="w-7 h-7 text-sky-500" />
+        <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-brand-primary/10 dark:bg-brand-primary/15 flex items-center justify-center">
+          <HiOutlineCash className="w-7 h-7 text-brand-primary dark:text-brand-primary-tint" />
         </div>
-        <p className="text-sm text-slate-500 dark:text-slate-400 mb-5">Sin servicios cargados</p>
+        <p className="text-sm text-brand-100/60 dark:text-brand-200/50 mb-5">Sin servicios cargados</p>
         <button
           onClick={onNuevo}
-          className="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-sm font-semibold bg-sky-500 hover:bg-sky-400 text-white transition"
+          className="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-sm font-semibold bg-brand-primary hover:bg-brand-primary-deep text-white transition"
         >
           <HiPlus className="w-4 h-4" />
           Agregar primero
@@ -285,29 +285,29 @@ function ListaServicios({ servicios, onNuevo, onEditar, onEliminar }) {
           return (
             <div
               key={s.id}
-              className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 transition group"
+              className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-brand-200/60 dark:bg-brand-200/[0.04] hover:bg-brand-100/5 dark:hover:bg-brand-200/10 border border-brand-100/10 dark:border-brand-200/10 transition group"
             >
               <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${
                 s.activo
-                  ? "bg-sky-50 dark:bg-sky-900/20 text-sky-600 dark:text-sky-400"
-                  : "bg-slate-200 dark:bg-slate-700 text-slate-400"
+                  ? "bg-brand-primary/10 dark:bg-brand-primary/20 text-brand-primary dark:text-brand-primary-tint"
+                  : "bg-brand-100/10 dark:bg-brand-200/15 text-brand-100/40 dark:text-brand-200/40"
               }`}>
                 <Icon className="w-5 h-5" />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <p className={`font-semibold truncate text-sm ${
-                    s.activo ? "text-slate-900 dark:text-slate-100" : "text-slate-400"
+                    s.activo ? "text-brand-100 dark:text-brand-200" : "text-brand-100/40 dark:text-brand-200/40"
                   }`}>
                     {s.nombre}
                   </p>
                   {!s.activo && (
-                    <span className="text-[9px] bg-slate-200 dark:bg-slate-700 text-slate-500 px-1.5 py-0.5 rounded uppercase tracking-wider font-bold">
+                    <span className="text-[9px] bg-brand-100/10 dark:bg-brand-200/15 text-brand-100/60 dark:text-brand-200/50 px-1.5 py-0.5 rounded uppercase tracking-wider font-bold">
                       Pausado
                     </span>
                   )}
                 </div>
-                <p className="text-xs text-slate-500 dark:text-slate-400">
+                <p className="text-xs text-brand-100/60 dark:text-brand-200/50">
                   Día {s.dia_vencimiento} · {s.categoria || "Sin categoría"}
                   {s.monto_estimado > 0 && (
                     <span className="ml-1">· ${Number(s.monto_estimado).toLocaleString("es-AR")}</span>
@@ -317,13 +317,13 @@ function ListaServicios({ servicios, onNuevo, onEditar, onEliminar }) {
               <div className="flex items-center gap-0.5 opacity-50 group-hover:opacity-100 transition">
                 <button
                   onClick={() => onEditar(s)}
-                  className="w-8 h-8 rounded-lg hover:bg-white dark:hover:bg-slate-700 flex items-center justify-center text-slate-500 hover:text-sky-500 transition"
+                  className="w-8 h-8 rounded-lg hover:bg-brand-card dark:hover:bg-brand-200/15 flex items-center justify-center text-brand-100/60 dark:text-brand-200/50 hover:text-brand-primary dark:text-brand-primary-tint transition"
                 >
                   <HiPencil className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => onEliminar(s)}
-                  className="w-8 h-8 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-900/30 flex items-center justify-center text-slate-500 hover:text-rose-500 transition"
+                  className="w-8 h-8 rounded-lg hover:bg-red-500/10 dark:hover:bg-red-500/20 flex items-center justify-center text-brand-100/60 dark:text-brand-200/50 hover:text-red-500 transition"
                 >
                   <HiTrash className="w-4 h-4" />
                 </button>
@@ -335,7 +335,7 @@ function ListaServicios({ servicios, onNuevo, onEditar, onEliminar }) {
 
       <button
         onClick={onNuevo}
-        className="w-full py-3 rounded-xl border border-dashed border-slate-300 dark:border-slate-700 hover:border-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 text-sm text-slate-500 dark:text-slate-400 hover:text-sky-500 transition flex items-center justify-center gap-2 font-medium"
+        className="w-full py-3 rounded-xl border border-dashed border-brand-100/20 dark:border-brand-200/15 hover:border-brand-primary hover:bg-brand-primary/10 dark:hover:bg-brand-primary/15 text-sm text-brand-100/60 dark:text-brand-200/50 hover:text-brand-primary dark:text-brand-primary-tint transition flex items-center justify-center gap-2 font-medium"
       >
         <HiPlus className="w-4 h-4" />
         Agregar servicio
@@ -351,16 +351,16 @@ function ListaCategorias({ categorias, onNueva, onEditar, onEliminar }) {
   if (categorias.length === 0) {
     return (
       <div className="px-6 py-12 text-center">
-        <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-sky-50 dark:bg-sky-900/20 flex items-center justify-center">
-          <HiTag className="w-7 h-7 text-sky-500" />
+        <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-brand-primary/10 dark:bg-brand-primary/15 flex items-center justify-center">
+          <HiTag className="w-7 h-7 text-brand-primary dark:text-brand-primary-tint" />
         </div>
-        <p className="text-sm text-slate-500 dark:text-slate-400 mb-2">Sin categorías</p>
-        <p className="text-xs text-slate-400 dark:text-slate-500 mb-5 max-w-xs mx-auto">
+        <p className="text-sm text-brand-100/60 dark:text-brand-200/50 mb-2">Sin categorías</p>
+        <p className="text-xs text-brand-100/40 dark:text-brand-200/40 mb-5 max-w-xs mx-auto">
           Creá categorías para organizar tus servicios (Ej: Servicios Públicos, Alquileres, Internet)
         </p>
         <button
           onClick={onNueva}
-          className="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-sm font-semibold bg-sky-500 hover:bg-sky-400 text-white transition"
+          className="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-sm font-semibold bg-brand-primary hover:bg-brand-primary-deep text-white transition"
         >
           <HiPlus className="w-4 h-4" />
           Crear primera categoría
@@ -375,16 +375,16 @@ function ListaCategorias({ categorias, onNueva, onEditar, onEliminar }) {
         {categorias.map((c) => (
           <div
             key={c.id}
-            className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 transition group"
+            className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-brand-200/60 dark:bg-brand-200/[0.04] hover:bg-brand-100/5 dark:hover:bg-brand-200/10 border border-brand-100/10 dark:border-brand-200/10 transition group"
           >
-            <div className={`w-3 h-10 rounded-full shrink-0 ${COLOR_MAP[c.color] || "bg-sky-500"}`} />
+            <div className={`w-3 h-10 rounded-full shrink-0 ${COLOR_MAP[c.color] || "bg-brand-primary"}`} />
             <div className="flex-1 min-w-0">
               <p className={`font-semibold truncate text-sm ${
-                c.activo ? "text-slate-900 dark:text-slate-100" : "text-slate-400"
+                c.activo ? "text-brand-100 dark:text-brand-200" : "text-brand-100/40 dark:text-brand-200/40"
               }`}>
                 {c.nombre}
               </p>
-              <p className="text-xs text-slate-500 dark:text-slate-400">
+              <p className="text-xs text-brand-100/60 dark:text-brand-200/50">
                 {c.cantidad_servicios} servicio{c.cantidad_servicios !== 1 ? "s" : ""} usándola
                 {!c.activo && " · pausada"}
               </p>
@@ -392,13 +392,13 @@ function ListaCategorias({ categorias, onNueva, onEditar, onEliminar }) {
             <div className="flex items-center gap-0.5 opacity-50 group-hover:opacity-100 transition">
               <button
                 onClick={() => onEditar(c)}
-                className="w-8 h-8 rounded-lg hover:bg-white dark:hover:bg-slate-700 flex items-center justify-center text-slate-500 hover:text-sky-500 transition"
+                className="w-8 h-8 rounded-lg hover:bg-brand-card dark:hover:bg-brand-200/15 flex items-center justify-center text-brand-100/60 dark:text-brand-200/50 hover:text-brand-primary dark:text-brand-primary-tint transition"
               >
                 <HiPencil className="w-4 h-4" />
               </button>
               <button
                 onClick={() => onEliminar(c)}
-                className="w-8 h-8 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-900/30 flex items-center justify-center text-slate-500 hover:text-rose-500 transition"
+                className="w-8 h-8 rounded-lg hover:bg-red-500/10 dark:hover:bg-red-500/20 flex items-center justify-center text-brand-100/60 dark:text-brand-200/50 hover:text-red-500 transition"
               >
                 <HiTrash className="w-4 h-4" />
               </button>
@@ -409,7 +409,7 @@ function ListaCategorias({ categorias, onNueva, onEditar, onEliminar }) {
 
       <button
         onClick={onNueva}
-        className="w-full py-3 rounded-xl border border-dashed border-slate-300 dark:border-slate-700 hover:border-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 text-sm text-slate-500 dark:text-slate-400 hover:text-sky-500 transition flex items-center justify-center gap-2 font-medium"
+        className="w-full py-3 rounded-xl border border-dashed border-brand-100/20 dark:border-brand-200/15 hover:border-brand-primary hover:bg-brand-primary/10 dark:hover:bg-brand-primary/15 text-sm text-brand-100/60 dark:text-brand-200/50 hover:text-brand-primary dark:text-brand-primary-tint transition flex items-center justify-center gap-2 font-medium"
       >
         <HiPlus className="w-4 h-4" />
         Agregar categoría
@@ -506,7 +506,7 @@ function FormServicio({ servicio, oficinas, categorias, onCancel, onSaved, onIrA
     }
   };
 
-  const inputCls = "w-full px-3 h-10 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-sky-400 focus:outline-none text-sm text-slate-900 dark:text-slate-100 transition";
+  const inputCls = "w-full px-3 h-10 rounded-lg bg-brand-card dark:bg-brand-card-dark border border-brand-100/10 dark:border-brand-200/15 focus:border-brand-primary focus:outline-none text-sm text-brand-100 dark:text-brand-200 transition";
 
   return (
     <form onSubmit={handleSubmit} className="p-5 space-y-4">
@@ -529,7 +529,7 @@ function FormServicio({ servicio, oficinas, categorias, onCancel, onSaved, onIrA
         ) : (
           <>
             <input type="text" value={categoria} onChange={(e) => setCategoria(e.target.value)} placeholder="Sin categorías cargadas..." className={inputCls} />
-            <button type="button" onClick={onIrACategorias} className="text-[11px] text-sky-500 hover:underline mt-1 inline-flex items-center gap-1">
+            <button type="button" onClick={onIrACategorias} className="text-[11px] text-brand-primary dark:text-brand-primary-tint hover:underline mt-1 inline-flex items-center gap-1">
               💡 Crear categorías para reutilizar
             </button>
           </>
@@ -539,7 +539,7 @@ function FormServicio({ servicio, oficinas, categorias, onCancel, onSaved, onIrA
       <Field label="Día de vencimiento" required>
         <input type="number" min={1} max={31} value={diaVencimiento} onChange={(e) => setDiaVencimiento(e.target.value)} className={`${inputCls} text-center font-bold text-lg`} />
       </Field>
-      <p className="text-[11px] text-slate-500 dark:text-slate-400 italic -mt-2">
+      <p className="text-[11px] text-brand-100/60 dark:text-brand-200/50 italic -mt-2">
         Te avisamos 3 días antes del vencimiento ✨ · El monto lo cargás al pagar (estos gastos suelen variar).
       </p>
 
@@ -555,27 +555,27 @@ function FormServicio({ servicio, oficinas, categorias, onCancel, onSaved, onIrA
       )}
 
       {!oficinaId && (
-        <div className="rounded-xl border border-amber-300 dark:border-amber-500/40 bg-amber-50 dark:bg-amber-500/10 px-3 py-2 text-[11px] text-amber-700 dark:text-amber-300">
+        <div className="rounded-xl border border-brand-secondary/30 dark:border-brand-secondary/40 bg-brand-secondary/10 dark:bg-brand-secondary/10 px-3 py-2 text-[11px] text-brand-secondary dark:text-brand-secondary-tint">
           ⚠️ Sin sucursal, el gasto no va a sumar en la caja de ninguna oficina.
         </div>
       )}
 
-      <label className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+      <label className="flex items-center justify-between p-3 rounded-xl bg-brand-200/60 dark:bg-brand-200/[0.05] border border-brand-100/10 dark:border-brand-200/15 cursor-pointer hover:bg-brand-100/5 dark:hover:bg-brand-200/10 transition">
         <div>
-          <p className="font-semibold text-sm text-slate-900 dark:text-slate-100">Servicio activo</p>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+          <p className="font-semibold text-sm text-brand-100 dark:text-brand-200">Servicio activo</p>
+          <p className="text-xs text-brand-100/60 dark:text-brand-200/50 mt-0.5">
             {activo ? "Se generan pagos cada mes" : "No se generan pagos"}
           </p>
         </div>
-        <input type="checkbox" checked={activo} onChange={(e) => setActivo(e.target.checked)} className="w-5 h-5 accent-sky-500" />
+        <input type="checkbox" checked={activo} onChange={(e) => setActivo(e.target.checked)} className="w-5 h-5 accent-brand-primary" />
       </label>
 
       {/* Footer */}
       <div className="flex gap-2 pt-1">
-        <button type="button" onClick={onCancel} className="flex-1 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold text-sm transition">
+        <button type="button" onClick={onCancel} className="flex-1 h-10 rounded-xl bg-brand-100/5 dark:bg-brand-200/10 hover:bg-brand-100/10 dark:hover:bg-brand-200/15 text-brand-100/80 dark:text-brand-200/85 font-semibold text-sm transition">
           Cancelar
         </button>
-        <button type="submit" disabled={guardando} className="flex-1 h-10 rounded-xl bg-sky-500 hover:bg-sky-400 text-white font-bold text-sm transition disabled:opacity-50 flex items-center justify-center gap-2">
+        <button type="submit" disabled={guardando} className="flex-1 h-10 rounded-xl bg-brand-primary hover:bg-brand-primary-deep text-white font-bold text-sm transition disabled:opacity-50 flex items-center justify-center gap-2">
           {guardando ? (
             <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
           ) : (
@@ -626,7 +626,7 @@ function FormCategoria({ categoria, onCancel, onSaved }) {
     }
   };
 
-  const inputCls = "w-full px-3 h-10 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-sky-400 focus:outline-none text-sm text-slate-900 dark:text-slate-100 transition";
+  const inputCls = "w-full px-3 h-10 rounded-lg bg-brand-card dark:bg-brand-card-dark border border-brand-100/10 dark:border-brand-200/15 focus:border-brand-primary focus:outline-none text-sm text-brand-100 dark:text-brand-200 transition";
 
   return (
     <form onSubmit={handleSubmit} className="p-5 space-y-4">
@@ -650,8 +650,8 @@ function FormCategoria({ categoria, onCancel, onSaved }) {
               onClick={() => setColor(c.value)}
               className={`flex items-center gap-2 px-3 h-10 rounded-lg text-xs font-semibold transition ${
                 color === c.value
-                  ? "bg-slate-100 dark:bg-slate-800 ring-2 ring-sky-500 text-slate-900 dark:text-white"
-                  : "bg-slate-50 dark:bg-slate-800/40 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+                  ? "bg-brand-100/5 dark:bg-brand-200/10 ring-2 ring-brand-primary text-brand-100 dark:text-brand-200"
+                  : "bg-brand-200/60 dark:bg-brand-200/[0.04] text-brand-100/70 dark:text-brand-200/60 hover:bg-brand-100/5 dark:hover:bg-brand-200/10"
               }`}
             >
               <span className={`w-3 h-3 rounded-full ${c.cls}`} />
@@ -661,10 +661,10 @@ function FormCategoria({ categoria, onCancel, onSaved }) {
         </div>
       </Field>
 
-      <label className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 cursor-pointer">
+      <label className="flex items-center justify-between p-3 rounded-xl bg-brand-200/60 dark:bg-brand-200/[0.05] border border-brand-100/10 dark:border-brand-200/15 cursor-pointer">
         <div>
-          <p className="font-semibold text-sm text-slate-900 dark:text-slate-100">Activa</p>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+          <p className="font-semibold text-sm text-brand-100 dark:text-brand-200">Activa</p>
+          <p className="text-xs text-brand-100/60 dark:text-brand-200/50 mt-0.5">
             {activo ? "Disponible en el selector" : "No aparece en el selector"}
           </p>
         </div>
@@ -672,7 +672,7 @@ function FormCategoria({ categoria, onCancel, onSaved }) {
           type="checkbox"
           checked={activo}
           onChange={(e) => setActivo(e.target.checked)}
-          className="w-5 h-5 accent-sky-500"
+          className="w-5 h-5 accent-brand-primary"
         />
       </label>
 
@@ -680,14 +680,14 @@ function FormCategoria({ categoria, onCancel, onSaved }) {
         <button
           type="button"
           onClick={onCancel}
-          className="flex-1 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold text-sm transition"
+          className="flex-1 h-10 rounded-xl bg-brand-100/5 dark:bg-brand-200/10 hover:bg-brand-100/10 dark:hover:bg-brand-200/15 text-brand-100/80 dark:text-brand-200/85 font-semibold text-sm transition"
         >
           Cancelar
         </button>
         <button
           type="submit"
           disabled={guardando}
-          className="flex-1 h-10 rounded-xl bg-sky-500 hover:bg-sky-400 text-white font-bold text-sm transition disabled:opacity-50 flex items-center justify-center gap-2"
+          className="flex-1 h-10 rounded-xl bg-brand-primary hover:bg-brand-primary-deep text-white font-bold text-sm transition disabled:opacity-50 flex items-center justify-center gap-2"
         >
           {guardando ? (
             <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -706,8 +706,8 @@ function FormCategoria({ categoria, onCancel, onSaved }) {
 function Field({ label, required, children }) {
   return (
     <div>
-      <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
-        {label} {required && <span className="text-rose-500">*</span>}
+      <label className="block text-[10px] font-bold uppercase tracking-wider text-brand-100/60 dark:text-brand-200/50 mb-1.5">
+        {label} {required && <span className="text-red-500">*</span>}
       </label>
       {children}
     </div>

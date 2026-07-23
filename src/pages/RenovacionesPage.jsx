@@ -484,23 +484,23 @@ export default function RenovacionesPage() {
    * Render
    * ========================================================= */
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-950 p-3 md:p-6">
+    <div className="min-h-screen bg-brand-card-dark text-brand-200 p-3 md:p-6">
       {/* ============ Header (limpio, sin mega-card) ============ */}
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-extrabold text-white flex items-center gap-2">
-            <HiClipboardCheck className="text-emerald-400" />
+          <h1 className="text-2xl font-extrabold text-brand-200 flex items-center gap-2">
+            <HiClipboardCheck className="text-brand-primary-tint" />
             Renovaciones
           </h1>
           {!isWebAdmin && (
-            <p className="mt-0.5 text-xs font-bold uppercase tracking-widest text-sky-400">
+            <p className="mt-0.5 text-xs font-bold uppercase tracking-widest text-brand-primary-tint">
               {user?.perfil?.oficina_nombre || "Tu Sucursal"}
             </p>
           )}
         </div>
 
         <button
-          className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-white hover:bg-white/10 transition-colors"
+          className="inline-flex items-center gap-2 rounded-xl border border-brand-200/10 bg-brand-200/5 px-4 py-2 text-sm font-semibold text-brand-200 hover:bg-brand-200/10 transition-colors"
           onClick={() => {
             load({ force: true });
             loadResumen({ force: true });
@@ -532,7 +532,7 @@ export default function RenovacionesPage() {
       />
 
       {!!error && (
-        <div className="mt-4 mb-3 rounded-xl bg-rose-500/10 border border-rose-500/20 p-3 text-sm text-rose-200 flex items-center gap-2">
+        <div className="mt-4 mb-3 rounded-xl bg-red-500/10 border border-red-500/20 p-3 text-sm text-red-200 flex items-center gap-2">
           <HiExclamation className="text-lg" />
           No se pudieron cargar las pólizas. Intenta actualizar.
         </div>
@@ -540,35 +540,35 @@ export default function RenovacionesPage() {
 
       {/* ============ Paginación ============ */}
       <div className="mb-3 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-        <div className="text-xs text-white/65">
+        <div className="text-xs text-brand-200/65">
           {tab === "vencidas" ? (
             <span>
-              Mostrando <span className="text-white font-semibold">{receivedCount}</span>{" "}
+              Mostrando <span className="text-brand-200 font-semibold">{receivedCount}</span>{" "}
               sin renovar de{" "}
-              <span className="text-white font-semibold">{totalCount}</span> pólizas en pantalla
+              <span className="text-brand-200 font-semibold">{totalCount}</span> pólizas en pantalla
             </span>
           ) : (
             <span>
-              Página <span className="text-white font-semibold">{safePage}</span> de{" "}
-              <span className="text-white font-semibold">{totalPages}</span>
+              Página <span className="text-brand-200 font-semibold">{safePage}</span> de{" "}
+              <span className="text-brand-200 font-semibold">{totalPages}</span>
             </span>
           )}
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-1.5">
-            <span className="text-xs font-semibold text-white/50">Ver:</span>
+          <div className="flex items-center gap-2 rounded-xl border border-brand-200/10 bg-brand-200/5 px-3 py-1.5">
+            <span className="text-xs font-semibold text-brand-200/50">Ver:</span>
             <select
               value={pageSize}
               onChange={(e) => {
                 setPageSize(Number(e.target.value || 25));
                 setPage(1);
               }}
-              className="bg-transparent text-sm font-bold text-white outline-none cursor-pointer"
+              className="bg-transparent text-sm font-bold text-brand-200 outline-none cursor-pointer"
               aria-label="Tamaño de página"
             >
               {[10, 25, 50, 100].map((n) => (
-                <option key={n} value={n} className="bg-slate-900 text-white">
+                <option key={n} value={n} className="bg-brand-card-dark text-brand-200">
                   {n}
                 </option>
               ))}
@@ -576,14 +576,14 @@ export default function RenovacionesPage() {
           </div>
 
           <button
-            className="rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-sm font-semibold text-white hover:bg-white/10 disabled:opacity-50 transition-colors"
+            className="rounded-xl border border-brand-200/10 bg-brand-200/5 px-3 py-1.5 text-sm font-semibold text-brand-200 hover:bg-brand-200/10 disabled:opacity-50 transition-colors"
             disabled={!canPrev || loading}
             onClick={() => setPage((p) => Math.max(1, p - 1))}
           >
             Anterior
           </button>
           <button
-            className="rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-sm font-semibold text-white hover:bg-white/10 disabled:opacity-50 transition-colors"
+            className="rounded-xl border border-brand-200/10 bg-brand-200/5 px-3 py-1.5 text-sm font-semibold text-brand-200 hover:bg-brand-200/10 disabled:opacity-50 transition-colors"
             disabled={!canNext || loading}
             onClick={() => setPage((p) => p + 1)}
           >
