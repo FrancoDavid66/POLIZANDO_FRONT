@@ -16,7 +16,7 @@ import AdminOficinas from "../components/admin/AdminOficinas";
 import AdminUsuarios from "../components/admin/AdminUsuarios";
 import AdminResponsables from "../components/admin/AdminResponsables";
 import AdminCatalogos from "../components/admin/AdminCatalogos";
-import AdminCorreosBajas from "../components/admin/Admincorreosbajas";
+import AdminCorreosBajas from "../components/admin/AdminCorreosBajas";
 import AdminDiagnostico from "../components/admin/AdminDiagnostico";
 import AdminTareasFijas from "../components/admin/AdminTareasFijas";
 import AdminHorariosCierre from "../components/admin/AdminHorariosCierre";
