@@ -7,6 +7,9 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useParams } from "react-router-dom";
+import { motion } from "framer-motion";
+import { HiCheckCircle, HiClock, HiExclamationCircle } from "react-icons/hi";
+import polizandoLogo from "../assets/logos/polizando_logo.webp";
 
 // Base de la API (misma var que el resto del front). Le sacamos un /api final
 // si viniera incluido, y armamos la ruta pública del portal.
@@ -26,11 +29,14 @@ function fmtMonto(v) {
 }
 
 const BADGE = {
-  PENDIENTE: { txt: "Pendiente", cls: "bg-amber-100 text-amber-700" },
-  REPORTADO: { txt: "Aviso recibido", cls: "bg-sky-100 text-sky-700" },
-  PAGADA:    { txt: "Pagado", cls: "bg-emerald-100 text-emerald-700" },
-  VENCIDA:   { txt: "Vencido", cls: "bg-rose-100 text-rose-700" },
+  PENDIENTE: { txt: "Pendiente", cls: "bg-amber-100 text-amber-700 dark:bg-amber-400/10 dark:text-amber-300" },
+  REPORTADO: { txt: "Aviso recibido", cls: "bg-sky-100 text-sky-700 dark:bg-sky-400/10 dark:text-sky-300" },
+  PAGADA:    { txt: "Pagado", cls: "bg-brand-primary/10 text-brand-primary dark:bg-emerald-400/10 dark:text-emerald-300" },
+  VENCIDA:   { txt: "Vencido", cls: "bg-rose-100 text-rose-700 dark:bg-rose-400/10 dark:text-rose-300" },
 };
+
+const CARD =
+  "rounded-3xl border border-black/[0.05] bg-white shadow-[0_1px_2px_rgba(20,20,20,0.04),0_8px_24px_-12px_rgba(31,122,76,0.18)] dark:border-white/[0.06] dark:bg-[#2c241d] dark:shadow-none";
 
 export default function CuponPublicoPage() {
   const { token } = useParams();
@@ -80,77 +86,100 @@ export default function CuponPublicoPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 flex justify-center px-4 py-8">
+    <div className="flex min-h-screen justify-center bg-brand-200 px-4 py-8 dark:bg-brand-100">
       <div className="w-full max-w-md">
 
-        {/* Header */}
-        <div className="flex items-center justify-center gap-2 mb-6">
-          <div className="h-9 w-9 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-black">T</div>
-          <span className="font-bold text-slate-800 text-lg">Estudio Thames</span>
-        </div>
+        {/* Header con identidad Polizando */}
+        <motion.div
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, ease: "easeOut" }}
+          className="mb-6 flex items-center justify-center gap-2.5"
+        >
+          <div className="grid h-10 w-10 place-items-center rounded-2xl bg-white p-1.5 shadow-md shadow-brand-primary/15">
+            <img src={polizandoLogo} alt="Polizando" className="h-full w-full object-contain" />
+          </div>
+          <span className="font-heading text-lg font-extrabold text-brand-100 dark:text-brand-200">Polizando</span>
+        </motion.div>
 
         {loading && (
-          <div className="bg-white rounded-2xl border border-slate-200 p-8 text-center text-slate-500">
+          <div className={`${CARD} p-8 text-center text-brand-100/60 dark:text-brand-200/60`}>
+            <div className="mx-auto mb-3 h-8 w-8 animate-spin rounded-full border-4 border-brand-primary/20 border-t-brand-primary" />
             Cargando tus cupones…
           </div>
         )}
 
         {!loading && error && (
-          <div className="bg-white rounded-2xl border border-slate-200 p-8 text-center">
-            <p className="text-rose-600 font-semibold mb-1">No pudimos abrir tus cupones</p>
-            <p className="text-slate-500 text-sm">{error}</p>
+          <div className={`${CARD} p-8 text-center`}>
+            <div className="mx-auto mb-3 grid h-12 w-12 place-items-center rounded-full bg-rose-500/10 text-rose-500">
+              <HiExclamationCircle className="h-6 w-6" />
+            </div>
+            <p className="mb-1 font-semibold text-rose-600 dark:text-rose-400">No pudimos abrir tus cupones</p>
+            <p className="text-sm text-brand-100/60 dark:text-brand-200/60">{error}</p>
           </div>
         )}
 
         {!loading && !error && data && (
-          <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35, ease: "easeOut" }}
+            className={`${CARD} overflow-hidden`}
+          >
             {/* Datos */}
-            <div className="p-5 border-b border-slate-100">
-              <p className="text-sm text-slate-500">Hola{data.nombre ? `, ${data.nombre}` : ""} 👋</p>
-              <p className="font-bold text-slate-800 text-lg leading-tight mt-0.5">{data.vehiculo}</p>
-              <p className="text-sm text-slate-500">Patente {data.patente}</p>
+            <div className="border-b border-black/[0.04] bg-gradient-to-br from-brand-primary/[0.07] to-brand-secondary/[0.05] p-5 dark:border-white/5">
+              <p className="text-sm text-brand-100/60 dark:text-brand-200/60">Hola{data.nombre ? `, ${data.nombre}` : ""} 👋</p>
+              <p className="mt-0.5 font-heading text-lg font-bold leading-tight text-brand-100 dark:text-brand-200">{data.vehiculo}</p>
+              <p className="text-sm text-brand-100/60 dark:text-brand-200/60">Patente {data.patente}</p>
             </div>
 
             {/* Cupones */}
-            <div className="p-4 space-y-3">
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-wider px-1">Tus cupones</p>
+            <div className="space-y-3 p-4">
+              <p className="px-1 text-xs font-bold uppercase tracking-wider text-brand-100/40 dark:text-brand-200/40">Tus cupones</p>
 
               {data.cupones.length === 0 && (
-                <p className="text-sm text-slate-500 px-1 py-4 text-center">No hay cupones cargados todavía.</p>
+                <p className="px-1 py-4 text-center text-sm text-brand-100/50 dark:text-brand-200/50">No hay cupones cargados todavía.</p>
               )}
 
               {data.cupones.map((c) => {
                 const badge = BADGE[c.estado] || BADGE.PENDIENTE;
                 const puedeReportar = c.estado === "PENDIENTE" || c.estado === "VENCIDA";
                 return (
-                  <div key={c.id} className="rounded-xl border border-slate-200 p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-semibold text-slate-700">
+                  <div key={c.id} className="rounded-2xl border border-black/[0.05] bg-black/[0.015] p-4 dark:border-white/[0.06] dark:bg-white/[0.02]">
+                    <div className="mb-2 flex items-center justify-between">
+                      <span className="text-sm font-semibold text-brand-100 dark:text-brand-200">
                         Vence {fmtFecha(c.fecha_vencimiento)}
                       </span>
-                      <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${badge.cls}`}>
+                      <span className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${badge.cls}`}>
                         {badge.txt}
                       </span>
                     </div>
-                    <p className="text-2xl font-black text-slate-800 mb-3">{fmtMonto(c.monto)}</p>
+                    <p className="mb-3 text-2xl font-black text-brand-100 dark:text-brand-200">{fmtMonto(c.monto)}</p>
 
                     {puedeReportar && (
-                      <button
+                      <motion.button
+                        whileTap={{ scale: 0.97 }}
                         onClick={() => reportar(c.id)}
                         disabled={enviando === c.id}
-                        className="w-full bg-emerald-500 hover:bg-emerald-600 disabled:opacity-60 text-white font-semibold rounded-xl py-3 flex items-center justify-center gap-2 transition"
+                        className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-brand-primary to-brand-primary-deep py-3 font-semibold text-white shadow-sm shadow-brand-primary/25 transition hover:brightness-105 disabled:opacity-60"
                       >
-                        {enviando === c.id ? "Registrando…" : "✓ Ya pagué"}
-                      </button>
+                        {enviando === c.id ? (
+                          "Registrando…"
+                        ) : (
+                          <>
+                            <HiCheckCircle className="h-5 w-5" /> Ya pagué
+                          </>
+                        )}
+                      </motion.button>
                     )}
                     {c.estado === "REPORTADO" && (
-                      <p className="text-center text-sky-600 text-sm font-medium py-2">
-                        ¡Gracias! Ya recibimos tu aviso 🙌
+                      <p className="flex items-center justify-center gap-1.5 py-2 text-center text-sm font-medium text-sky-600 dark:text-sky-300">
+                        <HiClock className="h-4 w-4" /> ¡Gracias! Ya recibimos tu aviso 🙌
                       </p>
                     )}
                     {c.estado === "PAGADA" && (
-                      <p className="text-center text-emerald-600 text-sm font-medium py-2">
-                        Pago confirmado ✓
+                      <p className="flex items-center justify-center gap-1.5 py-2 text-center text-sm font-medium text-brand-primary dark:text-emerald-300">
+                        <HiCheckCircle className="h-4 w-4" /> Pago confirmado
                       </p>
                     )}
                   </div>
@@ -158,14 +187,18 @@ export default function CuponPublicoPage() {
               })}
             </div>
 
-            <div className="px-5 py-4 bg-slate-50 border-t border-slate-100">
-              <p className="text-xs text-slate-400 text-center leading-relaxed">
+            <div className="border-t border-black/[0.04] bg-black/[0.015] px-5 py-4 dark:border-white/5 dark:bg-white/[0.02]">
+              <p className="text-center text-xs leading-relaxed text-brand-100/50 dark:text-brand-200/50">
                 Pagá el cupón en Rapipago, Pago Fácil o Mercado Pago, y después tocá "Ya pagué".
                 Nosotros lo verificamos. 🙌
               </p>
             </div>
-          </div>
+          </motion.div>
         )}
+
+        <div className="mt-6 flex justify-center">
+          <img src={polizandoLogo} alt="Polizando" className="h-5 w-5 opacity-60" />
+        </div>
       </div>
     </div>
   );
