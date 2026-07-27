@@ -5,11 +5,13 @@
 // pólizas del cliente) y accesos a "Mis pólizas" / "Mi cuponera". Look
 // mobile-app, inspirado en el diseño de referencia del cliente.
 
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { HiChevronRight, HiDocumentText, HiTicket } from "react-icons/hi2";
 import { FaCar } from "react-icons/fa";
 import polizandoCabra from "../../assets/logos/polizando_cabrita.webp";
 import { CARD, ESTADO_POLIZA, money, springPop } from "./portalUtils";
+import BotonPagarMercadoPagoPortal from "./BotonPagarMercadoPagoPortal";
 
 // Entre todas las pólizas, busca la cuota pendiente con vencimiento más
 // próximo. Si no hay ninguna pendiente, no se muestra la tarjeta de cuota.
@@ -26,6 +28,21 @@ function buscarProximaCuota(polizas) {
     }
   }
   return mejor;
+}
+
+// Monto "sugerido" para una cuota cuando NO tiene monto propio cargado:
+// si es la 1ra cuota usa renovacion.primera_cuota, si no, renovacion.resto.
+// (El precio real ya viaja en el JSON del portal dentro de `renovacion`.)
+function montoSugerido(cuota, poliza) {
+  if (cuota?.monto && Number(cuota.monto) > 0) return Number(cuota.monto);
+  const r = poliza?.renovacion;
+  if (r) {
+    if (Number(cuota?.cuota_nro) === 1 && Number(r.primera_cuota) > 0) return Number(r.primera_cuota);
+    if (Number(r.resto) > 0) return Number(r.resto);
+    if (Number(r.primera_cuota) > 0) return Number(r.primera_cuota);
+  }
+  if (poliza?.precio_actual && Number(poliza.precio_actual) > 0) return Number(poliza.precio_actual);
+  return 0;
 }
 
 function nombreMesLargo(d) {
@@ -49,13 +66,22 @@ function fmtCorta(d) {
   return `${dd}/${mm}/${yyyy}`;
 }
 
-export default function PortalHome({ polizas, onIrAPolizas, onIrACuponera }) {
+export default function PortalHome({ token, polizas, onIrAPolizas, onIrACuponera }) {
   const proxima = buscarProximaCuota(polizas);
   const totalCupones = polizas.reduce((acc, p) => acc + (p.cupones_robo?.length || 0), 0);
   const primeraPoliza = polizas[0];
   const est = primeraPoliza
     ? ESTADO_POLIZA[String(primeraPoliza.estado).toLowerCase()] || ESTADO_POLIZA.activa
     : null;
+
+  // ── Monto de la próxima cuota ──────────────────────────────────────────
+  // Si la cuota tiene monto propio → lo mostramos fijo.
+  // Si NO → dejamos un campo editable (MODO PRUEBA) precargado con el sugerido.
+  const cuotaTieneMonto = !!(proxima?.cuota?.monto && Number(proxima.cuota.monto) > 0);
+  const sugerido = proxima ? montoSugerido(proxima.cuota, proxima.poliza) : 0;
+  const [montoManual, setMontoManual] = useState(sugerido ? String(sugerido) : "");
+
+  const montoParaPagar = cuotaTieneMonto ? Number(proxima.cuota.monto) : montoManual;
 
   return (
     <div className="mt-5 space-y-4">
@@ -78,20 +104,41 @@ export default function PortalHome({ polizas, onIrAPolizas, onIrACuponera }) {
             <p className="text-[13px] font-bold text-brand-secondary-soft">
               Tu cuota{nombreMesLargo(proxima.cuota.fecha_vencimiento) ? ` de ${nombreMesLargo(proxima.cuota.fecha_vencimiento)}` : ""}
             </p>
-            <p className="mt-2 font-body text-[42px] font-black leading-none tracking-tight sm:text-[46px]">
-              {money(proxima.cuota.monto)}
-            </p>
+
+            {cuotaTieneMonto ? (
+              <p className="mt-2 font-body text-[42px] font-black leading-none tracking-tight sm:text-[46px]">
+                {money(proxima.cuota.monto)}
+              </p>
+            ) : (
+              // MODO PRUEBA: la cuota no tiene monto → el cliente/operador lo escribe.
+              <div className="mt-2">
+                <label className="mb-1 block text-[11px] font-bold text-brand-secondary-soft">
+                  Ingresá el monto a pagar
+                </label>
+                <div className="flex items-center gap-2 rounded-2xl bg-white/15 px-3 py-2 ring-1 ring-white/30 focus-within:ring-white/70">
+                  <span className="font-body text-[26px] font-black leading-none">$</span>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    value={montoManual}
+                    onChange={(e) => setMontoManual(e.target.value.replace(/[^\d.,]/g, ""))}
+                    placeholder={sugerido ? String(sugerido) : "0"}
+                    className="w-full bg-transparent font-body text-[30px] font-black leading-none tracking-tight text-white placeholder:text-white/50 outline-none sm:text-[34px]"
+                  />
+                </div>
+              </div>
+            )}
+
             <p className="mt-1.5 text-xs font-bold text-brand-secondary-soft">
               Vence el {fmtCorta(proxima.cuota.fecha_vencimiento)}
             </p>
-            <motion.button
-              whileTap={{ scale: 0.97 }}
-              whileHover={{ scale: 1.01 }}
-              onClick={onIrAPolizas}
-              className="mt-4 w-full rounded-2xl bg-white py-3.5 font-heading text-[16px] font-extrabold text-[#c9511f] shadow-md transition hover:brightness-105"
-            >
-              Pagar ahora
-            </motion.button>
+
+            {/* Botón de pago real por Mercado Pago (usa el token del portal). */}
+            <BotonPagarMercadoPagoPortal
+              token={token}
+              cuotaId={proxima.cuota.id}
+              monto={montoParaPagar}
+            />
           </div>
           {/* Mascota "Polizando la cabra" asomando en la esquina superior de la tarjeta */}
           <div className="pointer-events-none absolute -top-6 -right-3 z-20 h-16 w-16 select-none overflow-hidden rounded-full border-[3px] border-white shadow-[0_8px_16px_rgba(0,0,0,0.28)] sm:h-[76px] sm:w-[76px]">
