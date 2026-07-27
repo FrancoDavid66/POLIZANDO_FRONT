@@ -6,7 +6,9 @@
 //   - Manda el TOKEN del portal en la URL + el MONTO (a mano en modo prueba).
 //   - Pega al endpoint público /public/pagos/portal/<token>/mp/crear-preferencia/
 //
-// Look "fintech" a juego con el portal (blanco sobre el hero naranja).
+// 🔎 VERSIÓN CON DIAGNÓSTICO: hace console.log en cada paso. Abrí la consola
+//    (F12 → Console) y tocá el botón: vas a ver exactamente dónde se corta.
+//    Cuando funcione, te paso la versión limpia (sin logs).
 
 import { useState } from "react";
 
@@ -29,47 +31,74 @@ export default function BotonPagarMercadoPagoPortal({
   const [cargando, setCargando] = useState(false);
 
   const handlePagar = async () => {
-    if (!token || !cuotaId || cargando) return;
+    // 🔎 1) ¿Llega el clic?
+    console.log("[MP-portal] CLIC en el botón", { token, cuotaId, monto, cargando, API_ORIGIN });
+
+    if (!token) {
+      console.warn("[MP-portal] ⛔ Falta el TOKEN del portal (prop token vacía). " +
+        "Revisá que PortalAseguradoPage pase token={token} a <PortalHome/>.");
+      alert("Falta el token del portal (revisar PortalAseguradoPage).");
+      return;
+    }
+    if (!cuotaId) {
+      console.warn("[MP-portal] ⛔ Falta cuotaId (la cuota no tiene id).");
+      alert("No se pudo identificar la cuota.");
+      return;
+    }
+    if (cargando) {
+      console.log("[MP-portal] Ya estaba cargando, ignoro el clic.");
+      return;
+    }
 
     // Normaliza el monto: "47.000" / "47000" / 47000 → 47000
     const montoNum = Number(String(monto ?? "").replace(/\./g, "").replace(",", "."));
+    console.log("[MP-portal] monto normalizado:", montoNum);
     if (!Number.isFinite(montoNum) || montoNum <= 0) {
       const msg = "Ingresá un monto válido antes de pagar.";
+      console.warn("[MP-portal] ⛔ Monto inválido:", monto);
       if (onError) onError(msg);
       else alert(msg);
       return;
     }
 
+    const urlEndpoint = `${API_ORIGIN}/public/pagos/portal/${token}/mp/crear-preferencia/`;
+    console.log("[MP-portal] 2) Voy a hacer fetch a:", urlEndpoint);
+
     setCargando(true);
     try {
-      const resp = await fetch(
-        `${API_ORIGIN}/public/pagos/portal/${token}/mp/crear-preferencia/`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ cuota_id: cuotaId, monto: montoNum }),
-        }
-      );
+      const resp = await fetch(urlEndpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cuota_id: cuotaId, monto: montoNum }),
+      });
+
+      console.log("[MP-portal] 3) Respondió el backend. status:", resp.status);
 
       const data = await resp.json().catch(() => ({}));
+      console.log("[MP-portal] 4) Body de la respuesta:", data);
 
       if (!resp.ok) {
         const msg = data?.detail || "No se pudo generar el link de pago.";
+        console.warn("[MP-portal] ⛔ El backend devolvió error:", resp.status, msg);
         if (onError) onError(msg);
         else alert(msg);
         return;
       }
 
       const url = data.init_point || data.sandbox_init_point;
+      console.log("[MP-portal] 5) init_point:", url);
       if (!url) {
         const msg = "Mercado Pago no devolvió un link de pago válido.";
+        console.warn("[MP-portal] ⛔ Sin init_point en la respuesta.");
         if (onError) onError(msg);
         else alert(msg);
         return;
       }
 
+      console.log("[MP-portal] 6) ✅ Redirijo a Mercado Pago:", url);
       window.location.href = url;
     } catch (e) {
+      console.error("[MP-portal] ⛔ Error de conexión en el fetch:", e);
       const msg = "Error de conexión al generar el pago.";
       if (onError) onError(msg);
       else alert(msg);
