@@ -21,6 +21,7 @@ export default function BotonPagarMercadoPagoPortal({
   token,
   cuotaNro,
   cuotaId,      // opcional (atajo si el portal alguna vez lo manda)
+  polizaId,     // ayuda a ubicar la cuota si el cliente tiene varias pólizas
   monto,
   disabled = false,
   className = "",
@@ -65,6 +66,7 @@ export default function BotonPagarMercadoPagoPortal({
         body: JSON.stringify({
           cuota_nro: cuotaNro,
           cuota_id: cuotaId,      // el backend lo ignora si viene undefined
+          poliza_id: polizaId,    // idem
           monto: montoNum,
         }),
       });

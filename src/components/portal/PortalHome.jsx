@@ -139,6 +139,7 @@ export default function PortalHome({ token, polizas, onIrAPolizas, onIrACuponera
               token={token}
               cuotaNro={proxima.cuota.cuota_nro}
               cuotaId={proxima.cuota.id ?? proxima.cuota.cuota_id ?? proxima.cuota.pk}
+              polizaId={proxima.poliza.id}
               monto={montoParaPagar}
             />
           </div>
