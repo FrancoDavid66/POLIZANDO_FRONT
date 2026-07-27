@@ -171,6 +171,7 @@ export default function PortalAseguradoPage() {
                 <PortalSinPolizas />
               ) : (
                 <PortalHome
+                  token={token}
                   polizas={polizas}
                   onIrAPolizas={() => setPantalla("polizas")}
                   onIrACuponera={() => setPantalla("cuponera")}
